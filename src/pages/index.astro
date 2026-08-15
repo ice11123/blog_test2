@@ -14,6 +14,7 @@ import GitHubLanguages from '../components/github/GitHubLanguages.astro';
 import PublicStatus from '../components/home/PublicStatus.astro';
 import { blogPostPath, withBase } from '../lib/urls';
 import maintenanceSource from '../content/maintenance.md?raw';
+import homeHeroImage from '../assets/home-hero.jpg';
 
 const websiteLd = {
   '@context': 'https://schema.org',
@@ -38,12 +39,21 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
 
   <div class="home-page">
     <section class="home-cover" aria-labelledby="home-title">
-      <div class="cover-pattern" aria-hidden="true">
-        <span class="cover-ribbon cover-ribbon-one"></span>
-        <span class="cover-ribbon cover-ribbon-two"></span>
-        <span class="cover-glow cover-glow-one"></span>
-        <span class="cover-glow cover-glow-two"></span>
+      <div class="cover-photo-frame" aria-hidden="true">
+        <Image
+          class="cover-photo"
+          data-home-hero-photo
+          src={homeHeroImage}
+          alt=""
+          widths={[640, 960, 1440, 1920, 2837]}
+          sizes="(max-width: 640px) 100vw, (max-width: 900px) 100vw, calc(100vw - 260px)"
+          format="webp"
+          quality={86}
+          loading="eager"
+          fetchpriority="high"
+        />
       </div>
+      <div class="cover-photo-overlay" aria-hidden="true"></div>
       <div class="cover-copy">
         <p class="home-eyebrow">ION MONSTER · PERSONAL NOTES</p>
         <h1 id="home-title">离子怪的博客</h1>
@@ -179,6 +189,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       </div>
     </div>
   </div>
+  <script src="../scripts/home-hero-motion.ts"></script>
 </PublicLayout>
 
 <style>
@@ -199,21 +210,34 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     overflow: hidden;
     isolation: isolate;
     color: #fff;
-    background:
-      linear-gradient(135deg, var(--cover-start), var(--cover-mid) 52%, var(--cover-end)),
-      radial-gradient(circle at 18% 22%, rgba(255,255,255,.24), transparent 28%),
-      var(--cover-start);
+    background: var(--cover-start);
   }
 
-  .cover-pattern { position: absolute; inset: 0; z-index: -1; overflow: hidden; opacity: .8; }
-  .cover-pattern::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, rgba(0,0,0,.75), transparent 88%); }
-  .cover-ribbon { position: absolute; width: 62%; height: 170px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; transform: rotate(-9deg); filter: blur(.2px); }
-  .cover-ribbon-one { top: 42px; left: -10%; }
-  .cover-ribbon-two { right: -14%; bottom: 72px; transform: rotate(12deg); }
-  .cover-glow { position: absolute; width: 320px; aspect-ratio: 1; border-radius: 50%; filter: blur(55px); opacity: .34; }
-  .cover-glow-one { top: -120px; right: 10%; background: var(--accent-secondary); }
-  .cover-glow-two { bottom: -160px; left: 18%; background: var(--accent); }
-  .cover-copy { position: relative; z-index: 2; width: min(780px, calc(100% - 32px)); box-sizing: border-box; padding: 32px 24px 96px; text-align: center; text-shadow: 0 3px 24px rgba(12, 12, 30, .32); }
+  .cover-photo-frame { position: absolute; z-index: 0; inset: 0; overflow: hidden; }
+  .cover-photo-frame :global(.cover-photo) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 52% 43%;
+    transform: scale(1.025);
+    transform-origin: 52% 43%;
+    will-change: transform;
+  }
+  .cover-photo-overlay {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(25, 5, 15, .72) 0%, rgba(34, 8, 24, .42) 36%, rgba(20, 4, 18, .1) 68%),
+      linear-gradient(180deg, rgba(14, 4, 18, .12) 35%, rgba(14, 4, 18, .48) 100%);
+  }
+  :global([data-theme='dark']) .cover-photo-overlay {
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, .8) 0%, rgba(0, 0, 0, .46) 38%, rgba(0, 0, 0, .16) 70%),
+      linear-gradient(180deg, rgba(0, 0, 0, .18) 28%, rgba(0, 0, 0, .62) 100%);
+  }
+  .cover-copy { position: relative; z-index: 2; width: min(780px, calc(100% - 64px)); box-sizing: border-box; margin-right: auto; padding: 32px 24px 108px max(48px, 8vw); text-align: left; text-shadow: 0 3px 24px rgba(12, 4, 18, .58); }
   .home-eyebrow, .section-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
   .cover-copy .home-eyebrow { color: rgba(255,255,255,.78); }
   .cover-copy h1 { margin: 0; color: #fff; font-size: 48px; line-height: 1.2; letter-spacing: .08em; }
@@ -321,7 +345,13 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   @media (max-width: 640px) {
     .home-page { padding-bottom: 48px; }
     .home-cover { min-height: 330px; }
-    .cover-copy { padding: 24px 20px 84px; }
+    .cover-photo-frame :global(.cover-photo) { object-position: 54% 43%; transform-origin: 54% 43%; }
+    .cover-photo-overlay {
+      background:
+        linear-gradient(180deg, rgba(18, 3, 16, .24) 0%, rgba(18, 3, 16, .18) 34%, rgba(18, 3, 16, .68) 100%),
+        linear-gradient(90deg, rgba(18, 3, 16, .38), transparent 72%);
+    }
+    .cover-copy { align-self: end; width: calc(100% - 32px); padding: 24px 20px 96px; text-align: left; }
     .cover-copy .home-eyebrow { max-width: 100%; font-size: 10px; line-height: 1.5; letter-spacing: .1em; white-space: normal; overflow-wrap: anywhere; }
     .cover-copy h1 { font-size: 34px; letter-spacing: .04em; }
     .cover-copy > p:last-child { font-size: 14px; line-height: 1.7; }
@@ -351,6 +381,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .cover-photo-frame :global(.cover-photo) { transform: scale(1.025) !important; will-change: auto; }
     .cover-wave-track-back { animation: cover-wave-breathe 4s ease-in-out infinite alternate; }
     .cover-wave-track-front { animation: none; }
     .hero-action, .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
