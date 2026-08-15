@@ -98,3 +98,10 @@
 - `pnpm run build`：成功生成 10 个静态页面。
 - `git diff --check`：通过，仅有 Windows LF/CRLF 提示。
 - 下一步：核对提交范围，提交 `main`、等待 Pages 部署并线上复核。
+
+## 2026-08-15｜V2.1 部署与线上复核完成
+
+- 提交 `565382d` 已推送到 `ice11123/blog_test2/main`。
+- GitHub Pages Actions 运行 `31883421811` 成功。
+- 线上桌面与移动端确认头像、波纹、作者卡和子路径资源正常，旧“离”字大球不存在。
+- 保存线上截图：`artifacts/blog-test2-v21-online-1440x900.png` 与 `artifacts/blog-test2-v21-online-390x844.png`。
