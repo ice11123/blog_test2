@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ice11123.github.io/blog_test1/sitemap-index.xml
+Sitemap: https://ice11123.github.io/blog_test2/sitemap-index.xml

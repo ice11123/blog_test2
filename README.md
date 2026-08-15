@@ -2,7 +2,7 @@
 
 基于 Astro 构建的静态个人博客，部署在 GitHub Pages：
 
-<https://ice11123.github.io/blog_test1/>
+<https://ice11123.github.io/blog_test2/>
 
 ## 本地开发
 
@@ -53,7 +53,7 @@ tags: ['标签']
 
 站名支持在神秘操作后，触发输入密码，打开 `/admin/` 管理台原型。当前版本只把文章草稿保存到浏览器 `localStorage`，不写入 GitHub，也不具备真正的身份认证；页面会明确显示此安全边界。
 
-管理台已支持云端“发布到正式网站”按钮。部署 Cloudflare Worker 后，在构建环境设置 `PUBLIC_ADMIN_SYNC_API_URL`，即可从任意设备使用 GitHub 授权一键发布。Worker 配置见 [`worker/README.md`](worker/README.md)，接口安全边界和请求格式见 [`docs/admin-sync.md`](docs/admin-sync.md)。
+这是独立的视觉实验版：管理台保留文章目录、本地草稿、实时预览和文件导出，但云端“发布到正式网站”按钮已明确禁用，不会请求 OAuth、Worker 或 GitHub 写接口。后续如要启用发布，需要为 `blog_test2` 单独配置 Worker、OAuth 回调和仓库权限。
 
 ## 本地一键发布文章（无需 API）
 
@@ -63,7 +63,7 @@ tags: ['标签']
 pnpm publish:article -- "C:\\Users\\你的用户名\\Downloads\\文章标题.mdx"
 ```
 
-脚本会按 `dir1` / `dir2` 自动写入 `src/content/blog/`，执行检查和构建，创建提交并推送到 `origin/main`。GitHub Actions 会自动部署正式网站。
+脚本会按 `dir1` / `dir2` 自动写入 `src/content/blog/`，执行检查和构建，创建提交并推送到 `origin/main`。GitHub Actions 会自动部署实验版网站。
 
 仅本地检查、不推送：
 

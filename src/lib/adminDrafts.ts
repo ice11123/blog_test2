@@ -16,7 +16,7 @@ export interface AdminPostDraft {
   repositoryPending?: boolean;
 }
 
-export const ADMIN_DRAFTS_STORAGE_KEY = 'blog-test1-admin-drafts-v1';
+export const ADMIN_DRAFTS_STORAGE_KEY = 'blog-test2-admin-drafts-v1';
 
 export interface DraftStore {
   list(): AdminPostDraft[];

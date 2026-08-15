@@ -1,12 +1,13 @@
 // @ts-nocheck -- 管理台依赖构建时注入的数据和浏览器 DOM，所有入口均做运行时保护。
 import { renderPreview, renderPreviewMermaid } from '../lib/adminPreview';
 
-const ADMIN_UNLOCK_STORAGE_KEY = 'blog-test1-admin-unlocked';
-const DRAFTS_STORAGE_KEY = 'blog-test1-admin-drafts-v1';
-const TREE_STORAGE_KEY = 'blog-test1-admin-tree-v1';
-const PENDING_CLOUD_PUBLISH_KEY = 'blog-test1-pending-cloud-publish-v1';
-const PENDING_CLOUD_DELETE_KEY = 'blog-test1-pending-cloud-delete-v1';
-const LEGACY_ADMIN_SESSION_KEY = 'blog-test1-cloud-session-v1';
+const ADMIN_UNLOCK_STORAGE_KEY = 'blog-test2-admin-unlocked';
+const DRAFTS_STORAGE_KEY = 'blog-test2-admin-drafts-v1';
+const TREE_STORAGE_KEY = 'blog-test2-admin-tree-v1';
+const PENDING_CLOUD_PUBLISH_KEY = 'blog-test2-pending-cloud-publish-v1';
+const PENDING_CLOUD_DELETE_KEY = 'blog-test2-pending-cloud-delete-v1';
+const LEGACY_ADMIN_SESSION_KEY = 'blog-test2-cloud-session-v1';
+const CLOUD_PUBLISH_ENABLED = false;
 const REQUEST_TIMEOUT_MS = 15_000;
 
 const app = document.querySelector('#admin-app');
@@ -156,7 +157,7 @@ async function checkBasicStatus() {
 
   const api = endpoint();
   if (!api) {
-    setCard('worker', 'error', '未配置 Worker API', '缺少 PUBLIC_ADMIN_SYNC_API_URL');
+    setCard('worker', 'waiting', '实验版未接入发布服务', 'blog_test2 暂不部署 Worker');
     return false;
   }
   setCard('worker', 'checking', '正在检测 Worker', '检查运行环境与 KV 连接');
@@ -176,14 +177,14 @@ async function checkFullStatus() {
   const workerOk = await checkBasicStatus();
   if (!workerOk) {
     setCard('github', 'waiting', '等待 Worker 恢复', '暂不检测 GitHub 会话');
-    setCard('repository', 'waiting', '等待 GitHub 授权', '目标：ice11123/blog_test1 main');
+    setCard('repository', 'waiting', '实验仓库未接入发布', '目标：ice11123/blog_test2 main');
     setCard('deployment', 'waiting', '等待仓库状态', '暂未读取 Pages 部署');
     return;
   }
 
   const api = endpoint();
   setCard('github', 'checking', '正在检查授权', '验证 HttpOnly 会话');
-  setCard('repository', 'checking', '正在读取仓库', '目标：ice11123/blog_test1 main');
+  setCard('repository', 'checking', '正在读取实验仓库', '目标：ice11123/blog_test2 main');
   setCard('deployment', 'checking', '正在读取部署', '检查最近一次 Pages Actions');
   try {
     const me = await fetch(`${api}/auth/me`, { credentials: 'include', signal: timeoutSignal() });
@@ -415,6 +416,7 @@ function authHeaders() {
 }
 
 async function publishPost(post, button) {
+  if (!CLOUD_PUBLISH_ENABLED) { setStatus('视觉实验版已禁用云端发布，仅支持本地草稿与导出'); return false; }
   const api = endpoint();
   if (!api) { setStatus('尚未配置云端 API'); return false; }
   if (post.orphaned) { setStatus('该草稿对应的仓库文章已不存在，请新建文章后再发布'); return false; }
@@ -455,6 +457,12 @@ function removeLocalPost(id, keepTombstone = false) {
 }
 
 async function deleteRemotePost(post, button) {
+  if (!CLOUD_PUBLISH_ENABLED) {
+    removeLocalPost(post.id);
+    setStatus('视觉实验版仅删除本地草稿，未修改远程仓库');
+    await checkBasicStatus();
+    return true;
+  }
   const api = endpoint();
   if (!api || !post.publishedPath) {
     removeLocalPost(post.id);
@@ -563,6 +571,7 @@ function bindEvents() {
   });
   const cloudPublishButton = app.querySelector('[data-cloud-publish]');
   cloudPublishButton?.addEventListener('click', async () => {
+    if (!CLOUD_PUBLISH_ENABLED) { setStatus('视觉实验版已禁用云端发布，仅支持本地草稿与导出'); return; }
     const api = endpoint();
     if (!api) { setStatus('尚未配置云端 API'); return; }
     const post = collect();

@@ -1,4 +1,6 @@
-# 管理台同步到 GitHub
+# 管理台同步到 GitHub（blog_test2 暂停）
+
+`blog_test2` 是独立视觉实验版，本轮不部署 Worker，也不允许管理台向任何远程仓库写入。管理台只支持浏览器本地草稿和导出文件；以下内容保留为未来单独接入发布服务时的安全设计记录，不代表当前站点已启用。
 
 管理台通过 Cloudflare Worker 完成 GitHub OAuth 和文章提交：
 
@@ -16,7 +18,7 @@ GET /api/public-status → 首页公共仓库与部署状态（不要求登录�
 
 ## 安全边界
 
-- OAuth 回调固定回到 `https://ice11123.github.io/blog_test1/admin/`，不接受外部 `returnTo`。
+- 未来 OAuth 回调必须固定回到 `https://ice11123.github.io/blog_test2/admin/`，不接受外部 `returnTo`。
 - GitHub session 只保存在 Worker KV，并通过 `blog_session` HttpOnly Cookie 使用。
 - 前端不再保存 bearer session，也不会处理 `admin_token` URL 参数。
 - `/auth/me` 返回短期 CSRF token；前端只在当前页面内存保存该 token。
@@ -24,7 +26,7 @@ GET /api/public-status → 首页公共仓库与部署状态（不要求登录�
 - `/api/public-status` 同样要求精确 Origin，但不读取管理员 Cookie；结果在 KV 中缓存 90 秒，上游失败时只以 `stale: true` 返回已有旧缓存。
 - `/api/status` 是只读接口，不要求 CSRF token；`/api/sync` 与 `/api/delete` 等写接口仍必须校验 CSRF。
 - `/api/sync` 必须带本站 Origin、有效 HttpOnly Cookie 和 `X-CSRF-Token`。
-- Worker 只允许 GitHub 用户 `ice11123`，目标仓库为 `ice11123/blog_test1` 的 `main` 分支。
+- 未来 Worker 只允许 GitHub 用户 `ice11123`，目标仓库为 `ice11123/blog_test2` 的 `main` 分支。
 - 管理台状态采用事件触发刷新：页面打开、OAuth 恢复、发布、删除或手动点击“重新检测”时更新，不做固定轮询。
 - OAuth token 使用 `SESSION_SECRET` 派生的 AES-GCM 密钥加密后再写入 KV。
 - 文章改名、移动和删除通过 Git Tree 单次提交完成，不再产生中间的新旧双版本。
@@ -32,7 +34,7 @@ GET /api/public-status → 首页公共仓库与部署状态（不要求登录�
 
 ## 部署配置
 
-在 `worker/` 目录执行：
+若未来为 `blog_test2` 单独启用 Worker，再在 `worker/` 目录执行：
 
 ```powershell
 npx wrangler login
@@ -54,7 +56,7 @@ https://YOUR_WORKER_DOMAIN/auth/callback
 PUBLIC_ADMIN_SYNC_API_URL=https://YOUR_WORKER_DOMAIN
 ```
 
-修复会使旧的 `blog-test1-cloud-session-v1` 浏览器 token 失效，首次发布需要重新授权。
+未来正式接入时应使用 `blog-test2` 独立的会话命名空间；当前实验版不会创建或恢复任何云端会话。
 
 ## 请求接口
 

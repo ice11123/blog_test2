@@ -6,13 +6,15 @@ export const SITE_START_DATE = new Date('2026-08-11');
 export const GITHUB_USERNAME = 'ice11123';
 export const GITHUB_URL = 'https://github.com/ice11123';
 export const BILIBILI_URL = 'https://www.bilibili.com/video/BV1GJ411x7h7/?spm_id_from=333.337.search-card.all.click';
-export const SITE_URL = 'https://ice11123.github.io/blog_test1/';
+export const SITE_URL = 'https://ice11123.github.io/blog_test2/';
 
 // 前端原型密码门槛：这里只保存 SHA-256 哈希，不要提交真实密码。
 // 请在本地生成哈希后替换此占位符；该机制不能替代服务端认证。
 export const ADMIN_PASSWORD_HASH = '7e54a220c203783d049a2769a84ae09d716d288d54a8369a6691bbba84b9e052';
-export const ADMIN_UNLOCK_STORAGE_KEY = 'blog-test1-admin-unlocked';
-export const ADMIN_SYNC_API_URL = import.meta.env.PUBLIC_ADMIN_SYNC_API_URL ?? '';
+export const ADMIN_UNLOCK_STORAGE_KEY = 'blog-test2-admin-unlocked';
+export const ADMIN_SYNC_API_URL = '';
+export const CLOUD_PUBLISH_ENABLED = false;
+export const TARGET_REPOSITORY = 'ice11123/blog_test2';
 
 // 留空时按文章目录名称自动排序；需要固定顺序时可在这里追加名称。
 export const DIR1_ORDER: string[] = [];
@@ -28,7 +30,7 @@ export const VALID_THEMES = [
 ];
 export const DEFAULT_DARK_THEME = 'dark-blue';
 export const DEFAULT_LIGHT_THEME = 'light-blue';
-export const THEME_STORAGE_KEY = 'blog-theme';
+export const THEME_STORAGE_KEY = 'blog-test2-theme';
 
 export const EXT_MAP: Record<string, { name: string; color: string }> = {
   '.ts': { name: 'TypeScript', color: '#3178c6' },

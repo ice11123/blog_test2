@@ -1,5 +1,5 @@
 const THEMES = ['dark-blue', 'dark-green', 'dark-purple', 'light-blue', 'light-green', 'light-rose'];
-const STORAGE_KEY = 'blog-theme';
+const STORAGE_KEY = 'blog-test2-theme';
 
 function getSavedTheme(): string | null {
   try {

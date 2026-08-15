@@ -81,7 +81,7 @@ if (image) {
 <script is:inline>
   (function() {
     var validThemes = ['dark-blue','dark-green','dark-purple','light-blue','light-green','light-rose'];
-    var saved = localStorage.getItem('blog-theme');
+    var saved = localStorage.getItem('blog-test2-theme');
     if (saved && validThemes.indexOf(saved) !== -1) {
       document.documentElement.setAttribute('data-theme', saved);
     } else {
@@ -92,7 +92,7 @@ if (image) {
 
     // 恢复侧栏折叠状态。HTML 默认带 collapsed class，若用户曾打开侧栏则移除
     try {
-      var leftRaw = localStorage.getItem('left-sidebar-state');
+      var leftRaw = localStorage.getItem('blog-test2-left-sidebar-state');
       if (leftRaw && JSON.parse(leftRaw).collapsed === false) {
         document.documentElement.classList.remove('left-sidebar-collapsed');
       }
@@ -100,7 +100,7 @@ if (image) {
 
     try {
       var isMobileViewport = window.matchMedia('(max-width: 760px)').matches;
-      var rightRaw = localStorage.getItem('blog-sidebar-collapsed');
+      var rightRaw = localStorage.getItem('blog-test2-right-sidebar-collapsed');
       // 移动端始终从收起状态进入，避免桌面端展开偏好把目录抽屉盖在正文上。
       if (!isMobileViewport && (rightRaw === 'false' || rightRaw === null)) {
         document.documentElement.classList.remove('sidebar-collapsed');
@@ -108,7 +108,7 @@ if (image) {
     } catch (_) {}
 
     try {
-      if (localStorage.getItem('header-collapsed') === 'true') {
+      if (localStorage.getItem('blog-test2-header-collapsed') === 'true') {
         document.documentElement.classList.add('header-collapsed');
       }
     } catch (_) {}

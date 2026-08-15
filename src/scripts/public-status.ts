@@ -10,7 +10,7 @@ const WORKER_TIMEOUT_MS = 4_500;
 const WORKER_ATTEMPTS = 3;
 const PUBLIC_STATUS_HEDGE_DELAY_MS = 900;
 const GITHUB_API = 'https://api.github.com';
-const REPOSITORY = 'ice11123/blog_test1';
+const REPOSITORY = 'ice11123/blog_test2';
 const BRANCH = 'main';
 
 function initPublicStatus(): void {
@@ -148,7 +148,7 @@ function initPublicStatus(): void {
   const refresh = async () => {
     setCard('frontend', 'ok', '首页脚本已初始化', '公开状态模块工作正常');
     if (!endpoint) {
-      setCard('worker', 'error', '未配置 Worker API', '缺少 PUBLIC_ADMIN_SYNC_API_URL');
+      setCard('worker', 'waiting', '实验版未接入发布服务', 'blog_test2 暂不部署 Worker');
       setCard('repository', 'checking', '正在尝试 GitHub 直连', 'Worker 未配置，启用公共只读降级');
       setCard('deployment', 'checking', '正在尝试 GitHub 直连', 'Worker 未配置，启用公共只读降级');
       await refreshFromGitHub();

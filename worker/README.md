@@ -1,4 +1,6 @@
-# Cloudflare Worker 管理 API
+# Cloudflare Worker 管理 API（当前实验版未部署）
+
+`blog_test2` 本轮仅做首页视觉实验，Pages 构建不会部署此 Worker，管理台发布按钮也保持禁用。此目录是从历史源码保留的未来接入参考，不能用于当前站点的发布链路。
 
 Worker 负责 GitHub OAuth 和管理台文章发布。GitHub OAuth token 加密后保存在 Worker KV，会话通过 HttpOnly Cookie 传递给本站管理台。
 
@@ -16,7 +18,7 @@ Worker 负责 GitHub OAuth 和管理台文章发布。GitHub OAuth token 加密�
 
 GitHub Developer Settings → OAuth Apps：
 
-1. Homepage URL：`https://ice11123.github.io/blog_test1/`
+1. Homepage URL：`https://ice11123.github.io/blog_test2/`
 2. Authorization callback URL：`https://YOUR_WORKER_DOMAIN/auth/callback`
 
 ## 部署
@@ -37,10 +39,10 @@ npx wrangler deploy
 
 - 仅允许 Origin `https://ice11123.github.io`。
 - 仅允许 GitHub 用户 `ice11123`。
-- 仅写入 `ice11123/blog_test1/main`。
+- 未来仅写入 `ice11123/blog_test2/main`。
 - `/api/sync` 需要 HttpOnly Cookie 和 `X-CSRF-Token`。
 - `/api/delete` 使用同一套会话与 CSRF 校验删除正式文章。
-- OAuth 回调固定到 `/blog_test1/admin/`，不接受任意 `returnTo`，不会把 session token 放进 URL。
+- OAuth 回调固定到 `/blog_test2/admin/`，不接受任意 `returnTo`，不会把 session token 放进 URL。
 - 文章新建、更新、移动和删除通过 Git Data API 单次提交；目标路径冲突返回 409，不覆盖其他文章。
 - GitHub API 请求设置 15 秒超时；OAuth token 使用 `SESSION_SECRET` 派生密钥进行 AES-GCM 加密。
 

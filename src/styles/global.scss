@@ -19,6 +19,17 @@
 :root {
   --font-MaoKenTangYuan: 'MaoKenTangYuan (beta)';
 
+  /* blog_test2 语义设计 Token：六套主题仅替换下方既有主题变量。 */
+  --canvas: var(--background);
+  --surface: var(--background-dark);
+  --surface-subtle: var(--muted);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--foreground-dark);
+  --focus: var(--accent-light);
+  --success: var(--alert-tip);
+  --warning: var(--alert-warning);
+  --danger: var(--alert-caution);
+
   /* GitHub 提示块颜色（暗色默认） */
   --alert-note: #539bf5;
   --alert-note-bg: rgba(83, 155, 245, 0.08);

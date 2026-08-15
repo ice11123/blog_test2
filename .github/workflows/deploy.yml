@@ -17,8 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      PUBLIC_ADMIN_SYNC_API_URL: ${{ vars.PUBLIC_ADMIN_SYNC_API_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,9 +40,6 @@ jobs:
 
       - name: Check project
         run: pnpm run check
-
-      - name: Test Worker
-        run: pnpm --dir worker test
 
       - name: Build site
         run: pnpm run build

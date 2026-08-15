@@ -279,7 +279,7 @@ import { withBase } from '../../lib/urls';
 
 <script>
   // @ts-nocheck -- 保留授权源码中的浏览器交互脚本，由运行时 DOM 保护保证安全。
-  const HEADER_KEY = 'header-collapsed';
+  const HEADER_KEY = 'blog-test2-header-collapsed';
 
   function applyHeaderState(collapsed: boolean) {
     if (collapsed) {
@@ -422,8 +422,8 @@ import { withBase } from '../../lib/urls';
     const newLeft = linkRect.left - centerRect.left;
     const newWidth = linkRect.width;
 
-    const prevLeft = sessionStorage.getItem('nav-ul-left');
-    const prevWidth = sessionStorage.getItem('nav-ul-width');
+    const prevLeft = sessionStorage.getItem('blog-test2-nav-ul-left');
+    const prevWidth = sessionStorage.getItem('blog-test2-nav-ul-width');
 
     if (prevLeft !== null && prevWidth !== null) {
       // 从旧位置瞬间起步（无动画）
@@ -446,8 +446,8 @@ import { withBase } from '../../lib/urls';
       center.style.setProperty('--ul-width', `${newWidth}px`);
     });
 
-    sessionStorage.setItem('nav-ul-left', String(newLeft));
-    sessionStorage.setItem('nav-ul-width', String(newWidth));
+    sessionStorage.setItem('blog-test2-nav-ul-left', String(newLeft));
+    sessionStorage.setItem('blog-test2-nav-ul-width', String(newWidth));
   }
 
   document.addEventListener('DOMContentLoaded', initNavUnderline);

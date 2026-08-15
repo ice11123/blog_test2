@@ -8,6 +8,7 @@ node_modules/
 
 # logs
 *.log
+dev-server.err
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

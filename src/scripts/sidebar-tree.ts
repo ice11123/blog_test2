@@ -4,7 +4,7 @@ import { stripBase } from '../lib/urls';
 if (!(window as any).__sidebarTreeLoaded) {
   (window as any).__sidebarTreeLoaded = true;
 
-const STORAGE_KEY = 'left-sidebar-state';
+const STORAGE_KEY = 'blog-test2-left-sidebar-state';
 
 interface State {
   mode: 'directory' | 'tag';

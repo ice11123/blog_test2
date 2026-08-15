@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Header from '../../components/layout/Header.astro';
 import Footer from '../../components/layout/Footer.astro';
 import HtmlHead from '../../components/layout/HtmlHead.astro';
-import { ADMIN_SYNC_API_URL, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { ADMIN_SYNC_API_URL, CLOUD_PUBLISH_ENABLED, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import type { AdminPostDraft } from '../../lib/adminDrafts';
 import { resolveDirs } from '../../lib/utils';
 
@@ -46,7 +46,7 @@ const systemCards = [
   <body class="admin-page">
     <Header />
     <main class="admin-shell">
-      <section id="admin-app" data-initial-drafts={JSON.stringify(initialDrafts)} data-sync-endpoint={ADMIN_SYNC_API_URL}>
+      <section id="admin-app" data-initial-drafts={JSON.stringify(initialDrafts)} data-sync-endpoint={ADMIN_SYNC_API_URL} data-publish-enabled={String(CLOUD_PUBLISH_ENABLED)}>
         <div class="admin-overview">
           <section class="admin-intro">
             <p class="admin-kicker">ADMIN PROTOTYPE</p>
@@ -111,7 +111,7 @@ const systemCards = [
               <button type="button" data-new>新建文章</button>
               <button type="button" data-reset>恢复仓库内容</button>
               <button type="button" data-export>导出当前文件</button>
-              <button type="button" class="sync-button" data-cloud-publish disabled={!ADMIN_SYNC_API_URL} title={ADMIN_SYNC_API_URL ? '提交到 GitHub 并触发正式网站部署' : '尚未配置云端 API'}>发布到正式网站</button>
+              <button type="button" class="sync-button" data-cloud-publish disabled title="blog_test2 视觉实验版暂不接入云端发布">发布到正式网站（暂未启用）</button>
             </div>
           </div>
 
@@ -155,7 +155,7 @@ const systemCards = [
                   <button type="button" data-delete>删除当前文章</button>
                   <span class="edited-at" data-edited-at>尚未修改</span>
                 </div>
-                <p class="sync-hint">{ADMIN_SYNC_API_URL ? '首次发布会跳转 GitHub 授权；授权账号必须是 ice11123。' : '尚未配置云端 API，当前只能保存与导出本地草稿。'}</p>
+                <p class="sync-hint">当前为视觉实验版，仅支持本地草稿与导出；云端发布已禁用，不会请求 OAuth、Worker 或 GitHub 写接口。</p>
               </form>
             </section>
 

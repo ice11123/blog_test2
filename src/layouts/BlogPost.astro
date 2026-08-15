@@ -14,8 +14,8 @@ import SearchModal from '../components/blog/SearchModal.astro';
 import { stripBase, withBase } from '../lib/urls';
 
 type BlogData = CollectionEntry<'blog'>['data'];
-type Props = Omit<BlogData, 'tags'> & { tags?: string[]; sidebarsExpanded?: boolean };
-const { title, description, pubDate, updatedDate, heroImage, dir1, dir2, tags = [], sidebarsExpanded = false } = Astro.props;
+type Props = Omit<BlogData, 'tags'> & { tags?: string[]; sidebarsExpanded?: boolean; hidePageHeader?: boolean };
+const { title, description, pubDate, updatedDate, heroImage, dir1, dir2, tags = [], sidebarsExpanded = false, hidePageHeader = false } = Astro.props;
 
 // 构建左侧栏数据
 const sidebarData = await getSidebarData();
@@ -34,9 +34,11 @@ const currentSlug = slugMatch ? decodeURIComponent(slugMatch[1].replace(/\/+$/, 
 		<Header />
 		<main>
 			<article>
-				<div class="hero-image fade-in">
-					{heroImage && <Image width={200} height={200} src={heroImage} alt="" />}
-				</div>
+				{!hidePageHeader && (
+					<div class="hero-image fade-in">
+						{heroImage && <Image width={200} height={200} src={heroImage} alt="" />}
+					</div>
+				)}
 
 				<!-- 三栏布局容器 -->
 				<div class="three-col-layout">
@@ -55,7 +57,7 @@ const currentSlug = slugMatch ? decodeURIComponent(slugMatch[1].replace(/\/+$/, 
 					<!-- 中间：正文区域 -->
 					<div class="content-main fade-in">
 						<div class="prose">
-							<div class="title">
+							{!hidePageHeader && <div class="title">
 								<div class="date">
 									<FormattedDate date={pubDate} />
 									{updatedDate && (
@@ -83,7 +85,7 @@ const currentSlug = slugMatch ? decodeURIComponent(slugMatch[1].replace(/\/+$/, 
 									</div>
 								)}
 								<hr />
-							</div>
+							</div>}
 							<slot />
 						</div>
 					</div>
