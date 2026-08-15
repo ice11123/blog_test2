@@ -105,3 +105,5 @@
 - GitHub Pages Actions 运行 `31883421811` 成功。
 - 线上桌面与移动端确认头像、波纹、作者卡和子路径资源正常，旧“离”字大球不存在。
 - 保存线上截图：`artifacts/blog-test2-v21-online-1440x900.png` 与 `artifacts/blog-test2-v21-online-390x844.png`。
+- Beads 任务 `blog_test2-0cr` 已关闭；首次把“关闭任务 + Dolt 推送 + Git 状态”合并执行时超时，但关闭已生效。
+- 改用显式 `bd dolt push --remote origin` 单独同步后成功，避免重复执行已完成的关闭操作。
