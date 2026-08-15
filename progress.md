@@ -132,3 +132,5 @@
 - 最终 `pnpm run build`：成功生成 10 个静态页面；`git diff --check` 通过，仅有 Windows 行尾提示。
 - 构建产物确认包含首页/文章页 `leftSidebar`、文章主导航与当前文章的 `aria-current=page`、移动端左栏抽屉规则、波浪动画和 `/blog_test2/` 子路径；不存在旧 `/blog_test1/` 资源 URL。
 - 最终桌面截图：`blog-test2-v22-home-light-sidebar-1440x900.png`、`blog-test2-v22-home-dark-sidebar-1440x900.png`、`blog-test2-v22-article-light-sidebar-1440x900.png`；移动抽屉截图继续保留 390×844 复核图。
+- 提交 `e1c0787` 已推送到 `origin/main`；GitHub Actions 公共 API 当前触发匿名 rate limit，线上验证改走 Pages 直接访问与 Actions 网页。
+- Pages Actions `31885748285` 已成功；线上 `https://ice11123.github.io/blog_test2/` 首页和文章页回归通过，左栏、红金主题、波浪动画和文章选中态均已生效。
