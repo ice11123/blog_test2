@@ -37,3 +37,17 @@
 - 首次 Actions 因 Pages 尚未启用，在 `Configure Pages` 步骤失败；启用 GitHub Pages 后重跑成功。
 - 线上复核发现首个提交漏掉 `astro.config.mjs`，页面结构来自新版本，但 CSS、RSS、Canonical 和文章链接仍指向 `/blog_test1/`。
 - 将 Astro base 配置补交为 `/blog_test2`，重新触发 Pages 部署；后续以线上资源路径和文章链接为最终验收依据。
+
+## 2026-08-15｜线上精确复核
+
+- 重新读取 planning-with-files 与 Beads 上下文，确认工作区干净，任务 `blog_test2-2pv` 仍处于进行中。
+- 精确检查线上首页 head、robots 和 Sitemap：静态资源、canonical、RSS、favicon 与 Sitemap 已全部使用 `/blog_test2/`。
+- 核对 GitHub Actions 公共接口，最新 Pages 工作流 `31878284223` 成功，发布提交为 `f3409f8`。
+- 下一步继续验证文章链接、搜索、主题、管理台禁写状态，并生成线上 1440×900 与 390×844 截图。
+
+## 2026-08-15｜线上浏览器验收完成
+
+- 文章页真实 URL 返回 200，页面 CSS 与 canonical 均使用 `/blog_test2/`，RSS 不含旧站路径。
+- 线上桌面与移动截图已用显式 clip 保存到 `artifacts/`，确认桌面无页面级横向溢出，移动抽屉越界被隐藏且正文可读。
+- 搜索对话框、主题切换入口和管理台禁写状态通过浏览器实际交互检查。
+- 贡献墙请求失败只产生可读警告，符合新站未接入额外数据服务时的错误状态约定，不影响构建和页面主流程。

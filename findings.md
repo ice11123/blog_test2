@@ -33,3 +33,19 @@
 - 管理台审计结果：同步端点为空、`data-publish-enabled="false"`、发布按钮禁用，提示明确说明不会请求 OAuth、Worker 或 GitHub 写接口。
 - 搜索弹窗可打开；六套主题均能切换到对应 `data-theme`；桌面和移动截图已保存到 `artifacts/`。
 - Pages 首次成功部署仍可能发布错误子路径：本轮 `astro.config.mjs` 未进入首个提交，线上 HTML 同时出现新首页结构和旧 `/blog_test1/` 资源地址。线上 URL、资源路径和文章链接必须作为独立验收项，不能只看 Actions 绿色状态。
+
+## 2026-08-15｜线上子路径复核
+
+- 修复提交 `f3409f8` 部署后，线上首页返回 200，首个样式资源为 `/blog_test2/_astro/global.CRaXZZ9p.css`，favicon、RSS、Sitemap 和 canonical 也全部指向 `/blog_test2/`。
+- `robots.txt` 的 Sitemap 为 `https://ice11123.github.io/blog_test2/sitemap-index.xml`；Sitemap 中存在 `/blog_test2/`，不存在 `/blog_test1/`。
+- 首页 HTML 仍包含字符串 `blog_test1`，来源是维护公告中的历史文字，不能再用全局字符串存在性判断子路径是否正确；应只检查 `href`、`src`、canonical、RSS 和 Sitemap 等 URL 字段。
+- GitHub Actions 公共 API 显示运行 `31878284223` 已成功发布提交 `f3409f81890679a0cae10e90700bdc38593fdba5`。
+
+## 2026-08-15｜线上浏览器验收
+
+- 线上首页在 `1440×900` 与 `390×844` 视口均可加载；CSS、canonical、RSS 和首篇文章链接均指向 `blog_test2`。
+- 桌面视口页面级无横向溢出；移动视口 `document.documentElement.scrollWidth` 小于可视宽度，侧栏越界仅存在于隐藏抽屉区域，不影响页面滚动。
+- 精确尺寸截图已保存为 `artifacts/blog-test2-online-1440x900.png` 与 `artifacts/blog-test2-online-390x844.png`。第一次未使用 clip 时截图被浏览器可见区域裁成 `1435×807` 与 `386×241`，已改用显式 clip 重取 1440×900 与 390×844，避免误判布局。
+- 搜索按钮点击后搜索对话框实际变为 `display: block` 且可见；主题按钮可交互，当前主题状态正常。
+- `/admin/` 线上页面的 `data-publish-enabled` 为 `false`，发布按钮禁用，无 OAuth 链接、Worker URL 或同步端点。
+- 浏览器日志出现 GitHub 贡献数据请求失败警告；该模块按设计显示错误/空状态，不阻断首页。历史旧 URL 日志来自同一浏览器会话的先前页面，当前线上 DOM 未发现 `/blog_test1/` 资源属性。
