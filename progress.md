@@ -31,3 +31,9 @@
 - 验证搜索弹窗、六套主题切换和管理台禁写状态；发布端点为空且按钮禁用。
 - 最终执行 `pnpm run check`、`pnpm run build` 和 `git diff --check`，全部通过；Astro 仅输出既有 Markdown 配置弃用提示。
 - 保存验收截图：`artifacts/blog-test2-home-1440x900.png` 与 `artifacts/blog-test2-home-390x844.png`。
+
+## 2026-08-15｜首次线上部署修复
+
+- 首次 Actions 因 Pages 尚未启用，在 `Configure Pages` 步骤失败；启用 GitHub Pages 后重跑成功。
+- 线上复核发现首个提交漏掉 `astro.config.mjs`，页面结构来自新版本，但 CSS、RSS、Canonical 和文章链接仍指向 `/blog_test1/`。
+- 将 Astro base 配置补交为 `/blog_test2`，重新触发 Pages 部署；后续以线上资源路径和文章链接为最终验收依据。

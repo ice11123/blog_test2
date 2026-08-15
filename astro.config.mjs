@@ -21,7 +21,7 @@ import { remarkGithubAlerts } from './src/plugins/remark-github-alerts';
 import { remarkSubSuper } from './src/plugins/remark-sub-super';
 export default defineConfig({
   site: 'https://ice11123.github.io',
-  base: '/blog_test1',
+  base: '/blog_test2',
   outDir: './dist',
 
   integrations: [
