@@ -2,6 +2,77 @@
   .left-sidebar {
     z-index: var(--z-left-sidebar);
 
+    .sidebar-profile {
+      padding: 0 0.5rem 1rem 2rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .sidebar-profile-identity {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--foreground);
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+
+      img {
+        width: 56px;
+        height: 56px;
+        flex: 0 0 auto;
+        object-fit: cover;
+        border: 3px solid var(--accent-secondary);
+        border-radius: 50%;
+      }
+    }
+
+    .sidebar-profile > p {
+      margin: 0.5rem 0 0.65rem;
+      color: var(--foreground-dark);
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .sidebar-profile .social-links {
+      gap: 0.25rem;
+      margin: 0 auto 0.65rem;
+    }
+
+    .sidebar-profile .social-links a,
+    .sidebar-profile .social-placeholder {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+    }
+
+    .sidebar-profile-nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.25rem;
+
+      a {
+        padding: 0.35rem 0.2rem;
+        color: var(--foreground-dark);
+        border-radius: var(--radius-md);
+        font-size: 0.75rem;
+        text-decoration: none;
+        transition: color var(--transition-fast), background var(--transition-fast);
+
+        &:hover {
+          color: var(--foreground);
+          background: rgba(var(--accent-rgb), var(--alpha-hover));
+        }
+
+        &.active {
+          color: var(--button-on-accent);
+          background: linear-gradient(100deg, var(--accent), var(--accent-secondary));
+          font-weight: 700;
+        }
+      }
+    }
+
     .sidebar-inner {
       flex: 1;
       min-height: 0;
@@ -314,6 +385,15 @@
   }
 
   @media (min-width: 900px) {
+    #left-gutter {
+      width: 18px;
+      pointer-events: none;
+    }
+
+    #toggleLeftSidebarBtn {
+      display: none;
+    }
+
     html.left-sidebar-collapsed .gutter-arrow-left {
       transform: rotate(-90deg);
     }
@@ -391,6 +471,10 @@
         overflow-y: auto;
         box-sizing: border-box;
         padding: 0 0.5rem 0.5rem 2.5rem;
+      }
+
+      .sidebar-profile {
+        padding-left: 2.5rem;
       }
     }
 

@@ -144,5 +144,21 @@
       padding: 0 !important;
       overflow: visible !important;
     }
+
+    .title h1 {
+      font-size: clamp(2rem, 9vw, 2.35rem);
+      line-height: 1.35;
+      max-width: 100%;
+      white-space: normal;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
+    .title,
+    .prose,
+    .content-main {
+      min-width: 0;
+      max-width: 100%;
+    }
   }
 }

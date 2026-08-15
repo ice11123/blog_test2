@@ -4,7 +4,7 @@
 
 `blog_test2` 是“离子怪的博客”的独立视觉实验版。首页优先表达作者、文章和持续创作，其次才展示代码统计、运行状态与维护记录。设计通过排版、留白和内容密度建立层级，避免把每个模块都包装成同等重量的仪表盘卡片。
 
-本轮只约束首页与首页直接使用的共享状态。其他页面继续沿用现有样式，待首页确认后再逐步迁移。
+首页与文章页共享同一套桌面左侧栏：头像、主导航、目录/标签树和当前文章状态保持连续；移动端左栏转为覆盖抽屉，正文不被挤窄。
 
 ## 2. 设计原则
 
@@ -124,21 +124,23 @@
 
 ### Light
 
-- `--canvas: #fdfbfb`
-- `--surface: #ffffff`
-- `--text-primary: #2f2d30`
-- `--text-secondary: #686269`
-- `--accent: #e9536a`
-- `--border: #e8dde0`
+- `--canvas: #fffaf3`
+- `--surface: #fffdf8`
+- `--text-primary: #2d1b16`
+- `--text-secondary: #6e5b50`
+- `--accent: #a61f2b`（中国红）
+- `--accent-secondary: #c4933b`（金色）
+- `--border: #e2c9a4`
 
 ### Dark
 
-- `--canvas: #000123`
-- `--surface: #000014`
-- `--text-primary: #eaedf3`
-- `--text-secondary: #c9cfdd`
-- `--accent: #617bff`
-- `--border: #303f8a`
+- `--canvas: #090806`
+- `--surface: #020201`
+- `--text-primary: #f4ead5`
+- `--text-secondary: #c9b98f`
+- `--accent: #d6ad55`（主金色）
+- `--accent-secondary: #9f6d1f`（深金色）
+- `--border: #4a381a`
 
 旧主题值统一迁移：`dark-* -> dark`，`light-* -> light`。主题菜单不得继续暴露旧六套选项。
 
@@ -170,10 +172,10 @@
 
 必须检查：文字截断、页面横向溢出、按钮层级、键盘焦点、颜色对比度、加载/空/错误/禁用状态和长文本换行。
 
-## 12. 首页封面与作者卡
+## 12. 首页封面与共享左栏
 
 - 首页封面使用主题自适应渐变、轻量网格与两层 SVG 波纹，不使用单个大字球或无业务含义的轨道装饰。
-- 波纹仅承担封面到内容区的层级过渡；动画周期保持 7～11 秒，并在 `prefers-reduced-motion` 下停用。
-- 作者信息卡固定包含头像、简介、社交入口、文章/分类/标签统计和快捷导航；普通内容卡不复制其悬浮阴影。
-- 头像使用 `object-fit: cover` 的圆形裁切，边框颜色来自 `--surface`，不得硬编码与主题冲突的白边。
+- 两层波纹使用重复路径横向循环：前层 18s、后层 28s，只动画 `transform`；`prefers-reduced-motion` 下前层静止、后层轻微透明呼吸。
+- 首页和文章页复用同一 `SidebarLeft`，桌面端常驻并 sticky；文章导航和当前文章链接分别提供 `aria-current="page"` 与高亮状态。
+- 头像使用 `object-fit: cover` 的圆形裁切，边框颜色来自主题金色 Token，不硬编码白边。
 - 封面文案容器宽度必须受视口约束；英文眉题允许在窄屏换行，禁止依靠页面裁切隐藏内容。

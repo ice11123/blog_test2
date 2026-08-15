@@ -1,47 +1,52 @@
-/* blog_test2 V2 深色主题：沿用原暗蓝基底，收敛表面层级。 */
+/* blog_test2 V2.2 深色主题：黑色画布 + 金色强调。 */
 html[data-theme="dark"] {
   /* —— 背景系 —— */
-  --background: #000123;
-  --background-dark: #000014;
-  --background-light: #050736;
+  --background: #090806;
+  --background-dark: #020201;
+  --background-light: #171108;
 
-  /* —— 主强调蓝紫 —— */
-  --accent: #617bff;
-  --accent-dark: #4a65e8;
-  --accent-light: #8398ff;
-  --button-on-accent: #ffffff;
+  /* —— 主强调金色 —— */
+  --accent: #d6ad55;
+  --accent-dark: #aa7d29;
+  --accent-light: #f1d27a;
+  --accent-secondary: #9f6d1f;
+  --accent-secondary-rgb: 159, 109, 31;
+  --cover-start: #020201;
+  --cover-mid: #1d1308;
+  --cover-end: #8a621e;
+  --button-on-accent: #1b1005;
 
   /* —— 文字前景 —— */
-  --foreground: #eaedf3;
-  --foreground-dark: #c9cfdd;
-  --foreground-light: #f2f4f8;
+  --foreground: #f4ead5;
+  --foreground-dark: #c9b98f;
+  --foreground-light: #fff8e7;
 
   /* —— 柔和辅助背景 —— */
-  --muted: #0c0e4f;
-  --muted-dark: #080a3a;
-  --muted-light: #14176b;
+  --muted: #17130b;
+  --muted-dark: #0d0a05;
+  --muted-light: #2a1d0c;
 
   /* —— 边框分割线 —— */
-  --border: #303f8a;
-  --border-dark: #222e6b;
-  --border-light: #4556b3;
+  --border: #4a381a;
+  --border-dark: #2c210e;
+  --border-light: #80632d;
 
   /* —— RGB 分量 —— */
-  --accent-rgb: 97, 123, 255;
-  --accent-dark-rgb: 74, 101, 232;
-  --accent-light-rgb: 131, 152, 255;
-  --foreground-rgb: 234, 237, 243;
-  --foreground-dark-rgb: 201, 207, 221;
-  --foreground-light-rgb: 242, 244, 248;
-  --background-rgb: 0, 1, 35;
-  --background-dark-rgb: 0, 0, 20;
-  --background-light-rgb: 5, 7, 54;
-  --muted-rgb: 12, 14, 79;
-  --muted-dark-rgb: 8, 10, 58;
-  --muted-light-rgb: 20, 23, 107;
-  --border-rgb: 48, 63, 138;
-  --border-dark-rgb: 34, 46, 107;
-  --border-light-rgb: 69, 86, 179;
+  --accent-rgb: 214, 173, 85;
+  --accent-dark-rgb: 170, 125, 41;
+  --accent-light-rgb: 241, 210, 122;
+  --foreground-rgb: 244, 234, 213;
+  --foreground-dark-rgb: 201, 185, 143;
+  --foreground-light-rgb: 255, 248, 231;
+  --background-rgb: 9, 8, 6;
+  --background-dark-rgb: 2, 2, 1;
+  --background-light-rgb: 23, 17, 8;
+  --muted-rgb: 23, 19, 11;
+  --muted-dark-rgb: 13, 10, 5;
+  --muted-light-rgb: 42, 29, 12;
+  --border-rgb: 74, 56, 26;
+  --border-dark-rgb: 44, 33, 14;
+  --border-light-rgb: 128, 99, 45;
 
   /* —— 阴影 —— */
   --box-shadow: 0 2px 6px rgba(var(--foreground-dark-rgb), 0.25),
@@ -50,11 +55,11 @@ html[data-theme="dark"] {
   --hero-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 
   /* —— 滚动条 —— */
-  --scrollbar-track: #121417;
-  --scrollbar-thumb: #5e6b80;
+  --scrollbar-track: #17130b;
+  --scrollbar-thumb: #80632d;
 
   /* —— 链接下划线 —— */
-  --link-underline-color: #6b9ced;
+  --link-underline-color: #d6ad55;
 
   /* —— 搜索弹窗 —— */
   --backdrop-rgb: 0, 0, 10;
@@ -63,27 +68,27 @@ html[data-theme="dark"] {
   --tag-count-bg: rgba(255, 255, 255, 0.08);
 
   /* —— 导航链接 —— */
-  --header-link-text: #e0e0e0;
-  --header-link-hover: #ffffff;
+  --header-link-text: #c9b98f;
+  --header-link-hover: #fff8e7;
 
   /* —— MiniBrowser 组件 —— */
-  --browser-bg: #1e1e1e;
+  --browser-bg: #0d0a05;
   --browser-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  --browser-border: #333;
-  --browser-chrome-top: #2d2d2d;
-  --browser-chrome-bottom: #252525;
-  --browser-input-bg: #2d2d2d;
-  --browser-input-border: #444;
-  --browser-text: #fff;
-  --browser-placeholder: #888;
-  --browser-frame-bg: #161616;
-  --browser-accent: #646cff;
-  --browser-accent-hover: #535bf2;
-  --browser-accent-rgb: 100, 108, 255;
+  --browser-border: #4a381a;
+  --browser-chrome-top: #171108;
+  --browser-chrome-bottom: #0d0a05;
+  --browser-input-bg: #171108;
+  --browser-input-border: #80632d;
+  --browser-text: #fff8e7;
+  --browser-placeholder: #a9956f;
+  --browser-frame-bg: #020201;
+  --browser-accent: #d6ad55;
+  --browser-accent-hover: #f1d27a;
+  --browser-accent-rgb: 214, 173, 85;
 
   /* —— Plot3D 图表 —— */
-  --plot-bg: #121417;
-  --plot-axis-color: #ffffff;
-  --plot-border: #ddd;
-  --plot-default-color: #1f77b4;
+  --plot-bg: #090806;
+  --plot-axis-color: #fff8e7;
+  --plot-border: #80632d;
+  --plot-default-color: #d6ad55;
 }

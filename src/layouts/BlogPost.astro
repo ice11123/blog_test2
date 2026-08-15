@@ -24,7 +24,7 @@ const slugMatch = routePath.match(/^\/blog\/(.+)/);
 const currentSlug = slugMatch ? decodeURIComponent(slugMatch[1].replace(/\/+$/, '')) : '';
 ---
 
-<html lang="zh-cn" class:list={{ 'sidebar-collapsed': !sidebarsExpanded, 'left-sidebar-collapsed': !sidebarsExpanded }}>
+<html lang="zh-cn" class:list={{ 'sidebar-collapsed': !sidebarsExpanded }}>
 	<head>
 		<HtmlHead title={title} description={description} />
 		<slot name="head" />

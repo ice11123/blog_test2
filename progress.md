@@ -107,3 +107,28 @@
 - 保存线上截图：`artifacts/blog-test2-v21-online-1440x900.png` 与 `artifacts/blog-test2-v21-online-390x844.png`。
 - Beads 任务 `blog_test2-0cr` 已关闭；首次把“关闭任务 + Dolt 推送 + Git 状态”合并执行时超时，但关闭已生效。
 - 改用显式 `bd dolt push --remote origin` 单独同步后成功，避免重复执行已完成的关闭操作。
+
+## 2026-08-15｜V2.2 用户反馈启动
+
+- 用户反馈：波浪肉眼不能正常动态；希望左侧栏常驻，文章点击后左栏保留并高亮当前文章；浅色改红金，暗色改黑金。
+- 创建并认领 Beads 任务 `blog_test2-ktd`。
+- 先按 diagnose 建立复现指标，再修改 CSS 与公共布局；本轮不改管理台发布接口。
+- 已建立浏览器复现：动画运行但位移约 4px/0.9s，当前文章高亮存在但左栏可被折叠。
+- 已将波浪改为双副本连续横移，前后层分别使用 18s/28s 线性循环；减少动画模式仅保留轻微透明呼吸。
+- 文章布局桌面端清除左栏折叠状态，移动端仍使用覆盖抽屉；左栏新增作者身份、主导航与当前页面状态。
+- 浅色 Token 改为红金，深色 Token 改为黑金，首页封面同步使用主题封面色。
+- 首轮 `pnpm run check` 通过：70 个文件，0 errors / 0 warnings / 0 hints。
+- 发现并修复文章页旧主题覆盖：`BlogCard.astro` 内联 Sass 复制了旧 `global.scss`，移除后文章页与首页统一读取红金/黑金 Token。
+- 保存红金文章页桌面截图和移动端抽屉复核截图；移动端标题已追加防裁切规则，待修复后重新截图。
+- 二次验收发现首页仍保留旧的独立作者卡，未真正复用文章目录左栏；已改造 `PublicLayout` 接入 `SidebarLeft`，并移除首页重复作者卡，使首页和文章页共享同一侧栏身份、导航和目录数据。
+- 浏览器确认波浪动画前层 0.9 秒位移约 75px，动画名称为 `cover-wave-scroll`、时长 18 秒；下一步重新加载页面并完成桌面/移动视觉回归。
+- 首张共享左栏首页截图保存为 `artifacts/blog-test2-v22-home-dark-sidebar-1440x900.png`；截图发现封面内容垂直位置异常，当前实现仍未达到审美验收，继续排查布局根因。
+- 诊断确认旧服务未加载最新 `PublicLayout.astro` 样式；准备切换到重启后的新端口复核，旧进程和临时日志不纳入提交。
+- 已重启本地 Astro 到 `http://127.0.0.1:4323/blog_test2/`，新样式生效并保存桌面共享左栏截图；In-app Browser 当前无法应用 390×844 viewport，移动端验收待切换可用浏览器能力后完成。
+- 黑金桌面截图已完成；浅色切换首次未生效，已标记为无效截图，待确认 `data-theme=light` 后覆盖。
+- 复看既有移动文章截图：抽屉和当前文章高亮正常，但长标题仍接近右侧裁切，追加移动端标题/正文宽度回归检查。
+- 生产构建已重新通过；一次产物核对命令因误用 PowerShell `$home` 变量失败，已记录并改用专用变量名重试。
+- 最终 `pnpm run check`：70 个文件，0 errors / 0 warnings / 0 hints。
+- 最终 `pnpm run build`：成功生成 10 个静态页面；`git diff --check` 通过，仅有 Windows 行尾提示。
+- 构建产物确认包含首页/文章页 `leftSidebar`、文章主导航与当前文章的 `aria-current=page`、移动端左栏抽屉规则、波浪动画和 `/blog_test2/` 子路径；不存在旧 `/blog_test1/` 资源 URL。
+- 最终桌面截图：`blog-test2-v22-home-light-sidebar-1440x900.png`、`blog-test2-v22-home-dark-sidebar-1440x900.png`、`blog-test2-v22-article-light-sidebar-1440x900.png`；移动抽屉截图继续保留 390×844 复核图。

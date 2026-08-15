@@ -1,7 +1,9 @@
 ---
 import { DIR1_ORDER, DIR2_ORDER } from '../../consts';
 import SidebarShell from './SidebarShell.astro';
-import { blogPostPath } from '../../lib/urls';
+import { SITE_AUTHOR } from '../../consts';
+import SocialLinks from '../ui/SocialLinks.astro';
+import { blogPostPath, stripBase, withBase } from '../../lib/urls';
 
 interface SidebarPost {
   title: string;
@@ -50,6 +52,8 @@ for (const post of sorted) {
   }
 }
 const orderedTags = [...tagTree.entries()].sort((a, b) => b[1].length - a[1].length);
+const currentPath = stripBase(Astro.url.pathname);
+const activeSection = currentPath === '/' ? 'home' : currentPath.startsWith('/blog') ? 'blog' : currentPath.startsWith('/friends') ? 'friends' : currentPath.startsWith('/about') ? 'about' : '';
 ---
 
 <SidebarShell
@@ -58,6 +62,21 @@ const orderedTags = [...tagTree.entries()].sort((a, b) => b[1].length - a[1].len
   hasOverlay={true}
 >
   <div class="sidebar-inner">
+    <section class="sidebar-profile" aria-label="站点导航">
+      <a class="sidebar-profile-identity" href={withBase('/')} aria-label={`${SITE_AUTHOR} 的博客首页`}>
+        <img src={withBase('/avatar.jpg')} alt="" width="64" height="64" />
+        <span>{SITE_AUTHOR}</span>
+      </a>
+      <p>记录学习、技术与思考。</p>
+      <SocialLinks showHeaderContacts />
+      <nav class="sidebar-profile-nav" aria-label="主要导航">
+        <a class:list={{ active: activeSection === 'home' }} aria-current={activeSection === 'home' ? 'page' : undefined} href={withBase('/')}>首页</a>
+        <a class:list={{ active: activeSection === 'blog' }} aria-current={activeSection === 'blog' ? 'page' : undefined} href={withBase('/blog/')}>文章</a>
+        <a class:list={{ active: activeSection === 'friends' }} aria-current={activeSection === 'friends' ? 'page' : undefined} href={withBase('/friends/')}>友链</a>
+        <a class:list={{ active: activeSection === 'about' }} aria-current={activeSection === 'about' ? 'page' : undefined} href={withBase('/about/')}>关于</a>
+      </nav>
+    </section>
+
     <!-- 模式切换 -->
     <div class="ls-mode-toggle">
       <button id="ls-mode-dir" class="active" data-mode="directory">目录结构</button>
@@ -105,6 +124,7 @@ const orderedTags = [...tagTree.entries()].sort((a, b) => b[1].length - a[1].len
                       {articles.map(article => (
                         <li class="article-item">
                           <a href={blogPostPath(article.slug)} data-slug={article.slug}
+                            aria-current={article.slug === currentSlug ? 'page' : undefined}
                             class:list={[article.slug === currentSlug && "current"]}>
                             {article.title}
                           </a>
@@ -135,6 +155,7 @@ const orderedTags = [...tagTree.entries()].sort((a, b) => b[1].length - a[1].len
             {articles.map(article => (
               <li class="article-item">
                 <a href={blogPostPath(article.slug)} data-slug={article.slug}
+                  aria-current={article.slug === currentSlug ? 'page' : undefined}
                   class:list={[article.slug === currentSlug && "current"]}>
                   {article.title}
                 </a>

@@ -98,14 +98,6 @@ if (image) {
       document.documentElement.setAttribute('data-theme', prefersLight ? 'light' : 'dark');
     }
 
-    // 恢复侧栏折叠状态。HTML 默认带 collapsed class，若用户曾打开侧栏则移除
-    try {
-      var leftRaw = localStorage.getItem('blog-test2-left-sidebar-state');
-      if (leftRaw && JSON.parse(leftRaw).collapsed === false) {
-        document.documentElement.classList.remove('left-sidebar-collapsed');
-      }
-    } catch (_) {}
-
     try {
       var isMobileViewport = window.matchMedia('(max-width: 760px)').matches;
       var rightRaw = localStorage.getItem('blog-test2-right-sidebar-collapsed');

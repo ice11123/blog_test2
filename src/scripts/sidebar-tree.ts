@@ -212,8 +212,9 @@ function handleSidebarToggleClick(): void {
       if (btn) btn.classList.add('overlay-open');
     }
   } else {
-    document.documentElement.classList.toggle('left-sidebar-collapsed');
-    state.collapsed = document.documentElement.classList.contains('left-sidebar-collapsed');
+    // 桌面端左栏常驻；只有移动端使用覆盖层按钮。
+    document.documentElement.classList.remove('left-sidebar-collapsed');
+    state.collapsed = false;
     saveState(state);
   }
 }
@@ -270,12 +271,9 @@ function init(): void {
   applyExpandedState();
   bindScrollListener();
 
-  // 恢复左侧栏折叠状态（视图过渡可能导致 class 被重置）
-  if (state.collapsed) {
-    document.documentElement.classList.add('left-sidebar-collapsed');
-  } else {
-    document.documentElement.classList.remove('left-sidebar-collapsed');
-  }
+  // 桌面端左栏始终常驻；移动端可通过 overlay-open 临时打开。
+  state.collapsed = false;
+  document.documentElement.classList.remove('left-sidebar-collapsed');
 
   requestAnimationFrame(() => {
     restoreScrollPosition();
@@ -290,18 +288,8 @@ document.addEventListener('astro:page-load', () => {
 });
 
 document.addEventListener('astro:after-swap', () => {
-  // 同步恢复折叠状态，避免视图过渡闪烁
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const saved = JSON.parse(raw);
-      if (saved.collapsed === true) {
-        document.documentElement.classList.add('left-sidebar-collapsed');
-      } else {
-        document.documentElement.classList.remove('left-sidebar-collapsed');
-      }
-    }
-  } catch {}
+  // 桌面端左栏常驻，视图切换后清理旧折叠类。
+  document.documentElement.classList.remove('left-sidebar-collapsed');
 
   requestAnimationFrame(() => {
     restoreScrollPosition();
