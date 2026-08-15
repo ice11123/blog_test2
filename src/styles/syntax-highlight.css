@@ -2,10 +2,8 @@
    Each token type has a distinct hue so code is readable.
    Dark themes use bright pastels; light themes use deeper saturated colors. */
 
-/* ----- 暗色主题（默认 + dark-*） ----- */
-:root,
-html[data-theme="dark-green"],
-html[data-theme="dark-purple"] {
+/* ----- 暗色主题 ----- */
+html[data-theme="dark"] {
   --syn-keyword: #c792ea;
   --syn-string: #c3e88d;
   --syn-function: #ffcb6b;
@@ -15,10 +13,9 @@ html[data-theme="dark-purple"] {
   --syn-punctuation: #89ddff;
 }
 
-/* ----- 亮色主题（light-*） ----- */
-html[data-theme="light-blue"],
-html[data-theme="light-green"],
-html[data-theme="light-rose"] {
+/* ----- 亮色主题 ----- */
+:root,
+html[data-theme="light"] {
   --syn-keyword: #6d28d9;
   --syn-string: #166534;
   --syn-function: #92400e;

@@ -7,31 +7,22 @@ import { withBase } from '../../lib/urls';
 ---
 
 <header id="site-header">
-  <nav>
-    <div class="nav-left">
-      <h2><HeaderLink id="site-title-link" href={withBase('/')} data-admin-url={withBase('/admin/')} aria-label={`${SITE_TITLE}，连续点击 5 次打开管理入口`} title="连续点击 5 次打开管理入口">{SITE_TITLE}</HeaderLink></h2>
+  <nav class="site-nav" aria-label="主导航">
+    <div class="nav-brand">
+      <HeaderLink id="site-title-link" href={withBase('/')} data-admin-url={withBase('/admin/')} aria-label={`${SITE_TITLE}，连续点击 5 次打开管理入口`} title="连续点击 5 次打开管理入口">{SITE_TITLE}</HeaderLink>
     </div>
-    <div class="nav-tools"><HeaderTools /></div>
-    <div class="nav-center">
+    <div class="nav-links">
       <HeaderLink href={withBase('/')}>主页</HeaderLink>
       <HeaderLink href={withBase('/blog/')}>博客</HeaderLink>
       <HeaderLink href={withBase('/friends/')}>友链</HeaderLink>
       <HeaderLink href={withBase('/about/')}>关于</HeaderLink>
-      <span class="nav-underline"></span>
     </div>
-    <div class="nav-right">
-      <div id="header-social">
-        <SocialLinks showHeaderContacts />
-      </div>
+    <div class="nav-actions">
+      <HeaderTools />
+      <div id="header-social"><SocialLinks showHeaderContacts /></div>
     </div>
   </nav>
 </header>
-
-<button id="header-toggle-btn" class="header-toggle-btn" aria-label="折叠顶栏" type="button">
-  <svg class="header-toggle-arrow" width="10" height="10" viewBox="0 0 12 12" aria-hidden="true">
-    <path d="M2 5 L6 8 L10 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-</button>
 
 <dialog id="admin-password-dialog" aria-labelledby="admin-password-title">
   <form method="dialog" id="admin-password-form">
@@ -48,282 +39,65 @@ import { withBase } from '../../lib/urls';
 </dialog>
 
 <style>
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    padding-top: 14px;
-    padding-bottom: 4px;
-    margin: 0 6px 6px;
-    background: var(--background);
+  header { position: sticky; top: 0; z-index: 1000; width: min(1200px, calc(100% - 48px)); margin: 0 auto; padding: 20px 0 12px; background: color-mix(in srgb, var(--canvas) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  .site-nav { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 32px; }
+  .nav-brand { min-width: 0; }
+  .nav-brand :global(a) { padding: 0; color: var(--text-primary); font-size: 20px; font-weight: 750; letter-spacing: -.02em; }
+  .nav-brand :global(a:hover) { color: var(--accent); }
+  .nav-links { display: flex; align-items: center; gap: 24px; min-width: 0; }
+  .nav-links :global(a) { position: relative; padding: 8px 0; color: var(--text-secondary); font-size: 16px; }
+  .nav-links :global(a)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 2px; border-radius: 999px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 180ms ease-out; }
+  .nav-links :global(a:hover), .nav-links :global(a.active) { color: var(--text-primary); }
+  .nav-links :global(a.active)::after, .nav-links :global(a:hover)::after { transform: scaleX(1); }
+  .nav-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
+  #header-social :global(.social-links) { display: flex; align-items: center; gap: 4px; }
+  #header-social :global(a), #header-social :global(.social-placeholder) { display: inline-flex; align-items: center; justify-content: center; padding: 8px; color: var(--text-secondary); border-radius: 8px; }
+  #header-social :global(a:hover) { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  #admin-password-dialog { width: min(360px, calc(100vw - 32px)); padding: 0; color: var(--text-primary); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  #admin-password-dialog::backdrop { background: rgba(0,0,0,.45); backdrop-filter: blur(2px); }
+  #admin-password-form { display: grid; gap: 12px; padding: 24px; }
+  #admin-password-form h2, #admin-password-form p { margin: 0; }
+  #admin-password-form p { color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+  #admin-password-form label { font-size: 14px; }
+  #admin-password-input { width: 100%; box-sizing: border-box; padding: 8px 12px; color: var(--text-primary); background: var(--canvas); border: 1px solid var(--border); border-radius: 8px; font: inherit; }
+  #admin-password-input:focus-visible, .admin-password-actions button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .admin-password-error { color: var(--danger) !important; }
+  .admin-password-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+  .admin-password-actions button { padding: 8px 12px; color: var(--text-primary); background: transparent; border: 1px solid var(--border); border-radius: 8px; font: inherit; cursor: pointer; }
+  .admin-password-actions button[type="submit"] { color: var(--button-on-accent); background: var(--accent); border-color: var(--accent); }
+  @media (max-width: 900px) {
+    header { width: min(100% - 32px, 720px); }
+    .site-nav { gap: 16px; }
+    .nav-links { gap: 16px; }
   }
-
-  html.header-collapsed header {
-    padding-top: 0;
-  }
-
-  nav {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    transition: visibility 0s 0.25s, max-height 0.25s ease;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 1em;
-  }
-
-  .nav-left,
-  .nav-right,
-  .nav-tools {
-    display: flex;
-    align-items: center;
-    flex: 0 0 auto;
-    min-width: 0;
-  }
-
-  .nav-tools { margin-right: auto; }
-
-  .nav-right {
-    gap: 0.75rem;
-    justify-content: flex-end;
-  }
-
-  /* 绝对居中 — 不受左右内容宽度影响 */
-  .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 0.5rem;
-    white-space: nowrap;
-    --ul-left: 0px;
-    --ul-width: 0px;
-  }
-
-  /* 滑动下划线指示器 */
-  .nav-underline {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: var(--ul-width);
-    height: 4px;
-    background: var(--link-underline-color, var(--accent));
-    border-radius: 999px;
-    transform: translateX(var(--ul-left));
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .nav-center.underline-visible .nav-underline {
-    opacity: 1;
-  }
-
-  /* 吸顶按钮 — 紧贴视口顶部 */
-  .header-toggle-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1001;
-    background: rgba(var(--background-rgb), 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--border-light);
-    border-top: none;
-    border-radius: 0 0 12px 12px;
-    padding: 4px 24px;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-  }
-
-  .header-toggle-btn:hover {
-    border-color: var(--accent);
-  }
-
-  .header-toggle-arrow {
-    display: block;
-    color: var(--foreground);
-    transition: transform 0.25s ease;
-    transform: rotate(180deg);
-  }
-
-  #admin-password-dialog {
-    width: min(360px, calc(100vw - 2rem));
-    padding: 0;
-    color: var(--foreground);
-    background: var(--background);
-    border: 1px solid var(--border-light);
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-  }
-
-  #admin-password-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(2px);
-  }
-
-  #admin-password-form {
-    display: grid;
-    gap: 0.7rem;
-    padding: 1.25rem;
-  }
-
-  #admin-password-form h2,
-  #admin-password-form p { margin: 0; }
-  #admin-password-form p { font-size: 0.86rem; line-height: 1.5; opacity: 0.78; }
-  #admin-password-form label { font-size: 0.9rem; }
-  #admin-password-input { width: 100%; box-sizing: border-box; padding: 0.65rem 0.75rem; border: 1px solid var(--border-light); border-radius: 8px; color: var(--foreground); background: var(--background); }
-  .admin-password-error { color: var(--accent); }
-  .admin-password-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.25rem; }
-  .admin-password-actions button { padding: 0.5rem 0.85rem; border: 1px solid var(--border-light); border-radius: 8px; color: var(--foreground); background: transparent; cursor: pointer; }
-  .admin-password-actions button[type="submit"] { color: var(--background); background: var(--accent); border-color: var(--accent); }
-
-  /* 折叠：nav 隐藏 */
-  html.header-collapsed nav {
-    visibility: hidden;
-    max-height: 0;
-    overflow: hidden;
-  }
-
-  /* 折叠：箭头转向 */
-  html.header-collapsed .header-toggle-arrow {
-    transform: rotate(0deg);
-  }
-
-  @media (max-width: 768px) {
-    nav {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-areas:
-        "brand social"
-        "tools tools"
-        "links links";
-      gap: 0.35rem 0.5rem;
-    }
-
-    .nav-left {
-      grid-area: brand;
-      overflow: hidden;
-    }
-
-    .nav-tools { grid-area: tools; justify-self: start; width: 100%; margin-right: 0; }
-
-    .nav-left :global(a) {
-      padding-inline: 0;
-    }
-
-    .nav-right {
-      grid-area: social;
-      margin-right: 44px;
-    }
-
-    #header-social {
-      display: block;
-    }
-
-    #header-social :global(.social-links) {
-      gap: 0.15rem;
-    }
-
-    #header-social :global(a) {
-      padding-inline: 8px;
-    }
-
-    .header-toggle-btn {
-      left: auto;
-      right: 4px;
-      transform: none;
-      padding: 6px 12px;
-      min-width: 36px;
-      min-height: 32px;
-      border-radius: 0 0 8px 12px;
-    }
-
-    .nav-center {
-      grid-area: links;
-      position: relative;
-      left: auto;
-      transform: none;
-      justify-self: center;
-      margin: 0;
-      gap: 0.75rem;
-      font-size: 0.85em;
-    }
-
-    h2 {
-      overflow: hidden;
-      font-size: 0.8em;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  @media (max-width: 400px) {
-    h2 {
-      font-size: 0.75em;
-    }
-
-    .nav-center {
-      font-size: 0.8em;
-      gap: 0.55rem;
-    }
+  @media (max-width: 680px) {
+    header { width: calc(100% - 32px); padding: 16px 0 8px; }
+    .site-nav { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'brand actions' 'links links'; gap: 8px 12px; }
+    .nav-brand { grid-area: brand; overflow: hidden; }
+    .nav-brand :global(a) { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; }
+    .nav-actions { grid-area: actions; gap: 4px; }
+    .nav-actions :global(.header-tools) { width: auto; grid-template-columns: auto auto; gap: 4px; }
+    .nav-actions :global(.header-tool-button) { width: 36px; min-height: 36px; padding: 8px; }
+    .nav-actions :global(.header-tool-button > span:not(.icon)) { display: none; }
+    .nav-actions :global(.header-search-shortcut) { display: none; }
+    .nav-links { grid-area: links; width: 100%; overflow-x: auto; gap: 20px; scrollbar-width: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links :global(a) { flex: 0 0 auto; font-size: 14px; }
   }
 </style>
 
-<script>
-  // @ts-nocheck -- 保留授权源码中的浏览器交互脚本，由运行时 DOM 保护保证安全。
-  const HEADER_KEY = 'blog-test2-header-collapsed';
-
-  function applyHeaderState(collapsed: boolean) {
-    if (collapsed) {
-      document.documentElement.classList.add('header-collapsed');
-    } else {
-      document.documentElement.classList.remove('header-collapsed');
-    }
-  }
-
-  function initHeader(): void {
-    let collapsed = false;
-    try { collapsed = localStorage.getItem(HEADER_KEY) === 'true'; } catch {}
-    applyHeaderState(collapsed);
-  }
-
-  // 事件委托，避免视图过渡后按钮引用失效
-  document.addEventListener('click', (e: Event) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('#header-toggle-btn')) {
-      const collapsed = document.documentElement.classList.toggle('header-collapsed');
-      try { localStorage.setItem(HEADER_KEY, String(collapsed)); } catch {}
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', initHeader);
-  document.addEventListener('astro:page-load', initHeader);
-  document.addEventListener('astro:after-swap', initHeader);
-</script>
-
 <script is:inline define:vars={{ ADMIN_PASSWORD_HASH, ADMIN_UNLOCK_STORAGE_KEY }}>
-  // 前端原型门槛：不要将其视为真实身份认证。
   const ADMIN_CLICK_LIMIT = 5;
   const ADMIN_CLICK_WINDOW = 5000;
   let adminClickCount = 0;
   let adminClickTimer;
   let adminNavigateTimer;
   let adminAttempts = 0;
-
   async function sha256(value) {
     const data = new TextEncoder().encode(value);
     const digest = await crypto.subtle.digest('SHA-256', data);
     return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
   }
-
   function openAdminDialog() {
     const dialog = document.querySelector('#admin-password-dialog');
     const input = document.querySelector('#admin-password-input');
@@ -331,18 +105,14 @@ import { withBase } from '../../lib/urls';
     if (!dialog || !input) return;
     if (error) error.hidden = true;
     input.value = '';
-    if (typeof dialog.showModal === 'function') dialog.showModal();
-    else dialog.setAttribute('open', '');
+    if (typeof dialog.showModal === 'function') dialog.showModal(); else dialog.setAttribute('open', '');
     input.focus();
   }
-
   function closeAdminDialog() {
     const dialog = document.querySelector('#admin-password-dialog');
     if (!dialog) return;
-    if (typeof dialog.close === 'function') dialog.close();
-    else dialog.removeAttribute('open');
+    if (typeof dialog.close === 'function') dialog.close(); else dialog.removeAttribute('open');
   }
-
   async function handleAdminSubmit(event) {
     event.preventDefault();
     const input = document.querySelector('#admin-password-input');
@@ -362,94 +132,34 @@ import { withBase } from '../../lib/urls';
     const target = document.querySelector('#site-title-link')?.getAttribute('data-admin-url');
     if (target) window.location.assign(target);
   }
-
   function initAdminEntry() {
     const titleLink = document.querySelector('#site-title-link');
     const form = document.querySelector('#admin-password-form');
     const cancel = document.querySelector('#admin-password-cancel');
-    const openButtons = document.querySelectorAll('[data-admin-open]');
     if (titleLink && titleLink.dataset.adminBound !== 'true') {
       titleLink.dataset.adminBound = 'true';
       titleLink.addEventListener('click', (event) => {
-      event.preventDefault();
-      const now = Date.now();
-      if (!adminClickTimer || now - (Number(titleLink.dataset.lastAdminClick) || 0) > ADMIN_CLICK_WINDOW) adminClickCount = 0;
-      titleLink.dataset.lastAdminClick = String(now);
-      adminClickCount += 1;
-      if (adminClickTimer) clearTimeout(adminClickTimer);
-      adminClickTimer = setTimeout(() => { adminClickCount = 0; }, ADMIN_CLICK_WINDOW);
-      if (adminNavigateTimer) clearTimeout(adminNavigateTimer);
-      if (adminClickCount >= ADMIN_CLICK_LIMIT) {
-        adminClickCount = 0;
-        openAdminDialog();
-        return;
-      }
-      adminNavigateTimer = setTimeout(() => {
-        window.location.assign(titleLink.href);
-      }, 2500);
+        event.preventDefault();
+        const now = Date.now();
+        if (!adminClickTimer || now - (Number(titleLink.dataset.lastAdminClick) || 0) > ADMIN_CLICK_WINDOW) adminClickCount = 0;
+        titleLink.dataset.lastAdminClick = String(now);
+        adminClickCount += 1;
+        if (adminClickTimer) clearTimeout(adminClickTimer);
+        adminClickTimer = setTimeout(() => { adminClickCount = 0; }, ADMIN_CLICK_WINDOW);
+        if (adminNavigateTimer) clearTimeout(adminNavigateTimer);
+        if (adminClickCount >= ADMIN_CLICK_LIMIT) { adminClickCount = 0; openAdminDialog(); return; }
+        adminNavigateTimer = setTimeout(() => { window.location.assign(titleLink.href); }, 900);
       });
     }
-    openButtons.forEach((button) => {
-      if (button.dataset.adminBound === 'true') return;
-      button.dataset.adminBound = 'true';
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        openAdminDialog();
-      });
-    });
-    form?.addEventListener('submit', (event) => { void handleAdminSubmit(event); });
-    cancel?.addEventListener('click', closeAdminDialog);
+    if (form && form.dataset.bound !== 'true') {
+      form.dataset.bound = 'true';
+      form.addEventListener('submit', (event) => { void handleAdminSubmit(event); });
+    }
+    if (cancel && cancel.dataset.bound !== 'true') {
+      cancel.dataset.bound = 'true';
+      cancel.addEventListener('click', closeAdminDialog);
+    }
   }
-
   document.addEventListener('DOMContentLoaded', initAdminEntry);
   document.addEventListener('astro:page-load', initAdminEntry);
-</script>
-
-<script>
-  // @ts-nocheck -- 保留授权源码中的浏览器交互脚本，由运行时 DOM 保护保证安全。
-  // 顶栏中间导航 — 滑动下划线（从旧位置滑到新 active 链接）
-  function initNavUnderline(): void {
-    const center = document.querySelector('.nav-center');
-    if (!center) return;
-    const active = center.querySelector('a.active') as HTMLElement | null;
-    if (!active) {
-      center.classList.remove('underline-visible');
-      return;
-    }
-
-    const linkRect = active.getBoundingClientRect();
-    const centerRect = center.getBoundingClientRect();
-    const newLeft = linkRect.left - centerRect.left;
-    const newWidth = linkRect.width;
-
-    const prevLeft = sessionStorage.getItem('blog-test2-nav-ul-left');
-    const prevWidth = sessionStorage.getItem('blog-test2-nav-ul-width');
-
-    if (prevLeft !== null && prevWidth !== null) {
-      // 从旧位置瞬间起步（无动画）
-      center.style.setProperty('--ul-left', `${prevLeft}px`);
-      center.style.setProperty('--ul-width', `${prevWidth}px`);
-      center.classList.add('underline-visible');
-
-      // 强排，确保起步位置已生效
-      const ul = center.querySelector('.nav-underline') as HTMLElement;
-      if (ul) {
-        ul.getBoundingClientRect();
-        ul.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-      }
-    } else {
-      center.classList.add('underline-visible');
-    }
-
-    requestAnimationFrame(() => {
-      center.style.setProperty('--ul-left', `${newLeft}px`);
-      center.style.setProperty('--ul-width', `${newWidth}px`);
-    });
-
-    sessionStorage.setItem('blog-test2-nav-ul-left', String(newLeft));
-    sessionStorage.setItem('blog-test2-nav-ul-width', String(newWidth));
-  }
-
-  document.addEventListener('DOMContentLoaded', initNavUnderline);
-  document.addEventListener('astro:page-load', initNavUnderline);
 </script>

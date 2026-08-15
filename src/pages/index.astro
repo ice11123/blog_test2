@@ -1,17 +1,18 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import { SITE_AUTHOR, SITE_DESCRIPTION, SITE_TITLE, fmtNum } from '../consts';
 import { computeSiteStats } from '../lib/blogStats';
 import { getRepoLanguages } from '../lib/repoStats';
 import { parseMaintenance } from '../lib/maintenance';
-import Layout from '../layouts/BlogPost.astro';
+import PublicLayout from '../layouts/PublicLayout.astro';
 import JsonLd from '../components/blog/JsonLd.astro';
-import BlogList from '../components/blog/BlogList.astro';
+import FormattedDate from '../components/blog/FormattedDate.astro';
 import GitHubContributions from '../components/github/GitHubContributions.astro';
 import GitHubRepoStats from '../components/github/GitHubRepoStats.astro';
 import GitHubLanguages from '../components/github/GitHubLanguages.astro';
 import PublicStatus from '../components/home/PublicStatus.astro';
-import { withBase } from '../lib/urls';
+import { blogPostPath, withBase } from '../lib/urls';
 import maintenanceSource from '../content/maintenance.md?raw';
 
 const websiteLd = {
@@ -32,199 +33,310 @@ const { repoLanguages, totalRepoLines } = getRepoLanguages();
 const maintenanceEntries = await parseMaintenance(maintenanceSource);
 ---
 
-<Layout title={SITE_TITLE} description={SITE_DESCRIPTION} pubDate={new Date()} sidebarsExpanded hidePageHeader>
+<PublicLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
   <JsonLd slot="head" data={websiteLd} />
 
-  <div class="home-width-container">
   <div class="home-page">
     <section class="home-hero" aria-labelledby="home-title">
+      <div class="hero-art" aria-hidden="true">
+        <span class="hero-orbit hero-orbit-large"></span>
+        <span class="hero-orbit hero-orbit-small"></span>
+        <span class="hero-dot hero-dot-one"></span>
+        <span class="hero-dot hero-dot-two"></span>
+        <span class="hero-mark">离</span>
+      </div>
+
       <div class="hero-copy">
-        <p class="home-eyebrow">离子怪 · 个人记录</p>
-        <h1 id="home-title">你好，我是 <span>{SITE_AUTHOR}</span></h1>
-        <p class="hero-description">{SITE_DESCRIPTION} 在这里整理学习路径、技术实践，以及那些值得慢慢想清楚的问题。</p>
+        <p class="home-eyebrow">ION MONSTER · PERSONAL NOTES</p>
+        <h1 id="home-title">你好，我是<span>{SITE_AUTHOR}</span></h1>
+        <p class="hero-description">
+          {SITE_DESCRIPTION}<br />
+          在这里整理学习路径、技术实践，以及那些值得慢慢想清楚的问题。
+        </p>
         <div class="hero-actions">
           <a class="hero-action primary" href={withBase('/blog/')}>浏览文章</a>
-          <a class="hero-action" href={withBase('/about/')}>了解我</a>
+          <a class="hero-action secondary" href={withBase('/about/')}>了解我</a>
         </div>
-      </div>
-      <section class="site-stats" aria-label="博客统计">
-        <div class="stat-item"><strong>{stats.totalArticles}</strong><span>文章</span></div>
-        <div class="stat-item"><strong>{stats.totalCategories}</strong><span>分类</span></div>
-        <div class="stat-item"><strong>{stats.totalTags}</strong><span>标签</span></div>
-        <div class="stat-item"><strong>{stats.daysSinceLaunch}</strong><span>建站天数</span></div>
-        <div class="stat-item"><strong>{fmtNum(stats.totalWords)}</strong><span>累计字数</span></div>
-        <div class="stat-item"><strong>{fmtNum(totalRepoLines)}</strong><span>代码行数</span></div>
-      </section>
-    </section>
-
-    <section class="recent-posts home-section" aria-labelledby="recent-title">
-      <div class="section-heading">
-        <div><p class="home-eyebrow">LATEST NOTES</p><h2 id="recent-title">近期文章</h2></div>
-        <a class="section-link" href={withBase('/blog/')}>查看全部 →</a>
-      </div>
-      <BlogList sort="time" posts={recentPosts} />
-    </section>
-
-    <section class="language-overview-panel home-section" aria-labelledby="language-title">
-      <div class="language-overview-heading">
-        <p class="home-eyebrow">CODE MIX</p>
-        <h2 id="language-title">代码语言构成</h2>
-        <span>把本站仓库与 GitHub 账户放在同一处查看</span>
-      </div>
-      <div class="language-overview-grid">
-        <div class="language-overview-item"><GitHubRepoStats languages={repoLanguages} totalLines={totalRepoLines} /></div>
-        <div class="language-overview-item"><GitHubLanguages /></div>
+        <dl class="hero-stats" aria-label="博客核心统计">
+          <div><dt>文章</dt><dd>{stats.totalArticles}</dd></div>
+          <div><dt>分类</dt><dd>{stats.totalCategories}</dd></div>
+          <div><dt>标签</dt><dd>{stats.totalTags}</dd></div>
+        </dl>
       </div>
     </section>
 
-    <section class="home-operations home-section" aria-label="站点运行信息">
-      <div class="home-status-panel"><PublicStatus /></div>
-      <section class="maintenance-panel" aria-labelledby="maintenance-title">
-      <div class="maintenance-heading">
-        <p class="home-eyebrow">MAINTENANCE LOG</p>
-        <h2 id="maintenance-title">近期博客维护公告</h2>
-        <span>记录近期功能调整、问题修复与部署状态</span>
-      </div>
-      <div class="maintenance-scroll">
-        {maintenanceEntries.map((entry, index) => (
-          <details class="maintenance-entry" open={index === 0}>
-            <summary><time datetime={entry.date}>{entry.date}</time><span>{entry.title}</span></summary>
-            <div class="maintenance-body" set:html={entry.html}></div>
-          </details>
-        ))}
-      </div>
-      </section>
+    <section class="recent-section" aria-labelledby="recent-title">
+      <header class="section-heading">
+        <div>
+          <p class="section-kicker">RECENT WRITING</p>
+          <h2 id="recent-title">近期文章</h2>
+        </div>
+        <a class="section-link" href={withBase('/blog/')}>查看全部文章 <span aria-hidden="true">→</span></a>
+      </header>
+
+      {recentPosts.length > 0 ? (
+        <div class="recent-list">
+          {recentPosts.map((post, index) => (
+            <article class="home-post-card">
+              <a class="home-post-link" href={blogPostPath(post.id)}>
+                <div class="home-post-media" style={`--cover-hue:${(338 + index * 48) % 360};`}>
+                  {post.data.heroImage ? (
+                    <Image src={post.data.heroImage} width={720} height={420} alt={post.data.title} />
+                  ) : (
+                    <>
+                      <span class="cover-grid"></span>
+                      <span class="cover-letter">{post.data.dir1?.slice(0, 1) || '文'}</span>
+                      <span class="cover-caption">{post.data.dir1 || '个人记录'}</span>
+                    </>
+                  )}
+                </div>
+                <div class="home-post-copy">
+                  <div class="post-meta-line">
+                    <span>{post.data.dir1 || '未分类'}</span>
+                    <time datetime={post.data.pubDate.toISOString()}><FormattedDate date={post.data.pubDate} /></time>
+                  </div>
+                  <h3>{post.data.title}</h3>
+                  <p>{post.data.description.replace(/<[^>]+>/g, '')}</p>
+                  {post.data.tags.length > 0 && (
+                    <div class="post-tags" aria-label="文章标签">
+                      {post.data.tags.slice(0, 3).map((tag) => <span>{tag}</span>)}
+                    </div>
+                  )}
+                  <span class="post-more">继续阅读 <span aria-hidden="true">↗</span></span>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="home-empty">
+          <strong>文章正在整理中</strong>
+          <p>这里会展示最近发布的内容。你也可以先进入博客列表查看分类结构。</p>
+          <a href={withBase('/blog/')}>浏览博客</a>
+        </div>
+      )}
     </section>
 
-    <section class="contribution-panel home-section" aria-label="GitHub 贡献"><GitHubContributions /></section>
+    <section class="home-info-strip" aria-labelledby="site-info-title">
+      <header class="info-strip-heading">
+        <div>
+          <p class="section-kicker">SITE NOTES</p>
+          <h2 id="site-info-title">站点信息</h2>
+        </div>
+        <p>
+          已运行 {stats.daysSinceLaunch} 天 · 累计 {fmtNum(stats.totalWords)} 字 · 仓库 {fmtNum(totalRepoLines)} 行代码
+        </p>
+      </header>
+
+      <div class="info-strip-grid">
+        <section class="info-block language-block" aria-labelledby="language-title">
+          <div class="info-block-heading">
+            <span>01</span>
+            <div><h3 id="language-title">代码语言构成</h3><p>本站仓库与 GitHub 账户</p></div>
+          </div>
+          <div class="language-grid">
+            <GitHubRepoStats languages={repoLanguages} totalLines={totalRepoLines} />
+            <GitHubLanguages />
+          </div>
+        </section>
+
+        <section class="info-block status-block" aria-label="系统状态">
+          <div class="info-block-heading">
+            <span>02</span>
+            <div><h3>运行状态</h3><p>按需检测，不持续轮询</p></div>
+          </div>
+          <PublicStatus />
+        </section>
+      </div>
+
+      <div class="info-folds">
+        <details class="info-fold maintenance-fold" open>
+          <summary><span>03</span><strong>近期维护公告</strong><small>查看最近的功能调整与修复</small></summary>
+          <div class="maintenance-list">
+            {maintenanceEntries.map((entry, index) => (
+              <details class="maintenance-entry" open={index === 0}>
+                <summary><time datetime={entry.date}>{entry.date}</time><span>{entry.title}</span></summary>
+                <div class="maintenance-body" set:html={entry.html}></div>
+              </details>
+            ))}
+          </div>
+        </details>
+
+        <details class="info-fold contribution-fold">
+          <summary><span>04</span><strong>GitHub 贡献记录</strong><small>过去一年的公开贡献活跃度</small></summary>
+          <div class="contribution-content"><GitHubContributions /></div>
+        </details>
+      </div>
+    </section>
   </div>
-  </div>
-</Layout>
+</PublicLayout>
 
 <style>
-  .home-width-container { width: 100%; min-width: 0; container-type: inline-size; }
-  .home-page { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero" "recent" "languages" "operations" "contribution"; align-items: start; gap: 2rem; width: min(1180px, 100%); margin: 0 auto; padding: 2rem 1.5rem 3rem; text-align: left; }
-  .home-page > * { min-width: 0; }
-  .home-hero { grid-area: hero; display: grid; gap: 2rem; padding: 1rem 0 1.5rem; border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent); }
-  .hero-copy { max-width: 44rem; }
-  .home-eyebrow { margin: 0 0 .65rem; color: var(--accent); font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-  .hero-copy h1 { margin: 0; color: var(--foreground-light); font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; letter-spacing: -.02em; }
-  .hero-copy h1 span { color: var(--accent-light); }
-  .hero-description { max-width: 38rem; margin: 1rem 0 0; color: var(--foreground-dark); font-size: 1rem; line-height: 1.8; }
-  .hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
-  .hero-action { display: inline-flex; align-items: center; min-height: 2.5rem; padding: .55rem 1rem; color: var(--foreground); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: .875rem; transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
-  .hero-action:hover { color: var(--accent-light); border-color: var(--accent); background: rgba(var(--accent-rgb), .08); }
-  .hero-action:active { transform: scale(.98); }
-  .hero-action.primary { color: var(--background); background: var(--accent); border-color: var(--accent); font-weight: 700; }
-  .hero-action.primary:hover { color: var(--background); background: var(--accent-light); }
-  .hero-action:focus-visible, .section-link:focus-visible, .maintenance-entry summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
-  .site-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; max-width: 34rem; border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
-  .stat-item { display: grid; min-width: 0; min-height: 4.5rem; place-items: center; align-content: center; gap: .25rem; padding: .75rem .5rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .stat-item strong { color: var(--accent-light); font-size: 1.4rem; line-height: 1.2; }
-  .stat-item span { color: var(--foreground-dark); font-size: .75rem; }
-  .home-section { min-width: 0; overflow: hidden; background: color-mix(in srgb, var(--muted) 14%, transparent); border: 1px solid color-mix(in srgb, var(--border) 85%, transparent); border-radius: var(--radius-xl); }
-  .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.25rem .25rem; }
-  .section-heading h2 { margin: 0; color: var(--foreground-light); font-size: 1.25rem; }
-  .section-link { flex: 0 0 auto; color: var(--accent); font-size: .8rem; }
-  .section-link:hover { color: var(--accent-light); }
-  .recent-posts { grid-area: recent; }
-  .recent-posts :global(main) { width: 100%; max-width: 100%; margin: 0; padding: .75rem 1.25rem 1.25rem; }
-  .recent-posts :global(.card-grid) { grid-template-columns: 1fr; gap: 0; margin: 0; }
-  .recent-posts :global(.blog-card) { border-radius: 0; border-top: 1px solid color-mix(in srgb, var(--border) 68%, transparent); background: transparent; transition: background var(--transition-fast); }
-  .recent-posts :global(.blog-card:first-child) { border-top: 0; }
-  .recent-posts :global(.blog-card:hover) { transform: none; background: rgba(var(--accent-rgb), .05); }
-  .recent-posts :global(.card-image) { display: none; }
-  .recent-posts :global(.card-content) { gap: .35rem; padding: .9rem .25rem; }
-  .recent-posts :global(.card-title) { font-size: 1rem; line-height: 1.4; }
-  .recent-posts :global(.card-description) { max-width: 42rem; font-size: .875rem; line-height: 1.55; }
-  .recent-posts :global(.card-date) { font-size: .75rem; }
-  .recent-posts :global(.card-tag) { font-size: .7rem; }
-  .language-overview-panel { grid-area: languages; padding: 1.25rem; }
-  .language-overview-heading { margin-bottom: .75rem; }
-  .language-overview-heading h2 { margin: .1rem 0 .25rem; color: var(--foreground-light); font-size: 1.25rem; }
-  .language-overview-heading span { color: var(--foreground-dark); font-size: .875rem; }
-  .language-overview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; min-width: 0; }
-  .language-overview-item { min-width: 0; }
-  .language-overview-item > :global(*) { height: 100%; }
-  .language-overview-item :global(.lang-card) { padding: .8rem .65rem; }
-  .language-overview-item :global(.lang-title) { margin-bottom: .65rem; color: var(--foreground); font-size: .82rem; font-weight: 650; }
-  .language-overview-item + .language-overview-item { border-left: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border)); }
-  .language-overview-item :global(.lang-chart-row) { gap: .65rem; }
-  .language-overview-item :global(.lang-pie) { width: 126px; height: 126px; }
-  .language-overview-item :global(.lang-legend) { gap: .16rem; font-size: .68rem; }
-  .language-overview-item :global(.lang-total) { margin-top: .45rem; font-size: .68rem; }
-  .home-page :global(.lang-card), .home-page :global(.gh-contributions) { width: 100%; max-width: none; margin: 0; background: transparent; border: 0; border-radius: 0; }
-  .home-page :global(.lang-card), .home-page :global(.gh-contributions) { display: flex; flex-direction: column; justify-content: center; }
-  .home-page :global(.lang-card) { padding: .75rem .5rem .25rem; }
-  .home-page :global(.lang-title), .home-page :global(.gh-contributions > .stat-label) { color: var(--foreground); font-size: .875rem; font-weight: 650; line-height: 1.4; }
-  .home-page :global(.lang-chart-row) { gap: .75rem; }
-  .home-page :global(.lang-pie) { width: 118px; height: 118px; }
-  .home-page :global(.lang-legend) { gap: .2rem; font-size: .7rem; line-height: 1.35; }
-  .home-page :global(.lang-total) { margin-top: .65rem; font-size: .72rem; }
-  .home-page :global(.gh-grid-wrapper) { padding: .75rem; background: transparent; border: 0; border-radius: 0; }
-  .home-operations { grid-area: operations; display: grid; gap: 1.25rem; padding: 1.25rem; }
-  .home-status-panel { min-width: 0; }
-  .home-status-panel :global(.system-status-heading) { margin-bottom: .75rem; }
-  .home-status-panel :global(.system-status-heading h2) { font-size: 1.25rem; }
-  .home-status-panel :global(.status-eyebrow) { font-size: .75rem; }
-  .home-status-panel :global(.status-refresh) { min-height: 2.25rem; border-color: color-mix(in srgb, var(--border) 75%, transparent); font-size: .75rem; }
-  .home-status-panel :global(.system-status-grid) { gap: .5rem; }
-  .home-status-panel :global(.system-card) { min-height: 7.5rem; padding: .7rem; background: color-mix(in srgb, var(--state-bg) 68%, transparent); }
-  .maintenance-panel { display: flex; flex-direction: column; min-height: 0; padding-top: 1.25rem; border-top: 1px solid var(--border); }
-  .maintenance-heading { margin-bottom: .7rem; }
-  .maintenance-heading h2 { margin: .15rem 0 0; font-size: 1.18rem; }
-  .maintenance-heading span { color: var(--foreground-dark); font-size: .7rem; }
-  .maintenance-scroll { display: grid; grid-auto-rows: max-content; align-content: start; flex: 1 1 auto; gap: .6rem; min-height: 0; max-height: 24rem; padding-right: .2rem; overflow-y: auto; scrollbar-gutter: stable; scrollbar-width: thin; }
-  .maintenance-entry { overflow: hidden; padding: 0; margin: 0; background: color-mix(in srgb, var(--background) 42%, transparent); border: 1px solid var(--border); border-radius: var(--radius-lg); }
-  .maintenance-entry[open] { border-color: color-mix(in srgb, var(--accent) 60%, var(--border)); }
-  .maintenance-entry summary { position: relative; display: grid; gap: .22rem; padding: .72rem .8rem .72rem 1.1rem; margin: 0; color: var(--foreground); cursor: pointer; list-style: none; }
-  .maintenance-entry[open] > summary { margin-bottom: 0; }
-  .maintenance-entry summary::-webkit-details-marker { display: none; }
-  .maintenance-entry summary::before { content: '›'; position: absolute; left: .45rem; top: .72rem; color: var(--accent); transform: rotate(0deg); transition: transform var(--transition-base); }
-  .maintenance-entry[open] summary::before { transform: rotate(90deg); }
-  .maintenance-entry summary time { color: var(--accent); font-size: .7rem; font-weight: 650; }
-  .maintenance-entry summary span { padding-left: .35rem; font-size: .84rem; font-weight: 650; line-height: 1.45; }
-  .maintenance-body { padding: 0 .9rem .85rem; color: var(--foreground-dark); font-size: .76rem; line-height: 1.65; }
-  .maintenance-body :global(p), .maintenance-body :global(ul) { margin: .45rem 0 0; }
-  .maintenance-body :global(ul) { padding-left: 1.2rem; }
-  .contribution-panel { grid-area: contribution; min-height: 280px; padding: 1.25rem; }
-  .contribution-panel :global(.gh-contributions) { width: 100%; max-width: none; margin: 0; }
-  .contribution-panel :global(.gh-contributions > .stat-label) { margin-bottom: .8rem !important; color: var(--foreground); font-size: 1.08rem; font-weight: 650; line-height: 1.4; }
-  .contribution-panel :global(.gh-grid-wrapper) { width: 100%; max-width: none; box-sizing: border-box; padding: 1rem 1.1rem .85rem; }
-  .contribution-panel :global(.gh-grid-outer) { justify-content: center; }
-  .contribution-panel :global(.gh-scroll-area) { justify-content: center; }
-
-  @container (min-width: 680px) {
-    .home-hero { grid-template-columns: minmax(0, 1fr); }
-    .home-hero .site-stats { width: 100%; max-width: none; }
-    .home-page { grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); grid-template-areas: "hero recent" "languages operations" "contribution contribution"; }
-    .maintenance-scroll { max-height: 20rem; }
+  .home-page {
+    width: min(1200px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 40px 0 64px;
+    color: var(--text-primary);
+    text-align: left;
   }
 
-  @container (min-width: 1040px) {
-    .home-page { gap: 2.5rem; padding-inline: 2rem; }
-    .home-operations { gap: 1.5rem; }
+  .home-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+    align-items: center;
+    min-height: 480px;
+    overflow: hidden;
+    isolation: isolate;
+    border-bottom: 1px solid var(--border);
   }
 
-  @media (max-width: 760px) {
-    .home-page { gap: 1.5rem; padding: 1.25rem .75rem 2.5rem; }
-    .hero-copy h1 { font-size: 2rem; }
-    .hero-description { font-size: .875rem; }
-    .home-hero { gap: 1.5rem; }
-    .language-overview-panel { padding: .95rem .8rem 1rem; }
-    .language-overview-grid { gap: .5rem; }
-    .language-overview-item :global(.lang-pie) { width: 112px; height: 112px; }
-    .home-operations { padding: 1rem; }
-    .site-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .language-overview-panel { padding: 1rem .85rem; }
+  .hero-copy { position: relative; z-index: 2; grid-column: 1; grid-row: 1; max-width: 720px; padding: 48px 0; }
+  .home-eyebrow, .section-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
+  .hero-copy h1 { margin: 0; color: var(--text-primary); font-size: 48px; line-height: 1.2; letter-spacing: -.035em; }
+  .hero-copy h1 span { display: inline-block; margin-left: 12px; color: var(--accent); }
+  .hero-description { max-width: 650px; margin: 24px 0 0; color: var(--text-secondary); font-size: 16px; line-height: 1.85; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .hero-action { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 20px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 650; transition: transform 160ms cubic-bezier(.23,1,.32,1), color 160ms ease, border-color 160ms ease, background 160ms ease; }
+  .hero-action.primary { color: var(--button-on-accent); background: var(--accent); border-color: var(--accent); }
+  .hero-action.secondary { color: var(--text-primary); background: color-mix(in srgb, var(--surface) 55%, transparent); }
+  .hero-action:active { transform: scale(.97); }
+  .hero-action:focus-visible, .section-link:focus-visible, .home-post-link:focus-visible, .info-fold > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+
+  .hero-stats { display: flex; gap: 0; margin: 40px 0 0; }
+  .hero-stats div { min-width: 96px; padding-right: 24px; margin-right: 24px; border-right: 1px solid var(--border); }
+  .hero-stats div:last-child { margin-right: 0; border-right: 0; }
+  .hero-stats dt { color: var(--text-secondary); font-size: 12px; }
+  .hero-stats dd { margin: 4px 0 0; color: var(--text-primary); font-size: 28px; font-weight: 700; line-height: 1.2; }
+
+  .hero-art { position: relative; z-index: 1; grid-column: 2; grid-row: 1; width: min(360px, 100%); aspect-ratio: 1; justify-self: end; }
+  .hero-art::before { content: ''; position: absolute; inset: 18%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 55%, white), var(--accent) 45%, color-mix(in srgb, var(--accent) 42%, transparent) 72%); filter: saturate(.9); box-shadow: 0 30px 80px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .hero-orbit { position: absolute; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border)); border-radius: 50%; transform: rotate(-18deg); }
+  .hero-orbit-large { inset: 4% 0; }
+  .hero-orbit-small { inset: 13% 9%; transform: rotate(24deg); }
+  .hero-dot { position: absolute; width: 12px; height: 12px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 12%, transparent); }
+  .hero-dot-one { top: 18%; right: 13%; }
+  .hero-dot-two { left: 7%; bottom: 26%; width: 8px; height: 8px; }
+  .hero-mark { position: absolute; inset: 0; display: grid; place-items: center; color: var(--button-on-accent); font-size: 84px; font-weight: 800; text-shadow: 0 8px 30px rgba(0,0,0,.16); }
+
+  .recent-section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+  .section-heading h2, .info-strip-heading h2 { margin: 0; color: var(--text-primary); font-size: 28px; line-height: 1.25; }
+  .section-link { color: var(--accent); font-size: 14px; font-weight: 650; }
+  .recent-list { display: grid; gap: 24px; }
+  .home-post-card { overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .home-post-link { display: grid; grid-template-columns: minmax(260px, .78fr) minmax(0, 1.22fr); min-height: 228px; color: inherit; }
+  .home-post-media { position: relative; min-height: 228px; overflow: hidden; background: linear-gradient(145deg, hsl(var(--cover-hue) 78% 68%), color-mix(in srgb, var(--accent) 78%, var(--surface))); }
+  .home-post-media :global(img) { width: 100%; height: 100%; object-fit: cover; border-radius: 0; transition: transform 220ms cubic-bezier(.23,1,.32,1); }
+  .cover-grid { position: absolute; inset: 0; opacity: .32; background-image: linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(to bottom right, black, transparent 82%); }
+  .cover-letter { position: absolute; left: 32px; bottom: 32px; color: rgba(255,255,255,.94); font-size: 72px; font-weight: 800; line-height: 1; text-shadow: 0 8px 28px rgba(0,0,0,.18); }
+  .cover-caption { position: absolute; right: 20px; top: 20px; padding: 4px 10px; color: rgba(255,255,255,.92); border: 1px solid rgba(255,255,255,.4); border-radius: 999px; font-size: 12px; }
+  .home-post-copy { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 32px 40px; }
+  .post-meta-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; color: var(--text-secondary); font-size: 12px; }
+  .post-meta-line > span { color: var(--accent); font-weight: 650; }
+  .home-post-copy h3 { margin: 12px 0 0; color: var(--text-primary); font-size: 20px; line-height: 1.4; }
+  .home-post-copy > p { display: -webkit-box; overflow: hidden; margin: 12px 0 0; color: var(--text-secondary); font-size: 16px; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .post-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .post-tags span { padding: 3px 9px; color: var(--text-secondary); background: var(--surface-subtle); border-radius: 999px; font-size: 12px; }
+  .post-more { margin-top: 20px; color: var(--accent); font-size: 14px; font-weight: 650; }
+  .home-empty { padding: 32px; color: var(--text-secondary); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .home-empty strong { color: var(--text-primary); font-size: 20px; }
+  .home-empty p { margin: 8px 0 16px; font-size: 16px; }
+
+  .home-info-strip { padding: 64px 0 0; }
+  .info-strip-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .info-strip-heading > p { max-width: 520px; margin: 0; color: var(--text-secondary); font-size: 14px; text-align: right; }
+  .info-strip-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid var(--border); }
+  .info-block { min-width: 0; padding: 32px 0; }
+  .info-block + .info-block { padding-left: 40px; margin-left: 40px; border-left: 1px solid var(--border); }
+  .info-block-heading { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+  .info-block-heading > span, .info-fold > summary > span { color: var(--accent); font-size: 12px; font-weight: 700; }
+  .info-block-heading h3 { margin: 0; color: var(--text-primary); font-size: 20px; }
+  .info-block-heading p { margin: 4px 0 0; color: var(--text-secondary); font-size: 14px; }
+  .language-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .language-grid > :global(*) { min-width: 0; }
+  .language-block :global(.lang-card) { width: 100%; max-width: none; padding: 0; margin: 0; background: transparent; border: 0; box-shadow: none; }
+  .language-block :global(.lang-title) { margin-bottom: 12px; color: var(--text-secondary); font-size: 14px; text-align: left; }
+  .language-block :global(.lang-chart-row) { gap: 12px; }
+  .language-block :global(.lang-pie) { width: 112px; height: 112px; }
+  .language-block :global(.lang-legend) { gap: 3px; font-size: 11px; }
+  .language-block :global(.lang-total) { margin-top: 8px; font-size: 12px; }
+  .status-block :global(.system-status-heading) { display: none; }
+  .status-block :global(.system-status-grid) { gap: 8px; }
+  .status-block :global(.system-card) { min-height: 0; padding: 12px; background: color-mix(in srgb, var(--state-bg) 54%, transparent); border-radius: 8px; }
+  .status-block :global(.system-card p) { margin-top: 6px; font-size: 12px; }
+  .status-block :global(.system-card small), .status-block :global(.system-card a) { font-size: 11px; }
+
+  .info-folds { display: grid; }
+  .info-fold { border-bottom: 1px solid var(--border); }
+  .info-fold > summary { display: grid; grid-template-columns: 32px minmax(180px, auto) minmax(0, 1fr); align-items: center; gap: 16px; padding: 20px 0; cursor: pointer; list-style: none; }
+  .info-fold > summary::-webkit-details-marker, .maintenance-entry > summary::-webkit-details-marker { display: none; }
+  .info-fold > summary::after { content: '+'; justify-self: end; color: var(--accent); font-size: 20px; transition: transform 180ms cubic-bezier(.23,1,.32,1); }
+  .info-fold[open] > summary::after { transform: rotate(45deg); }
+  .info-fold > summary strong { color: var(--text-primary); font-size: 16px; }
+  .info-fold > summary small { color: var(--text-secondary); font-size: 14px; }
+  .maintenance-list { max-height: 360px; overflow-y: auto; padding: 0 0 24px 48px; }
+  .maintenance-entry { border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent); }
+  .maintenance-entry > summary { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 16px; padding: 14px 0; cursor: pointer; list-style: none; }
+  .maintenance-entry time { color: var(--accent); font-size: 12px; }
+  .maintenance-entry > summary span { color: var(--text-primary); font-size: 14px; font-weight: 650; }
+  .maintenance-body { padding: 0 0 16px 106px; color: var(--text-secondary); font-size: 14px; line-height: 1.65; }
+  .maintenance-body :global(p), .maintenance-body :global(ul) { margin: 8px 0 0; }
+  .contribution-content { padding: 0 0 32px 48px; }
+  .contribution-content :global(.gh-contributions) { width: 100%; max-width: none; margin: 0; padding: 0; background: transparent; border: 0; border-radius: 0; }
+  .contribution-content :global(.gh-contributions > .stat-label) { display: none; }
+  .contribution-content :global(.gh-grid-wrapper) { padding: 16px 0; background: transparent; border: 0; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .hero-action:hover { transform: translateY(-1px); }
+    .home-post-card { transition: transform 180ms cubic-bezier(.23,1,.32,1), border-color 180ms ease, box-shadow 180ms ease; }
+    .home-post-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 12px 32px color-mix(in srgb, var(--text-primary) 9%, transparent); }
+    .home-post-card:hover .home-post-media :global(img) { transform: scale(1.025); }
   }
-  @media (max-width: 420px) {
-    .stat-item { min-height: 4.2rem; padding-inline: .35rem; }
-    .stat-item strong { font-size: 1.25rem; }
-    .language-overview-grid { grid-template-columns: 1fr; }
-    .language-overview-item + .language-overview-item { padding-top: .7rem; border-top: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border)); border-left: 0; }
-    .contribution-panel :global(.gh-grid-outer) { justify-content: flex-start; }
-    .contribution-panel :global(.gh-scroll-area) { justify-content: flex-start; }
-    .contribution-panel { min-height: 250px; padding-inline: .8rem; }
+
+  @media (max-width: 900px) {
+    .home-page { width: min(100% - 32px, 760px); padding-top: 24px; }
+    .home-hero { grid-template-columns: minmax(0, 1fr) 240px; min-height: 420px; }
+    .hero-art { width: 240px; }
+    .hero-mark { font-size: 60px; }
+    .home-post-link { grid-template-columns: minmax(220px, .8fr) minmax(0, 1.2fr); }
+    .home-post-copy { padding: 24px; }
+    .info-strip-grid { grid-template-columns: 1fr; }
+    .info-block + .info-block { padding-left: 0; margin-left: 0; border-top: 1px solid var(--border); border-left: 0; }
+  }
+
+  @media (max-width: 640px) {
+    .home-page { width: calc(100% - 32px); padding: 16px 0 48px; }
+    .home-hero { display: block; min-height: 0; padding: 40px 0 48px; }
+    .hero-copy { padding: 0; }
+    .hero-copy h1 { font-size: 32px; line-height: 1.25; }
+    .hero-copy h1 span { margin-left: 8px; }
+    .hero-description { font-size: 16px; line-height: 1.75; }
+    .hero-art { position: absolute; z-index: -1; top: -24px; right: -94px; width: 240px; opacity: .28; }
+    .hero-actions { margin-top: 24px; }
+    .hero-stats { margin-top: 32px; }
+    .hero-stats div { flex: 1; min-width: 0; padding-right: 12px; margin-right: 12px; }
+    .hero-stats dd { font-size: 24px; }
+    .recent-section, .home-info-strip { padding-top: 48px; }
+    .section-heading, .info-strip-heading { align-items: flex-start; }
+    .section-heading h2, .info-strip-heading h2 { font-size: 24px; }
+    .section-link { margin-top: 30px; }
+    .info-strip-heading { display: block; }
+    .info-strip-heading > p { margin-top: 12px; text-align: left; }
+    .home-post-link { display: block; min-height: 0; }
+    .home-post-media { min-height: 190px; }
+    .home-post-copy { padding: 24px 20px; }
+    .home-post-copy h3 { font-size: 20px; }
+    .language-grid { grid-template-columns: 1fr; }
+    .language-grid > :global(*) + :global(*) { padding-top: 24px; border-top: 1px solid var(--border); }
+    .info-fold > summary { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; }
+    .info-fold > summary small { display: none; }
+    .maintenance-list, .contribution-content { padding-left: 0; }
+    .maintenance-entry > summary { grid-template-columns: 76px minmax(0, 1fr); gap: 12px; }
+    .maintenance-body { padding-left: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-action, .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
   }
 </style>

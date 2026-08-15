@@ -5,12 +5,8 @@
  */
 
 @import url('https://chinese-fonts-cdn.konghayao.deno.net/packages/mkwtyt/dist/MaoKenTangYuan/result.css');
-@import './themes/dark-blue.css';
-@import './themes/dark-green.css';
-@import './themes/dark-purple.css';
 @import './themes/light-blue.css';
-@import './themes/light-green.css';
-@import './themes/light-rose.css';
+@import './themes/dark-blue.css';
 @import './syntax-highlight.css';
 @tailwind base;
 @tailwind components;
@@ -19,7 +15,7 @@
 :root {
   --font-MaoKenTangYuan: 'MaoKenTangYuan (beta)';
 
-  /* blog_test2 语义设计 Token：六套主题仅替换下方既有主题变量。 */
+  /* blog_test2 语义设计 Token：浅色/深色主题仅替换基础色值。 */
   --canvas: var(--background);
   --surface: var(--background-dark);
   --surface-subtle: var(--muted);

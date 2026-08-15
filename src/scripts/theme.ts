@@ -1,16 +1,30 @@
-const THEMES = ['dark-blue', 'dark-green', 'dark-purple', 'light-blue', 'light-green', 'light-rose'];
+const THEMES = ['light', 'dark'] as const;
 const STORAGE_KEY = 'blog-test2-theme';
+
+const THEME_MIGRATIONS: Record<string, 'light' | 'dark'> = {
+  'dark-blue': 'dark',
+  'dark-green': 'dark',
+  'dark-purple': 'dark',
+  'light-blue': 'light',
+  'light-green': 'light',
+  'light-rose': 'light',
+};
 
 function getSavedTheme(): string | null {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && THEMES.includes(saved)) return saved;
+    if (saved && THEMES.includes(saved as (typeof THEMES)[number])) return saved;
+    if (saved && THEME_MIGRATIONS[saved]) {
+      const migrated = THEME_MIGRATIONS[saved];
+      localStorage.setItem(STORAGE_KEY, migrated);
+      return migrated;
+    }
   } catch (e) {}
   return null;
 }
 
 function getSystemPreference(): string {
-  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light-blue' : 'dark-blue';
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
 function getEffectiveTheme(): string {
@@ -25,7 +39,7 @@ function applyTheme(name: string) {
 function markCurrent(name: string) {
   const dropdown = document.getElementById('theme-dropdown');
   if (!dropdown) return;
-  dropdown.querySelectorAll('div[data-theme]').forEach(el => {
+  dropdown.querySelectorAll('[data-theme]').forEach(el => {
     const htmlEl = el as HTMLElement;
     htmlEl.classList.toggle('current', htmlEl.dataset.theme === name);
   });
@@ -66,9 +80,10 @@ if (!(window as any).__themeScriptLoaded) {
 
     if (dropdown.hidden) return;
 
-    const option = (e.target as HTMLElement).closest<HTMLElement>('div[data-theme]');
+    const option = (e.target as HTMLElement).closest<HTMLElement>('[data-theme]');
     if (option && dropdown.contains(option)) {
       selectTheme(option.dataset.theme!);
+      hideDropdown();
       return;
     }
 

@@ -20,16 +20,9 @@ export const TARGET_REPOSITORY = 'ice11123/blog_test2';
 export const DIR1_ORDER: string[] = [];
 export const DIR2_ORDER: Record<string, string[]> = {};
 
-export const VALID_THEMES = [
-  'dark-blue',
-  'dark-green',
-  'dark-purple',
-  'light-blue',
-  'light-green',
-  'light-rose',
-];
-export const DEFAULT_DARK_THEME = 'dark-blue';
-export const DEFAULT_LIGHT_THEME = 'light-blue';
+export const VALID_THEMES = ['light', 'dark'] as const;
+export const DEFAULT_DARK_THEME = 'dark';
+export const DEFAULT_LIGHT_THEME = 'light';
 export const THEME_STORAGE_KEY = 'blog-test2-theme';
 
 export const EXT_MAP: Record<string, { name: string; color: string }> = {

@@ -1,6 +1,5 @@
-/* ===== 暗蓝主题 (默认) ===== */
-
-:root {
+/* blog_test2 V2 深色主题：沿用原暗蓝基底，收敛表面层级。 */
+html[data-theme="dark"] {
   /* —— 背景系 —— */
   --background: #000123;
   --background-dark: #000014;
@@ -10,6 +9,7 @@
   --accent: #617bff;
   --accent-dark: #4a65e8;
   --accent-light: #8398ff;
+  --button-on-accent: #ffffff;
 
   /* —— 文字前景 —— */
   --foreground: #eaedf3;

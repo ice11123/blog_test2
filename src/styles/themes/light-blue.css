@@ -1,88 +1,80 @@
-/* ===== 亮色主题共享变量 + 亮蓝主题 ===== */
-
-/* 所有亮色主题的公共变量 */
-html[data-theme^="light"] {
-  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08),
-                0 8px 24px rgba(0, 0, 0, 0.10),
-                0 16px 32px rgba(0, 0, 0, 0.10);
-  --hero-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+/* blog_test2 V2 浅色主题：暖白画布 + 珊瑚强调色。 */
+:root,
+html[data-theme="light"] {
+  --background: #fdfbfb;
   --background-dark: #ffffff;
-  --tag-count-bg: rgba(0, 0, 0, 0.06);
-  --browser-bg: #ffffff;
-  --browser-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  --browser-frame-bg: #ffffff;
+  --background-light: #f8f1f2;
+  --accent: #e9536a;
+  --accent-dark: #c93d55;
+  --accent-light: #f07183;
+  --foreground: #2f2d30;
+  --foreground-dark: #686269;
+  --foreground-light: #171518;
+  --muted: #f4edef;
+  --muted-dark: #faf6f7;
+  --muted-light: #eadfe2;
+  --border: #e8dde0;
+  --border-dark: #f0e8ea;
+  --border-light: #d9c9cd;
+  --button-on-accent: #ffffff;
 
-  /* GitHub 提示块颜色（亮色主题） */
-  --alert-note: #0969da;
-  --alert-note-bg: rgba(9, 105, 218, 0.06);
-  --alert-note-border: #0969da;
-  --alert-tip: #1a7f37;
-  --alert-tip-bg: rgba(26, 127, 55, 0.06);
-  --alert-tip-border: #1a7f37;
-  --alert-important: #8250df;
-  --alert-important-bg: rgba(130, 80, 223, 0.06);
-  --alert-important-border: #8250df;
-  --alert-warning: #9a6700;
-  --alert-warning-bg: rgba(154, 103, 0, 0.06);
-  --alert-warning-border: #9a6700;
-  --alert-caution: #cf222e;
-  --alert-caution-bg: rgba(207, 34, 46, 0.06);
-  --alert-caution-border: #cf222e;
-}
-
-/* 亮蓝主题特有变量 */
-html[data-theme="light-blue"] {
-  --background: #f4f6fb;
-  --background-light: #e8ecf4;
-  --accent: #4565d8;
-  --accent-dark: #6b85e6;
-  --accent-light: #3451c0;
-  --foreground: #1a1f36;
-  --foreground-dark: #3c4257;
-  --foreground-light: #0f1419;
-  --muted: #e1e7f5;
-  --muted-dark: #eef1fa;
-  --muted-light: #d3daee;
-  --border: #c5cee2;
-  --border-dark: #d8dff0;
-  --border-light: #b0bbd4;
-
-  --accent-rgb: 69, 101, 216;
-  --accent-dark-rgb: 107, 133, 230;
-  --accent-light-rgb: 52, 81, 192;
-  --foreground-rgb: 26, 31, 54;
-  --foreground-dark-rgb: 60, 66, 87;
-  --foreground-light-rgb: 15, 20, 25;
-  --background-rgb: 244, 246, 251;
+  --accent-rgb: 233, 83, 106;
+  --accent-dark-rgb: 201, 61, 85;
+  --accent-light-rgb: 240, 113, 131;
+  --foreground-rgb: 47, 45, 48;
+  --foreground-dark-rgb: 104, 98, 105;
+  --foreground-light-rgb: 23, 21, 24;
+  --background-rgb: 253, 251, 251;
   --background-dark-rgb: 255, 255, 255;
-  --background-light-rgb: 232, 236, 244;
-  --muted-rgb: 225, 231, 245;
-  --muted-dark-rgb: 238, 241, 250;
-  --muted-light-rgb: 211, 218, 238;
-  --border-rgb: 197, 206, 226;
-  --border-dark-rgb: 216, 223, 240;
-  --border-light-rgb: 176, 187, 212;
+  --background-light-rgb: 248, 241, 242;
+  --muted-rgb: 244, 237, 239;
+  --muted-dark-rgb: 250, 246, 247;
+  --muted-light-rgb: 234, 223, 226;
+  --border-rgb: 232, 221, 224;
+  --border-dark-rgb: 240, 232, 234;
+  --border-light-rgb: 217, 201, 205;
 
-  --scrollbar-track: #e8ecf4;
-  --scrollbar-thumb: #b0bbd4;
-  --link-underline-color: #3451c0;
-  --backdrop-rgb: 230, 233, 240;
-  --header-link-text: #3c4257;
-  --header-link-hover: #1a1f36;
+  --box-shadow: 0 12px 32px rgba(62, 38, 44, 0.1);
+  --hero-shadow: 0 16px 48px rgba(102, 54, 65, 0.12);
+  --scrollbar-track: #f4edef;
+  --scrollbar-thumb: #cfbcc1;
+  --link-underline-color: #e9536a;
+  --backdrop-rgb: 34, 23, 26;
+  --tag-count-bg: rgba(47, 45, 48, 0.06);
+  --header-link-text: #686269;
+  --header-link-hover: #2f2d30;
 
-  --browser-border: #d3daee;
-  --browser-chrome-top: #f0f2f8;
-  --browser-chrome-bottom: #e8ecf4;
-  --browser-input-bg: #f4f6fb;
-  --browser-input-border: #c5cee2;
-  --browser-text: #1a1f36;
-  --browser-placeholder: #95a0b8;
-  --browser-accent: #4565d8;
-  --browser-accent-hover: #3451c0;
-  --browser-accent-rgb: 69, 101, 216;
+  --alert-note: #2563a9;
+  --alert-note-bg: rgba(37, 99, 169, 0.07);
+  --alert-note-border: #2563a9;
+  --alert-tip: #277a4a;
+  --alert-tip-bg: rgba(39, 122, 74, 0.07);
+  --alert-tip-border: #277a4a;
+  --alert-important: #7352ad;
+  --alert-important-bg: rgba(115, 82, 173, 0.07);
+  --alert-important-border: #7352ad;
+  --alert-warning: #9a6700;
+  --alert-warning-bg: rgba(154, 103, 0, 0.07);
+  --alert-warning-border: #9a6700;
+  --alert-caution: #c53b4e;
+  --alert-caution-bg: rgba(197, 59, 78, 0.07);
+  --alert-caution-border: #c53b4e;
 
-  --plot-bg: #f4f6fb;
-  --plot-axis-color: #1a1f36;
-  --plot-border: #c5cee2;
-  --plot-default-color: #4565d8;
+  --browser-bg: #ffffff;
+  --browser-shadow: 0 16px 44px rgba(62, 38, 44, 0.13);
+  --browser-border: #e8dde0;
+  --browser-chrome-top: #faf6f7;
+  --browser-chrome-bottom: #f4edef;
+  --browser-input-bg: #fdfbfb;
+  --browser-input-border: #d9c9cd;
+  --browser-text: #2f2d30;
+  --browser-placeholder: #91878d;
+  --browser-frame-bg: #ffffff;
+  --browser-accent: #e9536a;
+  --browser-accent-hover: #c93d55;
+  --browser-accent-rgb: 233, 83, 106;
+  --plot-bg: #fdfbfb;
+  --plot-axis-color: #2f2d30;
+  --plot-border: #d9c9cd;
+  --plot-default-color: #e9536a;
 }

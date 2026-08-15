@@ -24,12 +24,8 @@ import Icon from './Icon.astro';
       <span>主题</span>
     </button>
     <div id="theme-dropdown" class="header-theme-dropdown" hidden>
-      <div data-theme="dark-blue"><span class="theme-dot" style="background:#4a65e8"></span>深蓝</div>
-      <div data-theme="dark-green"><span class="theme-dot" style="background:#10b981"></span>深绿</div>
-      <div data-theme="dark-purple"><span class="theme-dot" style="background:#8b5cf6"></span>深紫</div>
-      <div data-theme="light-blue"><span class="theme-dot" style="background:#4565d8"></span>亮蓝</div>
-      <div data-theme="light-green"><span class="theme-dot" style="background:#2e9a6a"></span>亮绿</div>
-      <div data-theme="light-rose"><span class="theme-dot" style="background:#d1476e"></span>亮玫瑰</div>
+      <button type="button" data-theme="light"><span class="theme-dot theme-dot-light"></span>浅色</button>
+      <button type="button" data-theme="dark"><span class="theme-dot theme-dot-dark"></span>深色</button>
     </div>
   </div>
 </div>
@@ -42,10 +38,12 @@ import Icon from './Icon.astro';
   .header-theme-wrap { position: relative; display: flex; min-width: 0; }
   .header-theme-wrap .header-tool-button { width: 100%; }
   .header-theme-dropdown { position: absolute; z-index: var(--z-dropdown); top: calc(100% + 5px); right: 0; min-width: 130px; padding: 6px; color: var(--foreground); background: rgba(var(--background-rgb), var(--alpha-dropdown-glass)); backdrop-filter: blur(20px); border: 1px solid var(--border-light); border-radius: var(--radius-xl); box-shadow: 0 8px 32px rgba(0, 0, 0, .18); }
-  .header-theme-dropdown > div { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: var(--radius-md); font-size: var(--font-size-md); white-space: nowrap; cursor: pointer; }
-  .header-theme-dropdown > div:hover, .header-theme-dropdown > div.current { background: var(--muted); }
-  .header-theme-dropdown > div.current { font-weight: 600; }
+  .header-theme-dropdown > button { display: flex; align-items: center; width: 100%; gap: 8px; padding: 8px 10px; border: 0; border-radius: var(--radius-md); color: var(--foreground); background: transparent; font: inherit; font-size: var(--font-size-md); text-align: left; white-space: nowrap; cursor: pointer; }
+  .header-theme-dropdown > button:hover, .header-theme-dropdown > button.current { background: var(--muted); }
+  .header-theme-dropdown > button.current { font-weight: 600; }
   .theme-dot { width: 10px; height: 10px; flex: 0 0 auto; border-radius: 50%; }
+  .theme-dot-light { background: #e9536a; }
+  .theme-dot-dark { background: #8da2ff; }
   @media (max-width: 1099px) and (min-width: 769px) {
     .header-tools { grid-template-columns: 2.25rem 2.25rem; }
     .header-tool-button { padding: .35rem; }
