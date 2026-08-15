@@ -5,6 +5,12 @@
 - 用户已明确授权推送；创建并认领 Beads 任务 `blog_test2-wki`。
 - 已确认当前分支为 `main`，远程为 `https://github.com/ice11123/blog_test2.git`，待提交内容仅为本轮主视觉、动效、座右铭和同步记录。
 
+- 提交 `924611f` 已推送到 `origin/main`。
+- GitHub Actions 运行 `31886810840` 的 build/deploy 均成功。
+- 线上 `https://ice11123.github.io/blog_test2/` 返回 200，HTML 含新图片与座右铭，图片资源为 `/blog_test2/_astro/home-hero...webp`，线上浏览器 1440px 无横向溢出。
+- 线上 HTML 中检索到的 `blog_test1` 只来自历史维护文字；`href`、`src`、`srcset` 等资源属性未发现旧子路径。
+- 发布 Beads 任务 `blog_test2-wki` 已关闭。
+
 ## 2026-08-15｜V2.3 顶部图片主视觉
 
 - 创建并认领 Beads 任务 `blog_test2-0jq`。
