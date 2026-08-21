@@ -66,14 +66,15 @@
   --radius-full: 999px;
   --radius-circle: 50%;
 
-  /* Transition presets */
-  --transition-fast: 0.15s ease;
-  --transition-base: 0.2s ease;
-  --transition-medium: 0.25s ease;
-  --transition-slow: 0.3s ease;
-  --transition-spring: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fade: 0.5s ease;
-  --transition-fade-slow: 1s ease;
+  /* Motion presets: crisp UI feedback, deliberate drawers. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --transition-fast: 150ms var(--ease-out);
+  --transition-base: 180ms var(--ease-out);
+  --transition-medium: 220ms var(--ease-in-out);
+  --transition-slow: 240ms var(--ease-drawer);
+  --transition-spring: 180ms var(--ease-out);
 
   /* Alpha opacities */
   --alpha-hover: 0.06;
@@ -647,77 +648,6 @@
   }
 }
 
-@layer utilities {
-  .fade-in {
-    opacity: 0;
-    animation: fadeIn var(--transition-fade-slow) forwards;
-  }
-
-  .fade-down-on-scroll,
-  .fade-up-on-scroll,
-  .fade-left-on-scroll,
-  .fade-right-on-scroll,
-  .fade-scale-on-scroll,
-  .fade-only-on-scroll {
-    opacity: 0;
-    transition: opacity var(--transition-fade), transform var(--transition-fade);
-    height: auto;
-
-    &.visible {
-      opacity: 1;
-    }
-  }
-
-  .fade-up-on-scroll {
-    transform: translateY(30px);
-    &.visible {
-      transform: translateY(0);
-    }
-  }
-
-  .fade-down-on-scroll {
-    transform: translateY(-30px);
-    &.visible {
-      transform: translateY(0);
-    }
-  }
-
-  /* 2. 左滑淡入 */
-  .fade-left-on-scroll {
-    transform: translateX(-30px);
-    &.visible {
-      transform: translateX(0);
-    }
-  }
-
-  /* 3. 右滑淡入 */
-  .fade-right-on-scroll {
-    transform: translateX(30px);
-    &.visible {
-      transform: translateX(0);
-    }
-  }
-
-  /* 4. 缩放淡入 */
-  .fade-scale-on-scroll {
-    transform: scale(0.9);
-    &.visible {
-      transform: scale(1);
-    }
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px); /* 轻微上浮，更高级 */
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @media (max-width: 720px) {
   body {
     font-size: 18px;
@@ -727,30 +657,15 @@
     padding: 1em;
   }
 }
-
-@mixin link-underline {
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: 20%;
-    bottom: 0;
-    width: 60%;
-    height: 2px;
-    background: var(--link-underline-color);
-    border-radius: var(--radius-full);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--transition-spring);
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
   }
 
-  &:hover::after {
-    transform: scaleX(1);
-  }
-
-  // 激活态：下划线保持展开
-  &.active::after {
-    transform: scaleX(1);
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

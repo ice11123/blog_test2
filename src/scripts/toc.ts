@@ -65,9 +65,16 @@ function buildToc() {
       li.classList.add('active');
       programmaticScrolling = true;
 
-      startAnim(targetIdx);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!reduceMotion) startAnim(targetIdx);
+
+      el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+
+      if (window.matchMedia('(max-width: 760px)').matches) {
+        document.documentElement.classList.remove('mobile-sidebar-open');
+        document.getElementById('toggleSidebarBtn')?.setAttribute('aria-expanded', 'false');
+      }
 
       let settled = false;
       const settle = () => {
@@ -80,6 +87,11 @@ function buildToc() {
         li.classList.add('active');
         updateRightIndicator();
       };
+
+      if (reduceMotion) {
+        requestAnimationFrame(settle);
+        return;
+      }
 
       window.addEventListener('scrollend', settle, { once: true });
 
@@ -139,6 +151,11 @@ function tocItemRect(idx: number): { top: number; bottom: number } {
   return { top: top + V_PAD, bottom: top + item.offsetHeight - V_PAD };
 }
 
+function setIndicatorRange(indicator: HTMLElement, top: number, bottom: number): void {
+  const length = Math.max(1, bottom - top);
+  indicator.style.transform = `translateY(${top}px) scaleY(${length})`;
+}
+
 function startAnim(targetIdx: number) {
   const container = document.querySelector('.toc-area');
   const indicator = container?.querySelector('.position-indicator') as HTMLElement | null;
@@ -170,8 +187,7 @@ function startAnim(targetIdx: number) {
 
   // 若已在目标位置则跳过动画
   if (Math.abs(animTargetY - animStartY) < 2) {
-    indicator.style.transform = `translateY(${animTargetTop}px)`;
-    indicator.style.height = `${animTargetBottom - animTargetTop}px`;
+    setIndicatorRange(indicator, animTargetTop, animTargetBottom);
     indicator.classList.add('visible');
     indicator.style.transition = '';
     animFrame = null;
@@ -179,8 +195,7 @@ function startAnim(targetIdx: number) {
   }
 
   // 先渲染起点，再启动插值
-  indicator.style.transform = `translateY(${animStartTop}px)`;
-  indicator.style.height = `${animStartBottom - animStartTop}px`;
+  setIndicatorRange(indicator, animStartTop, animStartBottom);
   indicator.classList.add('visible');
 
   if (animFrame !== null) cancelAnimationFrame(animFrame);
@@ -207,8 +222,7 @@ function tick() {
   const t = animStartTop + (animTargetTop - animStartTop) * progress;
   const b = animStartBottom + (animTargetBottom - animStartBottom) * progress;
 
-  indicator.style.transform = `translateY(${t}px)`;
-  indicator.style.height = `${b - t}px`;
+  setIndicatorRange(indicator, t, b);
 
   if (progress < 1) {
     animFrame = requestAnimationFrame(tick);
@@ -227,10 +241,11 @@ function scrollTocToView(tocItem: HTMLLIElement) {
   const itemTop = itemRect.top - areaRect.top;
   const itemBottom = itemRect.bottom - areaRect.top;
 
+  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
   if (itemTop < -leadOffset) {
-    tocArea.scrollBy({ top: itemTop + leadOffset, behavior: 'smooth' });
+    tocArea.scrollBy({ top: itemTop + leadOffset, behavior });
   } else if (itemBottom > areaRect.height + leadOffset) {
-    tocArea.scrollBy({ top: itemBottom - areaRect.height - leadOffset, behavior: 'smooth' });
+    tocArea.scrollBy({ top: itemBottom - areaRect.height - leadOffset, behavior });
   }
 }
 
@@ -282,8 +297,7 @@ function updateRightIndicator(headingRects?: DOMRect[]) {
     const containerRect = container.getBoundingClientRect();
     const itemRect = item.getBoundingClientRect();
     const relTop = itemRect.top - containerRect.top + container.scrollTop;
-    indicator.style.transform = `translateY(${relTop + V_PAD}px)`;
-    indicator.style.height = `${item.offsetHeight - V_PAD * 2}px`;
+    setIndicatorRange(indicator, relTop + V_PAD, relTop + item.offsetHeight - V_PAD);
     indicator.classList.add('visible');
     return;
   }
@@ -296,8 +310,7 @@ function updateRightIndicator(headingRects?: DOMRect[]) {
   const topRel = firstRect.top - containerRect.top + container.scrollTop + V_PAD;
   const bottomRel = lastRect.top - containerRect.top + container.scrollTop + lastItem.offsetHeight - V_PAD;
 
-  indicator.style.transform = `translateY(${topRel}px)`;
-  indicator.style.height = `${bottomRel - topRel}px`;
+  setIndicatorRange(indicator, topRel, bottomRel);
   indicator.classList.add('visible');
 }
 

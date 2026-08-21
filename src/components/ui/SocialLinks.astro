@@ -5,19 +5,20 @@ import Icon from './Icon.astro';
 
 interface Props {
   showHeaderContacts?: boolean;
+  compact?: boolean;
 }
 
-const { showHeaderContacts = false } = Astro.props;
+const { showHeaderContacts = false, compact = false } = Astro.props;
 ---
 
-<div class="social-links">
-  <HeaderLink href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+<div class:list={["social-links", { compact }]}>
+  <HeaderLink class={compact ? 'compact-social-link' : undefined} href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
     <span class="sr-only">离子怪的 GitHub</span>
     <Icon name="github" />
   </HeaderLink>
   {showHeaderContacts && (
     <>
-      <HeaderLink href={BILIBILI_URL} target="_blank" rel="noopener noreferrer">
+      <HeaderLink class={compact ? 'compact-social-link' : undefined} href={BILIBILI_URL} target="_blank" rel="noopener noreferrer">
         <span class="sr-only">离子怪的 Bilibili</span>
         <Icon name="bilibili" />
       </HeaderLink>
@@ -40,5 +41,15 @@ const { showHeaderContacts = false } = Astro.props;
     color: var(--foreground);
     opacity: 0.72;
     cursor: default;
+  }
+
+  .social-links.compact :global(a.compact-social-link),
+  .social-links.compact .social-placeholder {
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
   }
 </style>

@@ -1,58 +1,73 @@
-// 防止 dev 模式下视图过渡导致脚本重复执行
+// 防止 Astro 视图切换导致事件重复绑定。
 if (!(window as any).__sidebarCollapseLoaded) {
   (window as any).__sidebarCollapseLoaded = true;
 
-// 右侧栏：折叠按钮绑定 + 状态同步
-// HtmlHead.astro 负责初始同步（<head> 中同步执行，避免 FOUC）
-// 此脚本负责按钮点击后的状态切换和视图过渡后的重新同步
+  const STORAGE = 'blog-test2-right-sidebar-collapsed';
+  const mobileViewport = window.matchMedia('(max-width: 760px)');
 
-const STORAGE = 'blog-test2-right-sidebar-collapsed';
-const mobileViewport = window.matchMedia('(max-width: 760px)');
+  function updateControls(): void {
+    const mobileOpen = document.documentElement.classList.contains('mobile-sidebar-open');
+    const desktopOpen = !document.documentElement.classList.contains('sidebar-collapsed');
+    const open = mobileViewport.matches ? mobileOpen : desktopOpen;
+    document.getElementById('toggleSidebarBtn')?.setAttribute('aria-expanded', String(open));
+  }
 
-function syncCollapse() {
-  if (mobileViewport.matches) {
-    // 移动端由 CSS 默认收起，使用独立类控制临时展开，避免首页首屏继承桌面展开状态。
-    document.documentElement.classList.remove('sidebar-collapsed');
+  function closeMobileDrawer(): void {
     document.documentElement.classList.remove('mobile-sidebar-open');
-    return;
+    updateControls();
   }
-  document.documentElement.classList.remove('mobile-sidebar-open');
-  const stored = localStorage.getItem(STORAGE);
-  const collapsed = stored === 'true';
-  if (collapsed) {
-    document.documentElement.classList.add('sidebar-collapsed');
-  } else {
-    document.documentElement.classList.remove('sidebar-collapsed');
-  }
-}
 
-function initCollapse() {
-  const btn = document.getElementById('toggleSidebarBtn');
-  if (!btn) return;
-
-  function toggle() {
+  function syncCollapse(): void {
     if (mobileViewport.matches) {
-      document.documentElement.classList.toggle('mobile-sidebar-open');
+      document.documentElement.classList.remove('sidebar-collapsed');
+      closeMobileDrawer();
       return;
     }
-    document.documentElement.classList.toggle('sidebar-collapsed');
-    const nowCollapsed = document.documentElement.classList.contains('sidebar-collapsed');
-    localStorage.setItem(STORAGE, String(nowCollapsed));
+
+    document.documentElement.classList.remove('mobile-sidebar-open');
+    let collapsed = true;
+    try {
+      collapsed = localStorage.getItem(STORAGE) !== 'false';
+    } catch {}
+    document.documentElement.classList.toggle('sidebar-collapsed', collapsed);
+    updateControls();
   }
 
-  btn.removeEventListener('click', toggle);
-  btn.addEventListener('click', toggle);
-}
+  function toggleDrawer(): void {
+    if (mobileViewport.matches) {
+      const opening = !document.documentElement.classList.contains('mobile-sidebar-open');
+      document.documentElement.classList.toggle('mobile-sidebar-open', opening);
+      if (opening) {
+        document.getElementById('leftSidebar')?.classList.remove('overlay-open');
+        document.querySelector('.left-sidebar-overlay-backdrop')?.classList.remove('open');
+        const leftButton = document.getElementById('toggleLeftSidebarBtn');
+        leftButton?.classList.remove('overlay-open');
+        leftButton?.setAttribute('aria-expanded', 'false');
+      }
+      updateControls();
+      return;
+    }
 
-syncCollapse();
-initCollapse();
+    const collapsed = document.documentElement.classList.toggle('sidebar-collapsed');
+    try { localStorage.setItem(STORAGE, String(collapsed)); } catch {}
+    updateControls();
+  }
 
-// 视图过渡后重新同步状态并重新绑定按钮
-document.addEventListener('astro:after-swap', () => {
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('#toggleSidebarBtn')) {
+      toggleDrawer();
+      return;
+    }
+    if (target.closest('.right-sidebar-overlay-backdrop')) closeMobileDrawer();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && mobileViewport.matches) closeMobileDrawer();
+  });
+
+  document.addEventListener('astro:page-load', syncCollapse);
+  document.addEventListener('astro:after-swap', syncCollapse);
+  mobileViewport.addEventListener('change', syncCollapse);
   syncCollapse();
-  initCollapse();
-});
-
-mobileViewport.addEventListener('change', syncCollapse);
-
 }

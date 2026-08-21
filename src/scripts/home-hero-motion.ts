@@ -1,6 +1,6 @@
 const HERO_SELECTOR = '[data-home-hero-photo]';
 const BASE_SCALE = 1.025;
-const MAX_SCALE = 1.145;
+const MAX_SCALE = 1.075;
 const SCROLL_RANGE = 520;
 
 let cleanupCurrentHero: (() => void) | undefined;

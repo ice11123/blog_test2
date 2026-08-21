@@ -17,6 +17,7 @@
       font-size: 1rem;
       font-weight: 700;
       text-decoration: none;
+      white-space: nowrap;
 
       img {
         width: 56px;
@@ -302,11 +303,8 @@
     padding-left: 1.2rem;
     margin: 0;
     overflow: hidden;
-    max-height: 2000px;
-    transition: max-height var(--transition-slow);
-
     &.collapsed {
-      max-height: 0 !important;
+      display: none;
     }
   }
 
@@ -341,22 +339,6 @@
   }
 
   /* ===== 树形连接线 ===== */
-  @keyframes connector-draw {
-    from {
-      opacity: 0;
-      transform: scaleY(0);
-    }
-    to {
-      opacity: 1;
-      transform: scaleY(1);
-    }
-  }
-
-  @keyframes connector-fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
   /* 包含当前文章路径的 node-children：左侧垂直线 */
   .node-children.active-path {
     position: relative;
@@ -369,10 +351,7 @@
       width: 1.5px;
       height: 100%;
       background: var(--accent);
-      opacity: 0;
-      transform: scaleY(0);
-      transform-origin: top;
-      animation: connector-draw var(--transition-fade) forwards;
+      opacity: 1;
       border-radius: 1px;
       pointer-events: none;
     }
@@ -401,14 +380,21 @@
 
   /* ===== 移动端覆盖层背景 ===== */
   .left-sidebar-overlay-backdrop {
-    display: none;
+    display: block;
     position: fixed;
     inset: 0;
     background: rgba(var(--backdrop-rgb), var(--alpha-overlay-backdrop));
     z-index: var(--z-overlay-backdrop);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 160ms var(--ease-out), visibility 0s 160ms;
 
     &.open {
-      display: block;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity 160ms var(--ease-out), visibility 0s;
     }
   }
 
@@ -439,12 +425,12 @@
       left: 0;
       top: 0;
       height: 100vh;
-      width: 280px;
+      width: min(280px, calc(100vw - 32px));
       z-index: var(--z-left-sidebar-mobile);
       border-radius: 0 var(--radius-2xl) var(--radius-2xl) 0;
       visibility: hidden;
       transform: translateX(-100%);
-      transition: transform var(--transition-slow), visibility 0s var(--transition-slow);
+      transition: transform 240ms var(--ease-drawer), visibility 0s 240ms;
       display: flex;
       flex-direction: column;
       background: rgba(var(--background-rgb), var(--alpha-sidebar-glass));
@@ -466,7 +452,7 @@
       .sidebar-inner {
         flex: 1;
         min-height: 0;
-        max-width: 280px;
+        max-width: 100%;
         overflow: hidden;
         overflow-y: auto;
         box-sizing: border-box;
@@ -506,6 +492,15 @@
     /* 桌面端折叠类在移动端应被忽略 — overlay-open 时恢复可见 */
     html.left-sidebar-collapsed .left-sidebar.overlay-open {
       visibility: visible;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .left-sidebar,
+    .left-sidebar-overlay-backdrop,
+    .node-arrow,
+    .ls-mode-toggle::after {
+      transition-duration: 0ms !important;
     }
   }
 }

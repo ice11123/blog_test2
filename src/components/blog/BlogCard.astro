@@ -18,7 +18,7 @@ const { post, level = 3 } = Astro.props;
 .blog-card {
     border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.3s ease;
+    transition: transform 160ms var(--ease-out);
     cursor: pointer;
     display: block;
     width: 100%;
@@ -39,14 +39,11 @@ const { post, level = 3 } = Astro.props;
     transition: transform var(--transition-spring);
 }
 
-.blog-card:hover::after,
 .blog-card.active::after {
     transform: scaleX(1);
 }
 
-.blog-card:hover {
-    transform: translateY(-4px);
-}
+.blog-card:active { transform: scale(.99); }
 
 .card-link {
     text-decoration: none;
@@ -106,15 +103,22 @@ const { post, level = 3 } = Astro.props;
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.2s ease;
+  transition: background-color 150ms var(--ease-out);
 }
 
-.card-tag:hover {
-  background: rgba(var(--accent-rgb), 0.2);
+@media (hover: hover) and (pointer: fine) {
+  .blog-card:hover::after { transform: scaleX(1); }
+  .blog-card:hover { transform: translateY(-3px); }
+  .card-tag:hover { background: rgba(var(--accent-rgb), 0.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-card, .blog-card::after, .card-tag { transition: none; }
+  .blog-card:hover, .blog-card:active { transform: none; }
 }
 </style>
 
-<article class="blog-card fade-left-on-scroll">
+<article class="blog-card">
   <a href={blogPostPath(post.id)} class="card-link">
     {post.data.heroImage && (
       <Image

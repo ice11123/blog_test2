@@ -1,5 +1,5 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
+import Layout from '../layouts/PublicContentLayout.astro';
 import { SITE_START_DATE } from '../consts';
 import { withBase } from '../lib/urls';
 ---
@@ -8,6 +8,7 @@ import { withBase } from '../lib/urls';
   title="页面未找到"
   description="你访问的页面不存在。"
   pubDate={SITE_START_DATE}
+  hidePageHeader
 >
   <div class="not-found">
     <p class="code">404</p>

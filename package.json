@@ -11,7 +11,7 @@
     "build": "astro build",
     "check": "astro check",
     "test": "pnpm run test:root && pnpm run test:worker",
-    "test:root": "node --experimental-strip-types --test src/lib/publicStatusRequest.test.ts src/lib/adminDrafts.test.ts src/lib/headingAnchors.test.ts scripts/publish-article.test.mjs",
+    "test:root": "node --experimental-strip-types --test src/lib/publicStatusRequest.test.ts src/lib/adminDrafts.test.ts src/lib/headingAnchors.test.ts src/lib/visualContracts.test.ts scripts/publish-article.test.mjs",
     "test:worker": "pnpm --dir worker test",
     "preview": "astro preview",
     "publish:article": "node scripts/publish-article.mjs",

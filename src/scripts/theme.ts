@@ -41,21 +41,36 @@ function markCurrent(name: string) {
   if (!dropdown) return;
   dropdown.querySelectorAll('[data-theme]').forEach(el => {
     const htmlEl = el as HTMLElement;
-    htmlEl.classList.toggle('current', htmlEl.dataset.theme === name);
+    const current = htmlEl.dataset.theme === name;
+    htmlEl.classList.toggle('current', current);
+    htmlEl.setAttribute('aria-checked', String(current));
   });
 }
 
-function showDropdown() {
+function isDropdownOpen(dropdown: HTMLElement): boolean {
+  return dropdown.classList.contains('open');
+}
+
+function showDropdown(instant = false) {
   const dropdown = document.getElementById('theme-dropdown');
+  const button = document.getElementById('theme-switcher-btn');
   if (dropdown) {
     markCurrent(getEffectiveTheme());
-    dropdown.hidden = false;
+    dropdown.dataset.instant = String(instant);
+    dropdown.classList.add('open');
+    dropdown.setAttribute('aria-hidden', 'false');
+    button?.setAttribute('aria-expanded', 'true');
   }
 }
 
 function hideDropdown() {
   const dropdown = document.getElementById('theme-dropdown');
-  if (dropdown) dropdown.hidden = true;
+  const button = document.getElementById('theme-switcher-btn');
+  if (dropdown) {
+    dropdown.classList.remove('open');
+    dropdown.setAttribute('aria-hidden', 'true');
+    button?.setAttribute('aria-expanded', 'false');
+  }
 }
 
 function selectTheme(name: string) {
@@ -73,12 +88,13 @@ if (!(window as any).__themeScriptLoaded) {
     if (!btn || !dropdown) return;
 
     if (btn.contains(e.target as Node)) {
-      if (dropdown.hidden) showDropdown();
+      const keyboardTriggered = e instanceof MouseEvent && e.detail === 0;
+      if (!isDropdownOpen(dropdown)) showDropdown(keyboardTriggered);
       else hideDropdown();
       return;
     }
 
-    if (dropdown.hidden) return;
+    if (!isDropdownOpen(dropdown)) return;
 
     const option = (e.target as HTMLElement).closest<HTMLElement>('[data-theme]');
     if (option && dropdown.contains(option)) {
@@ -95,6 +111,15 @@ if (!(window as any).__themeScriptLoaded) {
   applyTheme(getEffectiveTheme());
 
   document.addEventListener('astro:page-load', () => {
+    hideDropdown();
     applyTheme(getEffectiveTheme());
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    const dropdown = document.getElementById('theme-dropdown');
+    if (!dropdown || !isDropdownOpen(dropdown)) return;
+    hideDropdown();
+    document.getElementById('theme-switcher-btn')?.focus({ preventScroll: true });
   });
 }

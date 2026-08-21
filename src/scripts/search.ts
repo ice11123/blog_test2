@@ -55,13 +55,21 @@ function getResultsList(): HTMLUListElement | null {
 }
 
 // ---- Modal open/close ----
-function openModal(): void {
+type SearchOpenSource = 'keyboard' | 'pointer';
+
+function openModal(source: SearchOpenSource): void {
   const modal = getModal();
   const input = getInput();
   if (!modal || !input) return;
 
+  const themeDropdown = document.getElementById('theme-dropdown');
+  themeDropdown?.classList.remove('open');
+  themeDropdown?.setAttribute('aria-hidden', 'true');
+  document.getElementById('theme-switcher-btn')?.setAttribute('aria-expanded', 'false');
+
+  modal.dataset.openSource = source;
   modal.showModal();
-  setTimeout(() => input.focus(), 50);
+  input.focus({ preventScroll: true });
 
   // Clear previous state
   input.value = '';
@@ -210,8 +218,12 @@ function scrollSelectedIntoView(): void {
 function handleGlobalKeydown(e: KeyboardEvent): void {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
-    openModal();
+    openModal('keyboard');
   }
+}
+
+function handleTriggerClick(): void {
+  openModal('pointer');
 }
 
 // ---- Debounced input ----
@@ -239,8 +251,8 @@ function init(): void {
 
   // Search trigger button
   if (triggerBtn) {
-    triggerBtn.removeEventListener('click', openModal);
-    triggerBtn.addEventListener('click', openModal);
+    triggerBtn.removeEventListener('click', handleTriggerClick);
+    triggerBtn.addEventListener('click', handleTriggerClick);
   }
 
   // Input

@@ -49,13 +49,10 @@ const { links } = Astro.props;
     background: var(--card-bg, var(--surface));
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out), transform 100ms var(--ease-out);
   }
 
-  .friend-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  }
+  .friend-card:active { transform: scale(.99); }
 
   .friend-card img {
     width: 48px;
@@ -89,5 +86,14 @@ const { links } = Astro.props;
     .friend-links {
       grid-template-columns: 1fr;
     }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .friend-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .friend-card { transition: none; }
+    .friend-card:active { transform: none; }
   }
 </style>

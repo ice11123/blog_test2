@@ -95,7 +95,7 @@ function updateIndicator(): void {
     if (target) {
       expandAncestors(target);
       if (!isMobile() && !isInViewport(container, target)) {
-        target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        target.scrollIntoView({ block: 'center', behavior: 'auto' });
       }
     }
   }
@@ -192,7 +192,10 @@ function closeMobileOverlay(): void {
   const btn = document.getElementById('toggleLeftSidebarBtn');
   if (sidebar) sidebar.classList.remove('overlay-open');
   if (backdrop) backdrop.classList.remove('open');
-  if (btn) btn.classList.remove('overlay-open');
+  if (btn) {
+    btn.classList.remove('overlay-open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
 }
 
 function handleSidebarToggleClick(): void {
@@ -205,11 +208,19 @@ function handleSidebarToggleClick(): void {
     if (isOpen) {
       sidebar.classList.remove('overlay-open');
       backdrop.classList.remove('open');
-      if (btn) btn.classList.remove('overlay-open');
+      if (btn) {
+        btn.classList.remove('overlay-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
     } else {
+      document.documentElement.classList.remove('mobile-sidebar-open');
+      document.getElementById('toggleSidebarBtn')?.setAttribute('aria-expanded', 'false');
       sidebar.classList.add('overlay-open');
       backdrop.classList.add('open');
-      if (btn) btn.classList.add('overlay-open');
+      if (btn) {
+        btn.classList.add('overlay-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
     }
   } else {
     // 桌面端左栏常驻；只有移动端使用覆盖层按钮。
@@ -251,6 +262,12 @@ document.addEventListener('click', (e: Event) => {
     handleSidebarToggleClick();
     return;
   }
+
+  if (target.closest('.left-sidebar-overlay-backdrop')) closeMobileOverlay();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeMobileOverlay();
 });
 
 function init(): void {
@@ -274,6 +291,7 @@ function init(): void {
   // 桌面端左栏始终常驻；移动端可通过 overlay-open 临时打开。
   state.collapsed = false;
   document.documentElement.classList.remove('left-sidebar-collapsed');
+  document.getElementById('toggleLeftSidebarBtn')?.setAttribute('aria-expanded', 'false');
 
   requestAnimationFrame(() => {
     restoreScrollPosition();

@@ -9,7 +9,7 @@ import Icon from './Icon.astro';
     <span class="header-search-shortcut">Ctrl+K</span>
   </button>
   <div class="header-theme-wrap">
-    <button id="theme-switcher-btn" class="header-tool-button" aria-label="切换主题" title="切换配色方案" type="button">
+    <button id="theme-switcher-btn" class="header-tool-button" aria-label="切换主题" aria-haspopup="menu" aria-expanded="false" title="切换配色方案" type="button">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="5"></circle>
         <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -23,9 +23,9 @@ import Icon from './Icon.astro';
       </svg>
       <span>主题</span>
     </button>
-    <div id="theme-dropdown" class="header-theme-dropdown" hidden>
-      <button type="button" data-theme="light"><span class="theme-dot theme-dot-light"></span>浅色</button>
-      <button type="button" data-theme="dark"><span class="theme-dot theme-dot-dark"></span>深色</button>
+    <div id="theme-dropdown" class="header-theme-dropdown" role="menu" aria-hidden="true">
+      <button type="button" role="menuitemradio" aria-checked="false" data-theme="light"><span class="theme-dot theme-dot-light"></span>浅色</button>
+      <button type="button" role="menuitemradio" aria-checked="false" data-theme="dark"><span class="theme-dot theme-dot-dark"></span>深色</button>
     </div>
   </div>
 </div>
@@ -33,17 +33,24 @@ import Icon from './Icon.astro';
 <style>
   .header-tools { display: grid; grid-template-columns: minmax(9.5rem, 1.65fr) minmax(5.8rem, 1fr); gap: .4rem; min-width: 0; }
   .header-tool-button { display: flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2rem; padding: .38rem .55rem; color: var(--foreground-dark); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-lg); font: inherit; font-size: var(--font-size-sm); white-space: nowrap; cursor: pointer; transition: color var(--transition-base), border-color var(--transition-base), background var(--transition-base); }
-  .header-tool-button:hover { color: var(--foreground); border-color: var(--accent); background: rgba(var(--accent-rgb), var(--alpha-hover)); }
+  .header-tool-button:active { transform: scale(.97); }
   .header-search-shortcut { color: var(--foreground-dark); font-size: .62rem; opacity: .72; }
   .header-theme-wrap { position: relative; display: flex; min-width: 0; }
   .header-theme-wrap .header-tool-button { width: 100%; }
-  .header-theme-dropdown { position: absolute; z-index: var(--z-dropdown); top: calc(100% + 5px); right: 0; min-width: 130px; padding: 6px; color: var(--foreground); background: rgba(var(--background-rgb), var(--alpha-dropdown-glass)); backdrop-filter: blur(20px); border: 1px solid var(--border-light); border-radius: var(--radius-xl); box-shadow: 0 8px 32px rgba(0, 0, 0, .18); }
-  .header-theme-dropdown > button { display: flex; align-items: center; width: 100%; gap: 8px; padding: 8px 10px; border: 0; border-radius: var(--radius-md); color: var(--foreground); background: transparent; font: inherit; font-size: var(--font-size-md); text-align: left; white-space: nowrap; cursor: pointer; }
-  .header-theme-dropdown > button:hover, .header-theme-dropdown > button.current { background: var(--muted); }
+  .header-theme-dropdown { position: absolute; z-index: var(--z-dropdown); top: calc(100% + 5px); right: 0; min-width: 130px; padding: 6px; color: var(--foreground); background: rgba(var(--background-rgb), var(--alpha-dropdown-glass)); backdrop-filter: blur(20px); border: 1px solid var(--border-light); border-radius: var(--radius-xl); box-shadow: 0 8px 32px rgba(0, 0, 0, .18); opacity: 0; pointer-events: none; transform: translateY(-4px) scale(.97); transform-origin: top right; visibility: hidden; transition: transform 150ms var(--ease-out), opacity 150ms var(--ease-out), visibility 0s 150ms; }
+  .header-theme-dropdown.open { opacity: 1; pointer-events: auto; transform: none; visibility: visible; transition: transform 150ms var(--ease-out), opacity 150ms var(--ease-out), visibility 0s; }
+  .header-theme-dropdown[data-instant="true"] { transition: none; }
+  .header-theme-dropdown > button { display: flex; align-items: center; width: 100%; gap: 8px; padding: 8px 10px; border: 0; border-radius: var(--radius-md); color: var(--foreground); background: transparent; font: inherit; font-size: var(--font-size-md); text-align: left; white-space: nowrap; cursor: pointer; transition: color 120ms var(--ease-out), background-color 120ms var(--ease-out), transform 100ms var(--ease-out); }
+  .header-theme-dropdown > button:active { transform: scale(.98); }
+  .header-theme-dropdown > button.current { background: var(--muted); }
   .header-theme-dropdown > button.current { font-weight: 600; }
   .theme-dot { width: 10px; height: 10px; flex: 0 0 auto; border-radius: 50%; }
   .theme-dot-light { background: #e9536a; }
   .theme-dot-dark { background: #8da2ff; }
+  @media (hover: hover) and (pointer: fine) {
+    .header-tool-button:hover { color: var(--foreground); border-color: var(--accent); background: rgba(var(--accent-rgb), var(--alpha-hover)); }
+    .header-theme-dropdown > button:hover { background: var(--muted); }
+  }
   @media (max-width: 1099px) and (min-width: 769px) {
     .header-tools { grid-template-columns: 2.25rem 2.25rem; }
     .header-tool-button { padding: .35rem; }
@@ -52,6 +59,9 @@ import Icon from './Icon.astro';
   @media (max-width: 768px) {
     .header-tools { width: min(100%, 21rem); grid-template-columns: minmax(0, 1.65fr) minmax(5.6rem, 1fr); }
     .header-search-shortcut { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .header-tool-button, .header-theme-dropdown, .header-theme-dropdown.open, .header-theme-dropdown > button { transition: none; }
   }
 </style>
 

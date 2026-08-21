@@ -9,7 +9,7 @@
   }
 
   @media (max-width: 1099px) and (min-width: 900px) {
-    :root { --sidebar-width: 160px; }
+    :root { --sidebar-width: 180px; }
   }
 
   /* 共享的侧栏结构 */
@@ -24,42 +24,6 @@
     flex-direction: column;
     background: transparent;
     contain: layout style;
-  }
-
-  /* 侧栏内容 transform 滑动（GPU 合成，不触发重排） */
-  .left-sidebar > .sidebar-inner,
-  .right-sidebar > * {
-    transform: translateX(0);
-    transition: transform var(--transition-medium);
-  }
-
-  /* 左侧栏折叠 — width 延迟收窄，transform 先滑出 */
-  @media (min-width: 900px) {
-    html.left-sidebar-collapsed .left-sidebar {
-      width: 0 !important;
-      visibility: hidden;
-      transition: width 0s 0.25s, visibility 0s 0.25s;
-    }
-
-    html.left-sidebar-collapsed .left-sidebar > .sidebar-inner {
-      transform: translateX(calc(var(--sidebar-width) * -1 - 8px));
-    }
-
-    /* 工具栏跟随侧栏收起（避免 transform 破坏 backdrop-filter） */
-    html.left-sidebar-collapsed .left-sidebar > .ls-toolbar {
-      opacity: 0;
-    }
-  }
-
-  /* 右侧栏折叠 — width 延迟收窄，transform 先滑出 */
-  html.sidebar-collapsed .right-sidebar {
-    width: 0 !important;
-    visibility: hidden;
-    transition: width 0s 0.25s, visibility 0s 0.25s;
-  }
-
-  html.sidebar-collapsed .right-sidebar > * {
-    transform: translateX(calc(var(--sidebar-width) + 8px));
   }
 
   /* 间隙 — 位于侧栏和正文之间，容纳折叠按钮 */
@@ -86,11 +50,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color var(--transition-base);
+    transition: transform 140ms var(--ease-out), border-color var(--transition-base);
   }
 
-  .sidebar-toggle-btn:hover {
-    border-color: var(--accent);
+  @media (hover: hover) and (pointer: fine) {
+    .sidebar-toggle-btn:hover {
+      border-color: var(--accent);
+    }
   }
 
   .sidebar-toggle-btn:active {
@@ -116,5 +82,12 @@
     right: 0;
     border-radius: var(--radius-xl) 0 0 var(--radius-xl);
     border-right: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-toggle-btn,
+    .gutter-arrow {
+      transition-duration: 0ms;
+    }
   }
 }

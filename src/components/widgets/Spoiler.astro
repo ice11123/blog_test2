@@ -8,48 +8,61 @@ interface Props {
 const { hint = '' } = Astro.props;
 ---
 
-<div class="spoiler-wrapper">
-  <div class="spoiler-overlay">
-    <div class="spoiler-overlay-inner">
+<span class="spoiler-wrapper" data-revealed="false">
+  <button class="spoiler-overlay" type="button" aria-expanded="false">
+    <span class="spoiler-overlay-inner">
       <span class="spoiler-icon" set:html={spoilerIcon}></span>
       {hint && <span class="spoiler-hint">{hint}</span>}
-    </div>
-  </div>
-  <div class="spoiler-content">
+    </span>
+  </button>
+  <span class="spoiler-content">
     <slot />
-  </div>
-</div>
+  </span>
+</span>
 
 <style>
   .spoiler-wrapper {
     display: inline-block;
     position: relative;
     border-radius: 8px;
-    cursor: pointer;
     vertical-align: baseline;
   }
 
   .spoiler-content {
+    display: inline-block;
     filter: blur(8px);
-    transition: filter 0.35s ease;
+    transition: filter 150ms var(--ease-out);
     user-select: none;
   }
 
-  .spoiler-wrapper:hover .spoiler-content {
+  .spoiler-wrapper[data-revealed="true"] .spoiler-content {
     filter: blur(0);
+    user-select: auto;
   }
 
   .spoiler-overlay {
+    appearance: none;
     position: absolute;
     inset: 0;
     z-index: 1;
-    pointer-events: none;
-    transition: opacity 0.35s ease;
+    width: 100%;
+    min-width: max-content;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: inherit;
+    cursor: pointer;
+    transition: opacity 150ms var(--ease-out), transform 100ms var(--ease-out);
   }
 
-  .spoiler-wrapper:hover .spoiler-overlay {
+  .spoiler-wrapper[data-revealed="true"] .spoiler-overlay {
     opacity: 0;
+    pointer-events: none;
   }
+
+  .spoiler-overlay:active { transform: scale(.98); }
+  .spoiler-overlay:focus-visible { outline: 2px solid var(--focus, var(--accent)); outline-offset: 3px; }
 
   .spoiler-overlay-inner {
     position: absolute;
@@ -81,4 +94,27 @@ const { hint = '' } = Astro.props;
     font-weight: 500;
     opacity: 0.7;
   }
+
+  @media (hover: hover) and (pointer: fine) {
+    .spoiler-wrapper:not([data-revealed="true"]):hover .spoiler-content { filter: blur(2px); }
+    .spoiler-wrapper:not([data-revealed="true"]):hover .spoiler-overlay { opacity: .2; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spoiler-content, .spoiler-overlay { transition: none; }
+  }
 </style>
+
+<script>
+  if (!(window as Window & { __spoilerBound?: boolean }).__spoilerBound) {
+    (window as Window & { __spoilerBound?: boolean }).__spoilerBound = true;
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement | null;
+      const overlay = target?.closest<HTMLButtonElement>('.spoiler-overlay');
+      const wrapper = overlay?.closest<HTMLElement>('.spoiler-wrapper');
+      if (!overlay || !wrapper) return;
+      wrapper.dataset.revealed = 'true';
+      overlay.setAttribute('aria-expanded', 'true');
+    });
+  }
+</script>

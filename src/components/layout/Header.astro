@@ -9,7 +9,7 @@ import { withBase } from '../../lib/urls';
 <header id="site-header">
   <nav class="site-nav" aria-label="主导航">
     <div class="nav-brand">
-      <HeaderLink id="site-title-link" href={withBase('/')} data-admin-url={withBase('/admin/')} aria-label={`${SITE_TITLE}，连续点击 5 次打开管理入口`} title="连续点击 5 次打开管理入口">{SITE_TITLE}</HeaderLink>
+      <HeaderLink id="site-title-link" href={withBase('/')} data-home-url={withBase('/')} data-admin-url={withBase('/admin/')} aria-label={`${SITE_TITLE}，连续点击 5 次打开管理入口`} title="连续点击 5 次打开管理入口">{SITE_TITLE}</HeaderLink>
     </div>
     <div class="nav-links">
       <HeaderLink href={withBase('/')}>主页</HeaderLink>
@@ -43,16 +43,14 @@ import { withBase } from '../../lib/urls';
   .site-nav { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 32px; }
   .nav-brand { min-width: 0; }
   .nav-brand :global(a) { padding: 0; color: var(--text-primary); font-size: 20px; font-weight: 750; letter-spacing: -.02em; }
-  .nav-brand :global(a:hover) { color: var(--accent); }
   .nav-links { display: flex; align-items: center; gap: 24px; min-width: 0; }
   .nav-links :global(a) { position: relative; padding: 8px 0; color: var(--text-secondary); font-size: 16px; }
-  .nav-links :global(a)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 2px; border-radius: 999px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 180ms ease-out; }
-  .nav-links :global(a:hover), .nav-links :global(a.active) { color: var(--text-primary); }
-  .nav-links :global(a.active)::after, .nav-links :global(a:hover)::after { transform: scaleX(1); }
+  .nav-links :global(a)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 2px; border-radius: 999px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 160ms var(--ease-out); }
+  .nav-links :global(a.active) { color: var(--text-primary); }
+  .nav-links :global(a.active)::after { transform: scaleX(1); }
   .nav-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
   #header-social :global(.social-links) { display: flex; align-items: center; gap: 4px; }
   #header-social :global(a), #header-social :global(.social-placeholder) { display: inline-flex; align-items: center; justify-content: center; padding: 8px; color: var(--text-secondary); border-radius: 8px; }
-  #header-social :global(a:hover) { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
   #admin-password-dialog { width: min(360px, calc(100vw - 32px)); padding: 0; color: var(--text-primary); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
   #admin-password-dialog::backdrop { background: rgba(0,0,0,.45); backdrop-filter: blur(2px); }
   #admin-password-form { display: grid; gap: 12px; padding: 24px; }
@@ -64,6 +62,7 @@ import { withBase } from '../../lib/urls';
   .admin-password-error { color: var(--danger) !important; }
   .admin-password-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
   .admin-password-actions button { padding: 8px 12px; color: var(--text-primary); background: transparent; border: 1px solid var(--border); border-radius: 8px; font: inherit; cursor: pointer; }
+  .admin-password-actions button:active { transform: scale(.97); }
   .admin-password-actions button[type="submit"] { color: var(--button-on-accent); background: var(--accent); border-color: var(--accent); }
   @media (max-width: 900px) {
     header { width: min(100% - 32px, 720px); }
@@ -84,6 +83,15 @@ import { withBase } from '../../lib/urls';
     .nav-links::-webkit-scrollbar { display: none; }
     .nav-links :global(a) { flex: 0 0 auto; font-size: 14px; }
   }
+  @media (hover: hover) and (pointer: fine) {
+    .nav-brand :global(a:hover) { color: var(--accent); }
+    .nav-links :global(a:hover) { color: var(--text-primary); }
+    .nav-links :global(a:hover)::after { transform: scaleX(1); }
+    #header-social :global(a:hover) { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-links :global(a)::after, .admin-password-actions button { transition: none; }
+  }
 </style>
 
 <script is:inline define:vars={{ ADMIN_PASSWORD_HASH, ADMIN_UNLOCK_STORAGE_KEY }}>
@@ -91,7 +99,6 @@ import { withBase } from '../../lib/urls';
   const ADMIN_CLICK_WINDOW = 5000;
   let adminClickCount = 0;
   let adminClickTimer;
-  let adminNavigateTimer;
   let adminAttempts = 0;
   async function sha256(value) {
     const data = new TextEncoder().encode(value);
@@ -139,6 +146,14 @@ import { withBase } from '../../lib/urls';
     if (titleLink && titleLink.dataset.adminBound !== 'true') {
       titleLink.dataset.adminBound = 'true';
       titleLink.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        const homeUrl = new URL(titleLink.dataset.homeUrl || titleLink.href, window.location.href);
+        const normalizePath = (value) => value.replace(/\/+$/, '') || '/';
+        if (normalizePath(window.location.pathname) !== normalizePath(homeUrl.pathname)) {
+          adminClickCount = 0;
+          if (adminClickTimer) clearTimeout(adminClickTimer);
+          return;
+        }
         event.preventDefault();
         const now = Date.now();
         if (!adminClickTimer || now - (Number(titleLink.dataset.lastAdminClick) || 0) > ADMIN_CLICK_WINDOW) adminClickCount = 0;
@@ -146,9 +161,7 @@ import { withBase } from '../../lib/urls';
         adminClickCount += 1;
         if (adminClickTimer) clearTimeout(adminClickTimer);
         adminClickTimer = setTimeout(() => { adminClickCount = 0; }, ADMIN_CLICK_WINDOW);
-        if (adminNavigateTimer) clearTimeout(adminNavigateTimer);
         if (adminClickCount >= ADMIN_CLICK_LIMIT) { adminClickCount = 0; openAdminDialog(); return; }
-        adminNavigateTimer = setTimeout(() => { window.location.assign(titleLink.href); }, 900);
       });
     }
     if (form && form.dataset.bound !== 'true') {

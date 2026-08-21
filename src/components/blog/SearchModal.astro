@@ -41,29 +41,31 @@ const searchData = await getSearchData();
     max-width: 600px;
     width: 90vw;
     color: var(--foreground);
-    animation: search-modal-in 0.15s ease-out;
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 
   .search-modal::backdrop {
     background: rgba(var(--backdrop-rgb), 0.8);
     backdrop-filter: blur(4px);
-    animation: search-backdrop-in 0.15s ease-out;
   }
 
-  @keyframes search-modal-in {
-    from {
+  .search-modal[data-open-source='pointer'] {
+    transition: opacity 150ms var(--ease-out), transform 150ms var(--ease-out);
+
+    @starting-style {
       opacity: 0;
       transform: translateY(-12px) scale(0.97);
     }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
   }
 
-  @keyframes search-backdrop-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  .search-modal[data-open-source='pointer']::backdrop {
+    opacity: 1;
+    transition: opacity 150ms var(--ease-out);
+
+    @starting-style {
+      opacity: 0;
+    }
   }
 
   .search-modal-content {
@@ -114,13 +116,22 @@ const searchData = await getSearchData();
     padding: 4px;
     border-radius: 8px;
     flex-shrink: 0;
-    transition: all 0.15s ease;
+    transition: transform 140ms var(--ease-out), color var(--transition-fast), background var(--transition-fast);
   }
 
-  .search-close-btn:hover {
-    color: var(--foreground);
-    background: var(--background-light);
+  @media (hover: hover) and (pointer: fine) {
+    .search-close-btn:hover {
+      color: var(--foreground);
+      background: var(--background-light);
+    }
+
+    :global(.search-result-item:hover) {
+      border-left-color: var(--accent);
+      background: var(--background-light);
+    }
   }
+
+  .search-close-btn:active { transform: scale(0.97); }
 
   .search-results {
     list-style: none;
@@ -141,7 +152,6 @@ const searchData = await getSearchData();
     border-bottom: none;
   }
 
-  :global(.search-result-item:hover),
   :global(.search-result-item.selected) {
     border-left-color: var(--accent);
     background: var(--background-light);
@@ -233,6 +243,15 @@ const searchData = await getSearchData();
 
     .search-input-wrapper {
       padding: 0.75rem 1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search-modal,
+    .search-modal::backdrop,
+    .search-close-btn {
+      transition-duration: 0ms !important;
+      transform: none;
     }
   }
 </style>

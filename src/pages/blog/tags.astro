@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/BlogPost.astro';
+import Layout from '../../layouts/PublicContentLayout.astro';
 import JsonLd from '../../components/blog/JsonLd.astro';
 import { withBase } from '../../lib/urls';
 
@@ -31,8 +31,6 @@ const pageLd = {
   tags={[]}
 >
   <JsonLd slot="head" data={pageLd} />
-
-  <h2 class="mk-title" style="text-align: center;">标签</h2>
 
   {sortedTags.length > 0 ? (
     <div class="tags-cloud">
@@ -70,14 +68,10 @@ const pageLd = {
     border: 1px solid rgba(var(--accent-rgb), 0.25);
     border-radius: 999px;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: background-color 150ms var(--ease-out), border-color 150ms var(--ease-out), transform 100ms var(--ease-out);
   }
 
-  .tag-cloud-item:hover {
-    background: rgba(var(--accent-rgb), 0.18);
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
+  .tag-cloud-item:active { transform: scale(.98); }
 
   .tag-count {
     font-size: 0.75rem;
@@ -87,5 +81,14 @@ const pageLd = {
     padding: 1px 7px;
     min-width: 1.4em;
     text-align: center;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .tag-cloud-item:hover { background: rgba(var(--accent-rgb), 0.18); border-color: var(--accent); transform: translateY(-2px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tag-cloud-item { transition: none; }
+    .tag-cloud-item:hover, .tag-cloud-item:active { transform: none; }
   }
 </style>

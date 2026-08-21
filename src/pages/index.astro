@@ -382,18 +382,12 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
 
   @media (prefers-reduced-motion: reduce) {
     .cover-photo-frame :global(.cover-photo) { transform: scale(1.025) !important; will-change: auto; }
-    .cover-wave-track-back { animation: cover-wave-breathe 4s ease-in-out infinite alternate; }
-    .cover-wave-track-front { animation: none; }
+    .cover-wave-track-back, .cover-wave-track-front { animation: none; }
     .hero-action, .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
   }
 
   @keyframes cover-wave-scroll {
     from { transform: translate3d(0, 0, 0); }
     to { transform: translate3d(-50%, 0, 0); }
-  }
-
-  @keyframes cover-wave-breathe {
-    from { opacity: .52; }
-    to { opacity: .72; }
   }
 </style>

@@ -1,6 +1,6 @@
 ---
 import { GITHUB_URL, SITE_AUTHOR, SITE_DESCRIPTION, SITE_START_DATE, SITE_TITLE } from '../consts';
-import Layout from '../layouts/BlogPost.astro';
+import Layout from '../layouts/PublicContentLayout.astro';
 import JsonLd from '../components/blog/JsonLd.astro';
 import { withBase } from '../lib/urls';
 
@@ -21,6 +21,7 @@ const profilePageLd = {
   title={`关于 - ${SITE_TITLE}`}
   description={SITE_DESCRIPTION}
   pubDate={SITE_START_DATE}
+  heading="关于"
 >
   <JsonLd slot="head" data={profilePageLd} />
 

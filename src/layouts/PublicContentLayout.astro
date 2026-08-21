@@ -1,0 +1,67 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import PublicLayout from './PublicLayout.astro';
+import FormattedDate from '../components/blog/FormattedDate.astro';
+import { withBase } from '../lib/urls';
+
+type BlogData = CollectionEntry<'blog'>['data'];
+type Props = Pick<BlogData, 'title' | 'description' | 'pubDate'> & {
+  updatedDate?: Date;
+  dir1?: string;
+  dir2?: string;
+  tags?: string[];
+  hidePageHeader?: boolean;
+  heading?: string;
+};
+
+const { title, description, pubDate, updatedDate, dir1, dir2, tags = [], hidePageHeader = false, heading = title } = Astro.props;
+---
+
+<PublicLayout title={title} description={description}>
+  <slot name="head" slot="head" />
+  <article class="public-content-page">
+    <div class="prose">
+      {!hidePageHeader && <div class="title">
+        <div class="date">
+          <FormattedDate date={pubDate} />
+          {updatedDate && <div class="last-updated-on">Last updated on <FormattedDate date={updatedDate} /></div>}
+        </div>
+        <h1>{heading}</h1>
+        {(dir1 || tags.length > 0) && (
+          <div class="post-meta">
+            {dir1 && (
+              <span class="post-category">
+                分类：<a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/`)}>{dir1}</a>
+                {dir2 && <span> / <a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/${encodeURIComponent(dir2)}/`)}>{dir2}</a></span>}
+              </span>
+            )}
+            {tags.length > 0 && (
+              <span class="post-tags">
+                {tags.map((tag) => <a href={withBase(`/blog/tag/${encodeURIComponent(tag)}/`)} class="tag-pill">{tag}</a>)}
+              </span>
+            )}
+          </div>
+        )}
+        <hr />
+      </div>}
+      <slot />
+    </div>
+  </article>
+</PublicLayout>
+
+<style>
+  .public-content-page {
+    width: min(960px, calc(100% - 32px));
+    min-width: 0;
+    margin: 2rem auto 0;
+  }
+
+  .public-content-page .prose {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  @media (max-width: 680px) {
+    .public-content-page { margin-top: 1rem; }
+  }
+</style>

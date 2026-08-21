@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../../layouts/BlogPost.astro';
+import Layout from '../../../layouts/PublicContentLayout.astro';
 import BlogList from '../../../components/blog/BlogList.astro';
 import JsonLd from '../../../components/blog/JsonLd.astro';
 
@@ -42,7 +42,6 @@ const collectionPageLd = {
 >
   <JsonLd slot="head" data={collectionPageLd} />
 
-  <h2 class="mk-title">{pageTitle}</h2>
   <p style="color: var(--foreground-dark); text-align: center; margin-bottom: 1.5rem;">
     共 {filtered.length} 篇文章
   </p>
