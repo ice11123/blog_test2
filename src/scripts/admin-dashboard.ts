@@ -1,19 +1,20 @@
 // @ts-nocheck -- 管理台依赖构建时注入的数据和浏览器 DOM，所有入口均做运行时保护。
+import { LocalStorageDraftStore, draftToMarkdown, slugifyAdminId } from '../lib/adminDrafts';
 import { renderPreview, renderPreviewMermaid } from '../lib/adminPreview';
 
 const ADMIN_UNLOCK_STORAGE_KEY = 'blog-test2-admin-unlocked';
-const DRAFTS_STORAGE_KEY = 'blog-test2-admin-drafts-v1';
 const TREE_STORAGE_KEY = 'blog-test2-admin-tree-v1';
 const PENDING_CLOUD_PUBLISH_KEY = 'blog-test2-pending-cloud-publish-v1';
 const PENDING_CLOUD_DELETE_KEY = 'blog-test2-pending-cloud-delete-v1';
 const LEGACY_ADMIN_SESSION_KEY = 'blog-test2-cloud-session-v1';
-const CLOUD_PUBLISH_ENABLED = false;
 const REQUEST_TIMEOUT_MS = 15_000;
 
 const app = document.querySelector('#admin-app');
 if (!app) throw new Error('Admin app root is missing');
+const CLOUD_PUBLISH_ENABLED = app.getAttribute('data-publish-enabled') === 'true';
 
 const initialDrafts = JSON.parse(app.getAttribute('data-initial-drafts') || '[]');
+const draftStore = new LocalStorageDraftStore(initialDrafts);
 const editor = app.querySelector('[data-editor]');
 const locked = app.querySelector('[data-locked]');
 const form = app.querySelector('[data-form]');
@@ -49,48 +50,16 @@ function normalizePublishedPath(post) {
   return { ...post, publishedPath: `${path}.${post.format === 'md' ? 'md' : 'mdx'}` };
 }
 
-function clonePost(post) {
-  return { ...normalizePublishedPath(post), tags: [...(post.tags || [])] };
-}
-
 function readDrafts() {
-  try {
-    const raw = localStorage.getItem(DRAFTS_STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : null;
-    if (!Array.isArray(parsed)) return initialDrafts.map(clonePost);
-    const initial = initialDrafts.map(clonePost);
-    const initialIds = new Set(initial.map((post) => post.id));
-    const initialPaths = new Set(initial.map((post) => post.publishedPath).filter(Boolean));
-    const merged = initial.map((post) => {
-      const local = parsed.find((item) => item.id === post.id || (item.publishedPath && item.publishedPath === post.publishedPath));
-      return local ? clonePost({ ...post, ...local, orphaned: false, repositoryPending: false }) : post;
-    });
-    for (const item of parsed) {
-      const post = clonePost(item);
-      if (initialIds.has(post.id) || (post.publishedPath && initialPaths.has(post.publishedPath))) continue;
-      if (post.deleted) continue;
-      merged.push({ ...post, orphaned: Boolean(post.publishedPath) && !post.repositoryPending });
-    }
-    return merged;
-  } catch {
-    return initialDrafts.map(clonePost);
-  }
-}
-
-function writeDrafts(posts) {
-  try { localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(posts)); } catch {}
+  return draftStore.list().map(normalizePublishedPath);
 }
 
 function saveDraft(post) {
-  writeDrafts([...readDrafts().filter((item) => item.id !== post.id), clonePost(post)]);
-}
-
-function removeDraft(id) {
-  writeDrafts(readDrafts().filter((post) => post.id !== id));
+  draftStore.save(normalizePublishedPath(post));
 }
 
 function resetDrafts() {
-  try { localStorage.removeItem(DRAFTS_STORAGE_KEY); } catch {}
+  draftStore.reset();
 }
 
 function readTreeState() {
@@ -109,15 +78,6 @@ function readTreeState() {
 
 function saveTreeState() {
   try { localStorage.setItem(TREE_STORAGE_KEY, JSON.stringify(treeState)); } catch {}
-}
-
-function slugifyAdminId(title) {
-  const slug = title.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '') || 'untitled';
-  return `draft/${slug}-${Date.now()}`;
-}
-
-function draftToMarkdown(post) {
-  return ['---', `title: ${JSON.stringify(post.title)}`, `description: ${JSON.stringify(post.description)}`, `pubDate: ${post.pubDate}`, ...(post.updatedDate ? [`updatedDate: ${post.updatedDate}`] : []), ...(post.dir1 ? [`dir1: ${JSON.stringify(post.dir1)}`] : []), ...(post.dir2 ? [`dir2: ${JSON.stringify(post.dir2)}`] : []), `tags: [${post.tags.map((tag) => JSON.stringify(tag)).join(', ')}]`, '---', '', post.body.trim(), ''].join('\n');
 }
 
 function setStatus(text) {
@@ -255,6 +215,28 @@ function updateIdentity(post) {
   path.textContent = post.publishedPath || [post.dir1 || '未分类', post.dir2, post.title].filter(Boolean).join(' / ');
 }
 
+function updateDeleteButton(post) {
+  const button = app.querySelector('[data-delete]');
+  if (!button) return;
+  button.disabled = false;
+  button.removeAttribute('title');
+  if (CLOUD_PUBLISH_ENABLED) {
+    button.textContent = post.publishedPath ? '删除正式文章' : '删除本地草稿';
+    return;
+  }
+  if (!post.publishedPath) {
+    button.textContent = '删除本地草稿';
+    return;
+  }
+  if (draftStore.hasLocal(post)) {
+    button.textContent = '放弃本地修改';
+    return;
+  }
+  button.textContent = '正式文章不可删除';
+  button.disabled = true;
+  button.title = '云端发布未启用，且当前文章没有本地修改';
+}
+
 function loadForm() {
   const post = current();
   if (!post || !form) return;
@@ -268,6 +250,7 @@ function loadForm() {
   const edited = app.querySelector('[data-edited-at]');
   if (edited) edited.textContent = formatEditedAt(editedAt);
   updateIdentity(post);
+  updateDeleteButton(post);
   updatePreview();
 }
 
@@ -448,8 +431,9 @@ async function publishPost(post, button) {
 }
 
 function removeLocalPost(id, keepTombstone = false) {
-  if (keepTombstone) writeDrafts(readDrafts().map((post) => post.id === id ? { ...post, deleted: true } : post));
-  else removeDraft(id);
+  const post = drafts.find((item) => item.id === id);
+  if (keepTombstone && post) draftStore.save({ ...post, deleted: true });
+  else draftStore.remove(id);
   drafts = readDrafts();
   selectedId = drafts.find((post) => !post.deleted)?.id || '';
   renderTree();
@@ -458,13 +442,21 @@ function removeLocalPost(id, keepTombstone = false) {
 
 async function deleteRemotePost(post, button) {
   if (!CLOUD_PUBLISH_ENABLED) {
+    if (post.publishedPath && !draftStore.hasLocal(post)) {
+      setStatus('云端发布未启用，正式文章不可删除');
+      return false;
+    }
     removeLocalPost(post.id);
-    setStatus('视觉实验版仅删除本地草稿，未修改远程仓库');
+    setStatus(post.publishedPath ? '已放弃本地修改并恢复仓库版本' : '已删除本地草稿');
     await checkBasicStatus();
     return true;
   }
   const api = endpoint();
-  if (!api || !post.publishedPath) {
+  if (!api) {
+    setStatus('尚未配置云端 API，未执行删除');
+    return false;
+  }
+  if (!post.publishedPath) {
     removeLocalPost(post.id);
     setStatus('已删除本地草稿');
     await checkBasicStatus();
@@ -566,7 +558,13 @@ function bindEvents() {
   const deleteButton = app.querySelector('[data-delete]');
   deleteButton?.addEventListener('click', () => {
     const post = current();
-    if (!post || !confirm(post.publishedPath ? '确定删除本地草稿并从正式网站删除这篇文章吗？' : '确定删除当前本地草稿吗？')) return;
+    if (!post) return;
+    const message = !CLOUD_PUBLISH_ENABLED && post.publishedPath
+      ? '确定放弃这篇文章的本地修改并恢复仓库版本吗？'
+      : post.publishedPath
+        ? '确定从正式网站删除这篇文章吗？'
+        : '确定删除当前本地草稿吗？';
+    if (!confirm(message)) return;
     void deleteRemotePost(post, deleteButton);
   });
   const cloudPublishButton = app.querySelector('[data-cloud-publish]');

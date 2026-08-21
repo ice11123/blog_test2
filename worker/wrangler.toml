@@ -1,4 +1,4 @@
-name = "blog-test1-admin-api"
+name = "blog-test2-admin-api"
 main = "src/index.js"
 compatibility_date = "2026-08-12"
 
@@ -7,12 +7,13 @@ compatibility_date = "2026-08-12"
 
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "ee8558b9d22f4ad59759a3c4917befb6"
+# 当前未部署。未来启用前必须创建 blog_test2 独立 KV，并替换此占位符。
+id = "YOUR_BLOG_TEST2_KV_NAMESPACE_ID"
 
 [vars]
 ALLOWED_ORIGIN = "https://ice11123.github.io"
 GITHUB_OWNER = "ice11123"
-GITHUB_REPO = "blog_test1"
+GITHUB_REPO = "blog_test2"
 GITHUB_BRANCH = "main"
 
 # Secret（使用 wrangler secret put 设置，绝不提交到仓库）：

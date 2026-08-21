@@ -1,7 +1,10 @@
 const API = 'https://api.github.com';
 const SESSION_TTL = 60 * 60 * 24 * 7;
 const SESSION_PREFIX = 'session:v3:';
-const DEFAULT_ADMIN_PATH = '/blog_test1/admin/';
+const DEFAULT_ADMIN_PATH = '/blog_test2/admin/';
+const EXPECTED_GITHUB_OWNER = 'ice11123';
+const EXPECTED_GITHUB_REPO = 'blog_test2';
+const EXPECTED_GITHUB_BRANCH = 'main';
 const GITHUB_TIMEOUT_MS = 15_000;
 const PUBLIC_STATUS_CACHE_KEY = 'public-status:v1';
 const PUBLIC_STATUS_CACHE_SECONDS = 90;
@@ -249,6 +252,7 @@ async function adminStatus(request, env) {
 }
 
 async function syncPost(request, env) {
+  requireWriteTarget(env);
   const session = await requireAdminSession(request, env);
   const payload = await readJsonBody(request, 300_000);
 
@@ -283,6 +287,7 @@ async function syncPost(request, env) {
 }
 
 async function deletePost(request, env) {
+  requireWriteTarget(env);
   const session = await requireAdminSession(request, env);
   const payload = await readJsonBody(request, 20_000);
   const publishedPath = safePublishedPath(payload?.publishedPath);
@@ -326,7 +331,7 @@ async function githubFetch(path, token, options = {}) {
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${token}`,
-        'User-Agent': 'blog-test1-admin-api',
+        'User-Agent': 'blog-test2-admin-api',
         ...(requestOptions.body ? { 'Content-Type': 'application/json' } : {}),
         ...(requestOptions.headers || {}),
       },
@@ -351,7 +356,7 @@ async function githubPublicFetch(path, options = {}) {
     response = await fetch(requestUrl, {
       headers: {
         Accept: 'application/vnd.github+json',
-        'User-Agent': 'blog-test1-public-status',
+        'User-Agent': 'blog-test2-public-status',
       },
       signal: AbortSignal.timeout(GITHUB_TIMEOUT_MS),
     });
@@ -502,6 +507,14 @@ async function readJsonBody(request, maxBytes) {
 
 function requireEnv(env, keys) {
   for (const key of keys) if (!env[key] || env[key].includes('YOUR_')) throw new Error(`服务端缺少配置：${key}`);
+}
+
+function requireWriteTarget(env) {
+  if (env.GITHUB_OWNER !== EXPECTED_GITHUB_OWNER
+    || env.GITHUB_REPO !== EXPECTED_GITHUB_REPO
+    || env.GITHUB_BRANCH !== EXPECTED_GITHUB_BRANCH) {
+    throw new HttpError(503, 'Worker 目标仓库配置不匹配，已拒绝写入');
+  }
 }
 
 async function encryptionKey(secret, usages) {

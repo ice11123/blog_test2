@@ -66,6 +66,16 @@ const plotId = "plot-" + Math.random().toString(36).slice(2);
       aspect-ratio: 3/4;
     }
   }
+
+  .plot-container.plot-load-error {
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    box-sizing: border-box;
+    color: var(--foreground-dark);
+    text-align: center;
+    font-size: 0.85rem;
+  }
 </style>
 
 <script is:inline define:vars={{
@@ -89,40 +99,42 @@ const plotId = "plot-" + Math.random().toString(36).slice(2);
   // @ts-nocheck -- 方程来自受信任的本地 MDX 内容，运行时异常会被组件捕获。
   // 2. 封装绘图逻辑，等待 Plotly 加载完成
   async function drawPlot() {
-    // 等待 Plotly 加载完毕
-    while (!window.Plotly) {
-      await new Promise(resolve => setTimeout(resolve, 10));
-    }
-
     const el = document.getElementById(plotId);
     if (!el) return;
-
-    const config = {
-      displayModeBar: false,
-      displaylogo: false,
-    };
-
-    const rootStyles = getComputedStyle(document.documentElement);
-    const plotBg = rootStyles.getPropertyValue('--plot-bg').trim() || '#121417';
-    const axisColor = rootStyles.getPropertyValue('--plot-axis-color').trim() || '#ffffff';
-
-    const layout = {
-      showlegend: false,
-      autosize: true,
-      margin: { l: 0, r: 0, t: 0, b: 0 },
-      scene: {
-        xaxis: { visible: true, color: axisColor },
-        yaxis: { visible: true, color: axisColor },
-        zaxis: { visible: true, color: axisColor },
-        bgcolor: plotBg,
-        domain: { x: [0, 1], y: [0, 1] },
-        aspectmode: "data"
-      },
-      paper_bgcolor: plotBg,
-      plot_bgcolor: plotBg
-    };
+    el.dataset.plotState = 'loading';
 
     try {
+      const deadline = Date.now() + 10_000;
+      while (!window.Plotly) {
+        if (Date.now() >= deadline) throw new Error('Plotly load timeout');
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      const config = {
+        displayModeBar: false,
+        displaylogo: false,
+      };
+
+      const rootStyles = getComputedStyle(document.documentElement);
+      const plotBg = rootStyles.getPropertyValue('--plot-bg').trim() || '#121417';
+      const axisColor = rootStyles.getPropertyValue('--plot-axis-color').trim() || '#ffffff';
+
+      const layout = {
+        showlegend: false,
+        autosize: true,
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        scene: {
+          xaxis: { visible: true, color: axisColor },
+          yaxis: { visible: true, color: axisColor },
+          zaxis: { visible: true, color: axisColor },
+          bgcolor: plotBg,
+          domain: { x: [0, 1], y: [0, 1] },
+          aspectmode: "data"
+        },
+        paper_bgcolor: plotBg,
+        plot_bgcolor: plotBg
+      };
+
       if (type === "line") {
         const dt = (tEnd - tStart) / points;
         const t = Array.from({ length: points }, (_, i) => tStart + i * dt);
@@ -130,7 +142,7 @@ const plotId = "plot-" + Math.random().toString(36).slice(2);
         const y = t.map(t => eval(yEquation));
         const z = t.map(t => eval(zEquation));
 
-        Plotly.newPlot(el, [{
+        await Plotly.newPlot(el, [{
           type: "scatter3d", mode: "lines", x, y, z,
           line: { width: 4, color,}
         }], layout, config);
@@ -146,13 +158,20 @@ const plotId = "plot-" + Math.random().toString(36).slice(2);
         const y = u.map(u => v.map(v => eval(ySurface)));
         const z = u.map(u => v.map(v => eval(zSurface)));
 
-        Plotly.newPlot(el, [{
+        await Plotly.newPlot(el, [{
           type: "surface", x, y, z,
           colorscale: "Viridis",
           showscale: false
         }], layout, config);
       }
-    } catch (e) {}
+      el.dataset.plotState = 'loaded';
+    } catch (error) {
+      console.warn('Plot3D render failed:', error);
+      el.dataset.plotState = 'error';
+      el.classList.add('plot-load-error');
+      el.setAttribute('role', 'status');
+      el.textContent = '三维图形暂时无法加载，请稍后刷新重试。';
+    }
   }
 
   // 3. 立即执行，不等待 DOMContentLoaded（更快）

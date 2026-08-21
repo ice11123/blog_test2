@@ -5,7 +5,7 @@ import worker, { adminReturnUrl, decryptSecret, encryptSecret, isAllowedOrigin, 
 const env = {
   ALLOWED_ORIGIN: 'https://ice11123.github.io',
   GITHUB_OWNER: 'ice11123',
-  GITHUB_REPO: 'blog_test1',
+  GITHUB_REPO: 'blog_test2',
   GITHUB_BRANCH: 'main',
   GITHUB_OAUTH_CLIENT_ID: 'client',
   GITHUB_OAUTH_CLIENT_SECRET: 'secret',
@@ -14,7 +14,7 @@ const env = {
 };
 
 test('固定 OAuth 回跳地址，不接受外部 returnTo', () => {
-  assert.equal(adminReturnUrl(env), 'https://ice11123.github.io/blog_test1/admin/');
+  assert.equal(adminReturnUrl(env), 'https://ice11123.github.io/blog_test2/admin/');
 });
 
 test('只允许博客 Origin', () => {
@@ -72,7 +72,7 @@ test('public status 无需管理员 Cookie 且返回脱敏仓库和部署状态'
   globalThis.fetch = async (url) => {
     const target = String(url);
     if (target.includes('/git/ref/heads/main')) return Response.json({ object: { sha: 'abcdef0123456789' } });
-    if (target.includes('/actions/workflows/deploy.yml/runs')) return Response.json({ workflow_runs: [{ status: 'completed', conclusion: 'success', updated_at: '2026-08-13T12:00:00Z', html_url: 'https://github.com/ice11123/blog_test1/actions/runs/2' }] });
+    if (target.includes('/actions/workflows/deploy.yml/runs')) return Response.json({ workflow_runs: [{ status: 'completed', conclusion: 'success', updated_at: '2026-08-13T12:00:00Z', html_url: 'https://github.com/ice11123/blog_test2/actions/runs/2' }] });
     return new Response('not found', { status: 404 });
   };
   try {
@@ -116,7 +116,7 @@ test('public status 上游失败时回退旧缓存并标记 stale', async () => 
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response('failed', { status: 500 });
   try {
-    const old = { ok: true, checkedAt: '2026-08-13T10:00:00Z', stale: false, worker: { ok: true }, repository: { ok: true, owner: 'ice11123', name: 'blog_test1', branch: 'main', headSha: 'old-head', commitUrl: 'https://github.com/commit' }, deployment: { status: 'pending', updatedAt: null, url: null } };
+    const old = { ok: true, checkedAt: '2026-08-13T10:00:00Z', stale: false, worker: { ok: true }, repository: { ok: true, owner: 'ice11123', name: 'blog_test2', branch: 'main', headSha: 'old-head', commitUrl: 'https://github.com/commit' }, deployment: { status: 'pending', updatedAt: null, url: null } };
     const publicEnv = { ...env, SESSIONS: { get: async () => JSON.stringify(old), put: async () => {} } };
     const response = await worker.fetch(new Request('https://worker.test/api/public-status', { headers: { Origin: env.ALLOWED_ORIGIN } }), publicEnv);
     assert.equal(response.status, 200);
@@ -149,7 +149,7 @@ test('api/status 返回仓库 HEAD 与最近部署且不泄露 token', async () 
   globalThis.fetch = async (url) => {
     const target = String(url);
     if (target.includes('/git/ref/heads/main')) return Response.json({ object: { sha: '0123456789abcdef' } });
-    if (target.includes('/actions/workflows/deploy.yml/runs')) return Response.json({ workflow_runs: [{ status: 'completed', conclusion: 'success', updated_at: '2026-08-13T10:00:00Z', html_url: 'https://github.com/ice11123/blog_test1/actions/runs/1' }] });
+    if (target.includes('/actions/workflows/deploy.yml/runs')) return Response.json({ workflow_runs: [{ status: 'completed', conclusion: 'success', updated_at: '2026-08-13T10:00:00Z', html_url: 'https://github.com/ice11123/blog_test2/actions/runs/1' }] });
     return new Response('not found', { status: 404 });
   };
   try {
@@ -225,6 +225,18 @@ test('同步接口缺少 Cookie 返回 401，错误 CSRF 返回 403', async () =
   assert.equal(missingCookie.status, 401);
   const badCsrf = await worker.fetch(new Request('https://worker.test/api/sync', { method: 'POST', headers: { ...baseHeaders, Cookie: 'blog_session=session-id', 'X-CSRF-Token': 'wrong' }, body: '{}' }), sessionEnv);
   assert.equal(badCsrf.status, 403);
+});
+
+test('写接口在目标仓库配置不匹配时拒绝执行', async () => {
+  const wrongEnv = { ...env, GITHUB_REPO: 'another-repository' };
+  for (const pathname of ['/api/sync', '/api/delete']) {
+    const response = await worker.fetch(new Request(`https://worker.test${pathname}`, {
+      method: 'POST',
+      headers: { Origin: env.ALLOWED_ORIGIN },
+    }), wrongEnv);
+    assert.equal(response.status, 503);
+    assert.match((await response.json()).message, /目标仓库配置不匹配/);
+  }
 });
 
 test('分块或无 Content-Length 的超大请求被拒绝，malformed JSON 返回 400', async () => {

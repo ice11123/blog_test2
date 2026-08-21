@@ -1,6 +1,8 @@
 # Cloudflare Worker 管理 API（当前实验版未部署）
 
-`blog_test2` 本轮仅做首页视觉实验，Pages 构建不会部署此 Worker，管理台发布按钮也保持禁用。此目录是从历史源码保留的未来接入参考，不能用于当前站点的发布链路。
+`blog_test2` 本轮仅做首页视觉实验，Pages 构建不会部署此 Worker，管理台发布按钮也保持禁用。代码中的仓库目标和回跳路径已经统一为 `blog_test2`，写接口也会拒绝非 `ice11123/blog_test2/main` 的配置，但此目录仍只是未来接入参考，不能用于当前站点的发布链路。
+
+`wrangler.toml` 中的 KV namespace 使用明确占位符。未来启用前必须创建 `blog_test2` 独立 KV、替换真实 ID，并完成 Secret 配置；在此之前不要执行部署。
 
 Worker 负责 GitHub OAuth 和管理台文章发布。GitHub OAuth token 加密后保存在 Worker KV，会话通过 HttpOnly Cookie 传递给本站管理台。
 
@@ -22,6 +24,8 @@ GitHub Developer Settings → OAuth Apps：
 2. Authorization callback URL：`https://YOUR_WORKER_DOMAIN/auth/callback`
 
 ## 部署
+
+以下步骤仅供未来启用时使用，当前版本不要执行。先创建独立 KV namespace，并将真实 ID 写入 `wrangler.toml`。
 
 在 `worker/` 目录执行：
 

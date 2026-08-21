@@ -65,11 +65,19 @@ pnpm publish:article -- "C:\\Users\\你的用户名\\Downloads\\文章标题.mdx
 
 脚本会按 `dir1` / `dir2` 自动写入 `src/content/blog/`，执行检查和构建，创建提交并推送到 `origin/main`。GitHub Actions 会自动部署实验版网站。
 
+为避免误提交，运行前暂存区必须为空；如果目标文章已经存在，脚本默认停止，确认覆盖时需显式添加 `--overwrite`：
+
+```powershell
+pnpm publish:article -- "文章文件.mdx" --overwrite
+```
+
 仅本地检查、不推送：
 
 ```powershell
 pnpm publish:article -- "文章文件.mdx" --no-push
 ```
+
+自动推送只允许在 `main` 分支执行，并要求 `origin` 指向 `ice11123/blog_test2`。
 
 如需启用前端原型密码门槛，请先在本地生成 SHA-256 哈希：
 

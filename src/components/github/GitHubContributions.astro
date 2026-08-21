@@ -44,6 +44,12 @@ import { GITHUB_USERNAME } from '../../consts';
     max-width: 100%;
   }
 
+  .gh-grid-wrapper.has-error {
+    color: var(--foreground-dark);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
   /* 骨架屏加载动画 */
   .gh-grid-wrapper.is-loading .gh-cell {
     animation: gh-pulse 1.5s ease-in-out infinite;
@@ -408,9 +414,13 @@ import { GITHUB_USERNAME } from '../../consts';
         }
 
         wrapper.classList.remove('is-loading');
+        return true;
       } catch (err) {
         console.warn('GitHub contributions fetch failed:', err.message);
         wrapper.classList.remove('is-loading');
+        wrapper.classList.add('has-error');
+        wrapper.textContent = 'GitHub 贡献数据暂时不可用，请稍后刷新重试。';
+        return false;
       }
     }
 
@@ -446,20 +456,31 @@ import { GITHUB_USERNAME } from '../../consts';
       if (scrollArea) scrollArea.scrollLeft = scrollArea.scrollWidth;
     }
 
-    function init() {
+    async function init() {
       var root = document.getElementById('gh-contributions');
       if (!root) return;
+      if (root.dataset.loadState) return;
+      root.dataset.loadState = 'loading';
       var username = root.getAttribute('data-username') || 'ice11123';
       var wrapper = document.getElementById('gh-grid-wrapper');
-      if (!wrapper) return;
+      if (!wrapper) {
+        root.dataset.loadState = 'error';
+        return;
+      }
 
       buildGrid(wrapper);
       setupTooltip(wrapper);
       scrollToEnd();
-      colorize(username, wrapper);
+      root.dataset.loadState = await colorize(username, wrapper) ? 'loaded' : 'error';
     }
 
-    init();
-    document.addEventListener('astro:page-load', init);
+    window.__githubContributionsInit = init;
+    if (!window.__githubContributionsPageLoadBound) {
+      window.__githubContributionsPageLoadBound = true;
+      document.addEventListener('astro:page-load', function() {
+        void window.__githubContributionsInit?.();
+      });
+    }
+    void init();
   })();
 </script>

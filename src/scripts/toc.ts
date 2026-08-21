@@ -1,3 +1,5 @@
+import { ensureHeadingId } from '../lib/headingAnchors';
+
 // 防止 dev 模式下视图过渡导致脚本重复执行
 if (!(window as any).__tocLoaded) {
   (window as any).__tocLoaded = true;
@@ -41,10 +43,10 @@ function buildToc() {
     return;
   }
 
-  let tocIndex = 0;
-  headings.forEach((heading) => {
+  const occupiedIds = new Set(Array.from(headings, heading => (heading as HTMLElement).id).filter(Boolean));
+  headings.forEach((heading, index) => {
     const el = heading as HTMLElement;
-    el.id = `heading-${tocIndex++}`;
+    ensureHeadingId(el, index, occupiedIds);
 
     // 缓存文档绝对偏移
     headingAbsTops.push(el.getBoundingClientRect().top + window.scrollY);

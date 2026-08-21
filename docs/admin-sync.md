@@ -1,6 +1,6 @@
 # 管理台同步到 GitHub（blog_test2 暂停）
 
-`blog_test2` 是独立视觉实验版，本轮不部署 Worker，也不允许管理台向任何远程仓库写入。管理台只支持浏览器本地草稿和导出文件；以下内容保留为未来单独接入发布服务时的安全设计记录，不代表当前站点已启用。
+`blog_test2` 是独立视觉实验版，本轮不部署 Worker，也不允许管理台向任何远程仓库写入。管理台只支持浏览器本地草稿和导出文件；以下内容保留为未来单独接入发布服务时的设计记录，不代表当前站点已启用。休眠 Worker 已固定目标为 `ice11123/blog_test2/main`，目标不匹配时写接口返回 503。
 
 管理台通过 Cloudflare Worker 完成 GitHub OAuth 和文章提交：
 
@@ -35,6 +35,8 @@ GET /api/public-status → 首页公共仓库与部署状态（不要求登录�
 ## 部署配置
 
 若未来为 `blog_test2` 单独启用 Worker，再在 `worker/` 目录执行：
+
+首先创建 `blog_test2` 独立 KV namespace，并将其真实 ID 替换到 `worker/wrangler.toml`；配置仍为占位符时禁止部署。
 
 ```powershell
 npx wrangler login
