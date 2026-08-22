@@ -1,7 +1,14 @@
 const THEMES = ['light', 'dark'] as const;
 const STORAGE_KEY = 'blog-test2-theme';
+const TRANSITION_WATCHDOG_MS = 700;
 
-const THEME_MIGRATIONS: Record<string, 'light' | 'dark'> = {
+type ThemeName = (typeof THEMES)[number];
+
+interface ThemeWindow extends Window {
+  __themeScriptLoaded?: boolean;
+}
+
+const THEME_MIGRATIONS: Record<string, ThemeName> = {
   'dark-blue': 'dark',
   'dark-green': 'dark',
   'dark-purple': 'dark',
@@ -10,116 +17,166 @@ const THEME_MIGRATIONS: Record<string, 'light' | 'dark'> = {
   'light-rose': 'light',
 };
 
-function getSavedTheme(): string | null {
+let activeTransition: ViewTransition | null = null;
+let activeTransitionTimer: number | null = null;
+let requestedTheme: ThemeName | null = null;
+
+function isThemeName(value: string | null): value is ThemeName {
+  return value !== null && THEMES.includes(value as ThemeName);
+}
+
+function getSavedTheme(): ThemeName | null {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && THEMES.includes(saved as (typeof THEMES)[number])) return saved;
+    if (isThemeName(saved)) return saved;
     if (saved && THEME_MIGRATIONS[saved]) {
       const migrated = THEME_MIGRATIONS[saved];
       localStorage.setItem(STORAGE_KEY, migrated);
       return migrated;
     }
-  } catch (e) {}
+  } catch (_) {
+    // 隐私模式或禁用存储时仍允许本次会话切换主题。
+  }
   return null;
 }
 
-function getSystemPreference(): string {
+function getSystemPreference(): ThemeName {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
-function getEffectiveTheme(): string {
+function getEffectiveTheme(): ThemeName {
+  const current = document.documentElement.getAttribute('data-theme');
+  if (isThemeName(current)) return current;
   return getSavedTheme() || getSystemPreference();
 }
 
-function applyTheme(name: string) {
+function syncThemeButton(name: ThemeName) {
+  const button = document.getElementById('theme-switcher-btn');
+  if (!button) return;
+  const targetLabel = name === 'light' ? '切换到深色主题' : '切换到浅色主题';
+  button.setAttribute('aria-label', targetLabel);
+  button.setAttribute('title', targetLabel);
+  button.setAttribute('aria-pressed', String(name === 'dark'));
+}
+
+function applyTheme(name: ThemeName) {
   document.documentElement.setAttribute('data-theme', name);
-  markCurrent(name);
+  syncThemeButton(name);
 }
 
-function markCurrent(name: string) {
-  const dropdown = document.getElementById('theme-dropdown');
-  if (!dropdown) return;
-  dropdown.querySelectorAll('[data-theme]').forEach(el => {
-    const htmlEl = el as HTMLElement;
-    const current = htmlEl.dataset.theme === name;
-    htmlEl.classList.toggle('current', current);
-    htmlEl.setAttribute('aria-checked', String(current));
-  });
-}
-
-function isDropdownOpen(dropdown: HTMLElement): boolean {
-  return dropdown.classList.contains('open');
-}
-
-function showDropdown(instant = false) {
-  const dropdown = document.getElementById('theme-dropdown');
-  const button = document.getElementById('theme-switcher-btn');
-  if (dropdown) {
-    markCurrent(getEffectiveTheme());
-    dropdown.dataset.instant = String(instant);
-    dropdown.classList.add('open');
-    dropdown.setAttribute('aria-hidden', 'false');
-    button?.setAttribute('aria-expanded', 'true');
+function selectTheme(name: ThemeName) {
+  try {
+    localStorage.setItem(STORAGE_KEY, name);
+  } catch (_) {
+    // 存储失败不应阻止当前页面完成切换。
   }
-}
-
-function hideDropdown() {
-  const dropdown = document.getElementById('theme-dropdown');
-  const button = document.getElementById('theme-switcher-btn');
-  if (dropdown) {
-    dropdown.classList.remove('open');
-    dropdown.setAttribute('aria-hidden', 'true');
-    button?.setAttribute('aria-expanded', 'false');
-  }
-}
-
-function selectTheme(name: string) {
-  try { localStorage.setItem(STORAGE_KEY, name); } catch (e) {}
   applyTheme(name);
 }
 
-// 防止视图过渡导致重复绑定
-if (!(window as any).__themeScriptLoaded) {
-  (window as any).__themeScriptLoaded = true;
+function clearTransitionState() {
+  const root = document.documentElement;
+  root.removeAttribute('data-theme-transition');
+  root.style.removeProperty('--theme-transition-x');
+  root.style.removeProperty('--theme-transition-y');
+  root.style.removeProperty('--theme-transition-radius');
+}
 
-  document.addEventListener('click', (e) => {
-    const btn = document.getElementById('theme-switcher-btn');
-    const dropdown = document.getElementById('theme-dropdown');
-    if (!btn || !dropdown) return;
+function stopActiveTransition() {
+  if (activeTransitionTimer !== null) {
+    window.clearTimeout(activeTransitionTimer);
+    activeTransitionTimer = null;
+  }
+  activeTransition?.skipTransition();
+  activeTransition = null;
+  clearTransitionState();
+}
 
-    if (btn.contains(e.target as Node)) {
-      const keyboardTriggered = e instanceof MouseEvent && e.detail === 0;
-      if (!isDropdownOpen(dropdown)) showDropdown(keyboardTriggered);
-      else hideDropdown();
-      return;
-    }
+function setTransitionGeometry(button: HTMLElement) {
+  const rect = button.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  const farthestX = Math.max(x, window.innerWidth - x);
+  const farthestY = Math.max(y, window.innerHeight - y);
+  const radius = Math.hypot(farthestX, farthestY);
+  const root = document.documentElement;
+  root.style.setProperty('--theme-transition-x', `${x}px`);
+  root.style.setProperty('--theme-transition-y', `${y}px`);
+  root.style.setProperty('--theme-transition-radius', `${radius}px`);
+}
 
-    if (!isDropdownOpen(dropdown)) return;
+function switchTheme(button: HTMLElement, pointerTriggered: boolean) {
+  const current = requestedTheme ?? getEffectiveTheme();
+  const next: ThemeName = current === 'light' ? 'dark' : 'light';
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const option = (e.target as HTMLElement).closest<HTMLElement>('[data-theme]');
-    if (option && dropdown.contains(option)) {
-      selectTheme(option.dataset.theme!);
-      hideDropdown();
-      return;
-    }
+  if (!pointerTriggered || reduceMotion || typeof document.startViewTransition !== 'function') {
+    stopActiveTransition();
+    requestedTheme = null;
+    selectTheme(next);
+    return;
+  }
 
-    if (!dropdown.contains(e.target as Node)) {
-      hideDropdown();
-    }
+  stopActiveTransition();
+  requestedTheme = next;
+  setTransitionGeometry(button);
+  document.documentElement.setAttribute('data-theme-transition', next === 'dark' ? 'expand' : 'contract');
+
+  try {
+    const transition = document.startViewTransition(() => selectTheme(requestedTheme ?? next));
+    activeTransition = transition;
+    // skipTransition() 会拒绝 ready；显式吸收预期中的 AbortError，避免快速切换污染控制台。
+    void transition.ready.catch(() => {});
+    void transition.updateCallbackDone.catch(() => {});
+    activeTransitionTimer = window.setTimeout(() => {
+      if (activeTransition !== transition) return;
+      transition.skipTransition();
+      selectTheme(requestedTheme ?? next);
+      activeTransition = null;
+      activeTransitionTimer = null;
+      requestedTheme = null;
+      clearTransitionState();
+    }, TRANSITION_WATCHDOG_MS);
+    const finishTransition = () => {
+      if (activeTransition !== transition) return;
+      if (activeTransitionTimer !== null) window.clearTimeout(activeTransitionTimer);
+      activeTransition = null;
+      activeTransitionTimer = null;
+      requestedTheme = null;
+      clearTransitionState();
+    };
+    void transition.finished.then(finishTransition, finishTransition);
+  } catch (_) {
+    stopActiveTransition();
+    requestedTheme = null;
+    selectTheme(next);
+  }
+}
+
+const themeWindow = window as ThemeWindow;
+if (!themeWindow.__themeScriptLoaded) {
+  themeWindow.__themeScriptLoaded = true;
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const button = target.closest<HTMLElement>('#theme-switcher-btn');
+    if (!button) return;
+    const pointerTriggered = event instanceof MouseEvent && event.detail > 0;
+    switchTheme(button, pointerTriggered);
+  });
+
+  window.addEventListener('storage', (event) => {
+    if (event.key !== STORAGE_KEY || !isThemeName(event.newValue)) return;
+    stopActiveTransition();
+    requestedTheme = null;
+    applyTheme(event.newValue);
   });
 
   applyTheme(getEffectiveTheme());
 
   document.addEventListener('astro:page-load', () => {
-    hideDropdown();
+    stopActiveTransition();
+    requestedTheme = null;
     applyTheme(getEffectiveTheme());
-  });
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape') return;
-    const dropdown = document.getElementById('theme-dropdown');
-    if (!dropdown || !isDropdownOpen(dropdown)) return;
-    hideDropdown();
-    document.getElementById('theme-switcher-btn')?.focus({ preventScroll: true });
   });
 }

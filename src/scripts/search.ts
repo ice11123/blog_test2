@@ -62,11 +62,6 @@ function openModal(source: SearchOpenSource): void {
   const input = getInput();
   if (!modal || !input) return;
 
-  const themeDropdown = document.getElementById('theme-dropdown');
-  themeDropdown?.classList.remove('open');
-  themeDropdown?.setAttribute('aria-hidden', 'true');
-  document.getElementById('theme-switcher-btn')?.setAttribute('aria-expanded', 'false');
-
   modal.dataset.openSource = source;
   modal.showModal();
   input.focus({ preventScroll: true });

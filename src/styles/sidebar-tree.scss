@@ -126,53 +126,6 @@
     }
   }
 
-  /* 主题按钮包装器 — 提供下拉菜单定位上下文 */
-  .ls-tool-btn-wrap {
-    position: relative;
-    display: flex;
-  }
-
-  .ls-tool-btn-wrap .ls-tool-btn {
-    width: 100%;
-  }
-
-  .ls-theme-dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 0;
-    z-index: var(--z-dropdown);
-    background: rgba(var(--background-rgb), var(--alpha-dropdown-glass));
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-xl);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-    padding: 6px;
-    min-width: 130px;
-  }
-
-  .ls-theme-dropdown > div {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-size: var(--font-size-md);
-    color: var(--foreground);
-    transition: background var(--transition-fast);
-    white-space: nowrap;
-
-    &:hover {
-      background: var(--muted);
-    }
-
-    &.current {
-      background: var(--muted);
-      font-weight: 600;
-    }
-  }
-
   .theme-dot {
     display: inline-block;
     width: 10px;

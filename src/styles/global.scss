@@ -95,6 +95,53 @@
   --font-size-xs: 0.75rem;
 }
 
+html[data-theme-transition]::view-transition-group(root),
+html[data-theme-transition]::view-transition-image-pair(root) {
+  height: 100dvh;
+  overflow: clip;
+}
+
+html[data-theme-transition]::view-transition-old(root),
+html[data-theme-transition]::view-transition-new(root) {
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+  mix-blend-mode: normal;
+}
+
+html[data-theme-transition='expand']::view-transition-old(root),
+html[data-theme-transition='contract']::view-transition-new(root) {
+  z-index: 0;
+  animation: none;
+}
+
+html[data-theme-transition='expand']::view-transition-new(root) {
+  z-index: 1;
+  animation: theme-circle-expand 280ms var(--ease-in-out) both;
+}
+
+html[data-theme-transition='contract']::view-transition-old(root) {
+  z-index: 1;
+  animation: theme-circle-contract 240ms var(--ease-in-out) both;
+}
+
+@keyframes theme-circle-expand {
+  from { clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y)); }
+  to { clip-path: circle(var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y)); }
+}
+
+@keyframes theme-circle-contract {
+  from { clip-path: circle(var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y)); }
+  to { clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-transition]::view-transition-old(root),
+  html[data-theme-transition]::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 @layer base {
   html {
     scrollbar-gutter: stable both-edges;

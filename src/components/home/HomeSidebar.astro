@@ -1,0 +1,116 @@
+---
+import { SITE_AUTHOR, SITE_DESCRIPTION } from '../../consts';
+import type { SiteStats } from '../../lib/blogStats';
+import { withBase } from '../../lib/urls';
+import SocialLinks from '../ui/SocialLinks.astro';
+
+interface Props {
+  stats: SiteStats;
+}
+
+const { stats } = Astro.props;
+---
+
+<aside class="home-sidebar" aria-label="个人信息与主页导航">
+  <div class="home-sidebar-profile">
+    <a class="profile-avatar" href={withBase('/')} aria-label={`${SITE_AUTHOR} 的博客首页`}>
+      <img src={withBase('/avatar.jpg')} alt={`${SITE_AUTHOR}的头像`} width="120" height="120" />
+    </a>
+    <strong>{SITE_AUTHOR}</strong>
+    <p>{SITE_DESCRIPTION}</p>
+    <SocialLinks showHeaderContacts compact />
+  </div>
+
+  <dl class="home-sidebar-stats" aria-label="站点统计">
+    <div><dt>文章</dt><dd>{stats.totalArticles}</dd></div>
+    <div><dt>分类</dt><dd>{stats.totalCategories}</dd></div>
+    <div><dt>标签</dt><dd>{stats.totalTags}</dd></div>
+  </dl>
+
+  <nav class="home-sidebar-nav" aria-label="主页快捷导航">
+    <a class="sidebar-nav-link active" href={withBase('/')} aria-current="page">
+      <span class="nav-marker" aria-hidden="true"></span>
+      <span>首页</span>
+    </a>
+
+    <details class="sidebar-nav-group">
+      <summary>
+        <span class="nav-marker" aria-hidden="true"></span>
+        <span>文章</span>
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </summary>
+      <div class="sidebar-subnav">
+        <a href={withBase('/blog/')}>全部文章</a>
+        <a href={withBase('/blog/tags/')}>标签索引</a>
+      </div>
+    </details>
+
+    <a class="sidebar-nav-link" href={withBase('/friends/')}>
+      <span class="nav-marker" aria-hidden="true"></span>
+      <span>友链</span>
+    </a>
+    <a class="sidebar-nav-link" href={withBase('/about/')}>
+      <span class="nav-marker" aria-hidden="true"></span>
+      <span>关于</span>
+    </a>
+  </nav>
+</aside>
+
+<style>
+  .home-sidebar {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    max-height: calc(100dvh - 104px);
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 28px 20px 22px;
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--text-primary) 8%, transparent);
+    scrollbar-width: thin;
+  }
+
+  .home-sidebar-profile { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .profile-avatar { display: block; width: 120px; height: 120px; border-radius: 50%; }
+  .profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border: 6px solid color-mix(in srgb, var(--surface-subtle) 82%, transparent); border-radius: inherit; box-shadow: 0 12px 30px color-mix(in srgb, var(--text-primary) 12%, transparent); }
+  .home-sidebar-profile strong { margin-top: 14px; font-size: 18px; line-height: 1.3; }
+  .home-sidebar-profile p { margin: 10px 0 12px; color: var(--text-secondary); font-size: 13px; line-height: 1.65; }
+  .home-sidebar-profile :global(.social-links) { gap: 8px; }
+  .home-sidebar-profile :global(a), .home-sidebar-profile :global(.social-placeholder) { color: var(--text-secondary); border-radius: 8px; }
+
+  .home-sidebar-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 22px 0; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .home-sidebar-stats div { display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; min-width: 0; }
+  .home-sidebar-stats div + div { border-left: 1px solid var(--border); }
+  .home-sidebar-stats dt { color: var(--text-secondary); font-size: 11px; }
+  .home-sidebar-stats dd { margin: 0; color: var(--text-primary); font-size: 17px; font-weight: 750; line-height: 1; }
+
+  .home-sidebar-nav { display: grid; gap: 8px; }
+  .sidebar-nav-link, .sidebar-nav-group summary { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: center; min-height: 44px; box-sizing: border-box; gap: 8px; padding: 8px 14px; color: var(--text-secondary); background: transparent; border-radius: 10px; font-size: 14px; font-weight: 650; cursor: pointer; list-style: none; transition: transform 140ms var(--ease-out), color 150ms ease, background-color 150ms ease; }
+  .sidebar-nav-link.active { color: var(--button-on-accent); background: var(--accent); }
+  .sidebar-nav-link:active, .sidebar-nav-group summary:active { transform: scale(.98); }
+  .nav-marker { width: 6px; height: 6px; justify-self: center; background: currentColor; border-radius: 50%; opacity: .72; }
+  .sidebar-nav-group { background: color-mix(in srgb, var(--surface-subtle) 68%, transparent); border-radius: 10px; }
+  .sidebar-nav-group summary::-webkit-details-marker { display: none; }
+  .sidebar-nav-group summary svg { transition: transform 150ms var(--ease-out); }
+  .sidebar-nav-group[open] summary svg { transform: rotate(180deg); }
+  .sidebar-subnav { display: grid; gap: 2px; padding: 0 12px 10px 34px; }
+  .sidebar-subnav a { padding: 7px 8px; color: var(--text-secondary); border-left: 1px solid var(--border); font-size: 12px; line-height: 1.4; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .profile-avatar:hover img { border-color: color-mix(in srgb, var(--accent) 34%, var(--surface-subtle)); }
+    .home-sidebar-profile :global(a:hover), .sidebar-subnav a:hover { color: var(--accent); }
+    .sidebar-nav-link:not(.active):hover, .sidebar-nav-group summary:hover { color: var(--text-primary); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  }
+
+  @media (max-width: 1099px) {
+    .home-sidebar { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-nav-link, .sidebar-nav-group summary, .sidebar-nav-group summary svg { transition: none; }
+  }
+</style>
