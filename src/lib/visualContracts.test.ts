@@ -127,3 +127,14 @@ test('主题按钮直接切换并提供双向可降级圆形过渡', () => {
   assert.match(globalStyles, /theme-circle-contract 240ms var\(--ease-in-out\)/);
   assert.match(globalStyles, /clip-path:\s*circle\(0 at var\(--theme-transition-x\) var\(--theme-transition-y\)\)/);
 });
+
+test('主页运行状态提供可见的手动刷新入口', () => {
+  const home = readSource('pages/index.astro');
+  const publicStatus = readSource('components/home/PublicStatus.astro');
+  const statusScript = readSource('scripts/public-status.ts');
+
+  assert.match(home, /data-public-status-refresh/);
+  assert.doesNotMatch(home, /system-status-heading\)\s*\{\s*display:\s*none/);
+  assert.doesNotMatch(publicStatus, /data-public-status-refresh/);
+  assert.match(statusScript, /refreshInFlight/);
+});

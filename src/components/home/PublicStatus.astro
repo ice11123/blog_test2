@@ -10,17 +10,7 @@ const cards = [
 ---
 
 <section class="home-status" data-public-status data-status-endpoint={ADMIN_SYNC_API_URL} aria-live="polite">
-  <div class="system-status-heading">
-    <div>
-      <p class="status-eyebrow">LIVE STATUS</p>
-      <h2>系统状态</h2>
-    </div>
-    <button type="button" class="status-refresh" data-public-status-refresh aria-label="重新检测系统状态">
-      <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>重检</span>
-    </button>
-  </div>
-  <div class="system-status-grid home-status-grid">
+  <div id="public-status-grid" class="system-status-grid home-status-grid">
     {cards.map(([key, title, initial]) => (
       <article class="system-card" data-public-card={key} data-state="checking">
         <header><span class="system-dot"></span><strong>{title}</strong><span data-card-state>检测中</span></header>
@@ -64,10 +54,6 @@ const cards = [
     white-space: normal;
     text-overflow: clip;
   }
-  .home-status .system-status-heading { margin-bottom: .95rem; }
-  .home-status .system-status-heading h2 { font-size: 1.12rem; }
-  .home-status .status-eyebrow { font-size: .74rem; }
-  .home-status .status-refresh { min-height: 2rem; padding: .36rem .58rem; font-size: .74rem; }
   .home-status .system-status-grid { gap: .7rem; }
   .home-status .system-card { min-height: 8.4rem; padding: .78rem .82rem; }
   .home-status .system-card header strong { font-size: .84rem; }

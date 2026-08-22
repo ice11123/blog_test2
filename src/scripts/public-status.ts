@@ -1,4 +1,5 @@
 import {
+  classifyGitHubStatusFailure,
   requestStatusJson,
   shouldRefreshFromGitHub,
   waitForStatusResult,
@@ -44,43 +45,71 @@ function initPublicStatus(): void {
   };
 
   const refreshFromGitHub = async (): Promise<boolean> => {
-    try {
-      const [refResponse, runsResponse] = await Promise.all([
-        fetch(`${GITHUB_API}/repos/${REPOSITORY}/git/ref/heads/${BRANCH}`, {
-          headers: { Accept: 'application/vnd.github+json' },
-          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-        }),
-        fetch(`${GITHUB_API}/repos/${REPOSITORY}/actions/workflows/deploy.yml/runs?branch=${BRANCH}&per_page=1`, {
-          headers: { Accept: 'application/vnd.github+json' },
-          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-        }),
-      ]);
-      if (!refResponse.ok) throw new Error('repository status failed');
-      const ref = await refResponse.json();
-      const sha = typeof ref?.object?.sha === 'string' ? ref.object.sha : '';
-      if (!sha) throw new Error('repository SHA missing');
-      setCard('repository', 'waiting', REPOSITORY, `${BRANCH} · ${sha.slice(0, 7)} · GitHub 直连降级`, `https://github.com/${REPOSITORY}/commit/${sha}`);
+    const [refResult, runsResult] = await Promise.all([
+      requestStatusJson(`${GITHUB_API}/repos/${REPOSITORY}/git/ref/heads/${BRANCH}`, {
+        attempts: 1,
+        timeoutMs: REQUEST_TIMEOUT_MS,
+      }),
+      requestStatusJson(`${GITHUB_API}/repos/${REPOSITORY}/actions/workflows/deploy.yml/runs?branch=${BRANCH}&per_page=1`, {
+        attempts: 1,
+        timeoutMs: REQUEST_TIMEOUT_MS,
+      }),
+    ]);
 
-      if (!runsResponse.ok) {
-        setCard('deployment', 'waiting', 'Worker 不可用，部署状态待刷新', '仓库 HEAD 已通过 GitHub 直连读取');
-        return true;
+    const renderGitHubFailure = (card: 'repository' | 'deployment', result: StatusRequestResult) => {
+      const failure = classifyGitHubStatusFailure(result);
+      const subject = card === 'repository' ? '仓库' : '部署记录';
+      if (!failure) {
+        setCard(card, 'waiting', `${subject}状态暂未确认`, 'GitHub 返回的数据暂时无法识别，可稍后手动刷新');
+        return;
       }
-      const runs = await runsResponse.json();
-      const run = Array.isArray(runs?.workflow_runs) ? runs.workflow_runs[0] : null;
-      if (!run) {
-        setCard('deployment', 'waiting', '暂无部署记录', 'GitHub 直连降级');
-        return true;
+      if (failure.kind === 'limited') {
+        setCard(card, 'waiting', 'GitHub API 检测受限', `代理出口或匿名额度已限流，不代表${subject}异常`);
+        return;
       }
-      const status = run.status !== 'completed' ? 'pending' : run.conclusion === 'success' ? 'success' : 'failure';
-      if (status === 'success') setCard('deployment', 'waiting', '最近部署成功', `${formatTime(run.updated_at)} · GitHub 直连降级`, run.html_url || '');
-      else if (status === 'pending') setCard('deployment', 'waiting', '正在构建或排队', `${formatTime(run.updated_at)} · GitHub 直连降级`, run.html_url || '');
-      else setCard('deployment', 'error', '最近部署失败', formatTime(run.updated_at), run.html_url || '');
-      return true;
-    } catch {
-      setCard('repository', 'error', '仓库状态不可用', 'Worker 与 GitHub 公共 API 均无法连接');
-      setCard('deployment', 'error', '部署状态不可用', 'Worker 与 GitHub 公共 API 均无法连接');
-      return false;
+      if (failure.kind === 'timeout' || failure.kind === 'network') {
+        const reason = failure.kind === 'timeout' ? '请求超时' : '当前网络无法访问 GitHub API';
+        setCard(card, 'waiting', `${subject}状态暂未确认`, `${reason}，不代表${subject}异常`);
+        return;
+      }
+      if (failure.kind === 'upstream') {
+        setCard(card, 'waiting', 'GitHub 服务暂不可用', `${subject}状态未确认，可稍后手动刷新`);
+        return;
+      }
+      setCard(card, 'error', `${subject}配置异常`, `GitHub 返回 HTTP ${failure.status}，请检查仓库、分支或工作流配置`);
+    };
+
+    let repositoryConfirmed = false;
+    if (refResult.kind === 'ok') {
+      const sha = typeof refResult.body?.object?.sha === 'string' ? refResult.body.object.sha : '';
+      if (sha) {
+        repositoryConfirmed = true;
+        setCard('repository', 'waiting', REPOSITORY, `${BRANCH} · ${sha.slice(0, 7)} · GitHub 直连降级`, `https://github.com/${REPOSITORY}/commit/${sha}`);
+      } else {
+        renderGitHubFailure('repository', refResult);
+      }
+    } else {
+      renderGitHubFailure('repository', refResult);
     }
+
+    let deploymentConfirmed = false;
+    if (runsResult.kind === 'ok') {
+      const run = Array.isArray(runsResult.body?.workflow_runs) ? runsResult.body.workflow_runs[0] : null;
+      if (!run) {
+        deploymentConfirmed = true;
+        setCard('deployment', 'waiting', '暂无部署记录', 'GitHub 直连降级');
+      } else {
+        deploymentConfirmed = true;
+        const status = run.status !== 'completed' ? 'pending' : run.conclusion === 'success' ? 'success' : 'failure';
+        if (status === 'success') setCard('deployment', 'waiting', '最近部署成功', `${formatTime(run.updated_at)} · GitHub 直连降级`, run.html_url || '');
+        else if (status === 'pending') setCard('deployment', 'waiting', '正在构建或排队', `${formatTime(run.updated_at)} · GitHub 直连降级`, run.html_url || '');
+        else setCard('deployment', 'error', '最近部署失败', formatTime(run.updated_at), run.html_url || '');
+      }
+    } else {
+      renderGitHubFailure('deployment', runsResult);
+    }
+
+    return repositoryConfirmed || deploymentConfirmed;
   };
 
   const setWorkerStatus = (result: StatusRequestResult) => {
@@ -162,14 +191,26 @@ function initPublicStatus(): void {
     await Promise.all([healthTask, refreshRepositoryStatus()]);
   };
 
-  const refreshButton = root.querySelector<HTMLButtonElement>('[data-public-status-refresh]');
+  const refreshButton = root.closest<HTMLElement>('.status-block')
+    ?.querySelector<HTMLButtonElement>('[data-public-status-refresh]');
+  const refreshLabel = refreshButton?.querySelector<HTMLElement>('[data-public-status-refresh-label]');
   let refreshInFlight: Promise<void> | null = null;
   const runRefresh = () => {
     if (refreshInFlight) return refreshInFlight;
-    if (refreshButton) refreshButton.disabled = true;
+    if (refreshButton) {
+      refreshButton.disabled = true;
+      refreshButton.dataset.loading = 'true';
+      refreshButton.setAttribute('aria-busy', 'true');
+    }
+    if (refreshLabel) refreshLabel.textContent = '检测中';
     refreshInFlight = refresh().finally(() => {
       refreshInFlight = null;
-      if (refreshButton) refreshButton.disabled = false;
+      if (refreshButton) {
+        refreshButton.disabled = false;
+        refreshButton.removeAttribute('data-loading');
+        refreshButton.removeAttribute('aria-busy');
+      }
+      if (refreshLabel) refreshLabel.textContent = '刷新';
     });
     return refreshInFlight;
   };

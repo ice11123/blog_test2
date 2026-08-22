@@ -14,10 +14,29 @@ export type StatusWaitResult =
   | { kind: 'resolved'; result: StatusRequestResult }
   | { kind: 'slow' };
 
+export type GitHubStatusFailure =
+  | { kind: 'limited'; severity: 'waiting'; status: number }
+  | { kind: 'timeout'; severity: 'waiting' }
+  | { kind: 'network'; severity: 'waiting' }
+  | { kind: 'upstream'; severity: 'waiting'; status: number }
+  | { kind: 'configuration'; severity: 'error'; status: number };
+
 const DEFAULT_RETRY_DELAYS_MS = [450, 1_100];
 
 export function shouldRefreshFromGitHub(result: StatusRequestResult): boolean {
   return result.kind !== 'ok' || result.body?.ok !== true || result.body?.stale === true;
+}
+
+export function classifyGitHubStatusFailure(result: StatusRequestResult): GitHubStatusFailure | null {
+  if (result.kind === 'ok') return null;
+  if (result.kind === 'network-error') return { kind: result.reason, severity: 'waiting' };
+
+  const message = typeof result.body?.message === 'string' ? result.body.message : '';
+  if (result.status === 429 || (result.status === 403 && /rate limit|abuse/i.test(message))) {
+    return { kind: 'limited', severity: 'waiting', status: result.status };
+  }
+  if (result.status >= 500) return { kind: 'upstream', severity: 'waiting', status: result.status };
+  return { kind: 'configuration', severity: 'error', status: result.status };
 }
 
 export function waitForStatusResult(

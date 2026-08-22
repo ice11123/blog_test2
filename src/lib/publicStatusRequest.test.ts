@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  classifyGitHubStatusFailure,
   requestStatusJson,
   shouldRefreshFromGitHub,
   waitForStatusResult,
@@ -108,4 +109,35 @@ test('Worker 状态请求过慢时提前触发 GitHub 降级', async () => {
     kind: 'resolved',
     result: immediate,
   });
+});
+
+test('GitHub 限流、网络不可达与上游故障不会被误判为仓库故障', () => {
+  assert.deepEqual(classifyGitHubStatusFailure({
+    kind: 'http-error',
+    status: 403,
+    body: { message: 'API rate limit exceeded' },
+    attempts: 1,
+  }), { kind: 'limited', severity: 'waiting', status: 403 });
+
+  assert.deepEqual(classifyGitHubStatusFailure({
+    kind: 'network-error',
+    reason: 'timeout',
+    attempts: 1,
+  }), { kind: 'timeout', severity: 'waiting' });
+
+  assert.deepEqual(classifyGitHubStatusFailure({
+    kind: 'http-error',
+    status: 503,
+    body: {},
+    attempts: 1,
+  }), { kind: 'upstream', severity: 'waiting', status: 503 });
+});
+
+test('GitHub 资源不存在仍归类为真实配置错误', () => {
+  assert.deepEqual(classifyGitHubStatusFailure({
+    kind: 'http-error',
+    status: 404,
+    body: {},
+    attempts: 1,
+  }), { kind: 'configuration', severity: 'error', status: 404 });
 });

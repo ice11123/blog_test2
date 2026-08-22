@@ -32,11 +32,23 @@
     border-radius: var(--radius-lg);
     font: inherit;
     cursor: pointer;
+    transition: transform 140ms var(--ease-out), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
   }
 
-  .status-refresh:hover {
-    color: var(--accent);
-    border-color: var(--accent);
+  .status-refresh:active { transform: scale(0.97); }
+
+  .status-refresh:disabled {
+    cursor: wait;
+    opacity: 0.68;
+  }
+
+  .status-refresh[data-loading="true"] svg { animation: status-refresh-spin 700ms linear infinite; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .status-refresh:hover:not(:disabled) {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
   }
 
   .system-status-grid {
@@ -136,7 +148,12 @@
     50% { opacity: 0.35; transform: scale(0.78); }
   }
 
+  @keyframes status-refresh-spin {
+    to { transform: rotate(1turn); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .system-card[data-state="checking"] .system-dot { animation: none; }
+    .status-refresh, .status-refresh[data-loading="true"] svg { animation: none; transition: none; }
   }
 }

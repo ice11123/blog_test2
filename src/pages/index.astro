@@ -158,6 +158,10 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
           <div class="info-block-heading">
             <span>02</span>
             <div><h3>运行状态</h3><p>按需检测，不持续轮询</p></div>
+            <button type="button" class="status-refresh" data-public-status-refresh aria-controls="public-status-grid" aria-label="重新检测系统状态">
+              <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-public-status-refresh-label>刷新</span>
+            </button>
           </div>
           <PublicStatus />
         </section>
@@ -294,7 +298,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .language-block :global(.lang-pie) { width: 112px; height: 112px; }
   .language-block :global(.lang-legend) { gap: 3px; font-size: 11px; }
   .language-block :global(.lang-total) { margin-top: 8px; font-size: 12px; }
-  .status-block :global(.system-status-heading) { display: none; }
+  .status-block .status-refresh { flex: 0 0 auto; margin-left: auto; }
   .status-block :global(.system-status-grid) { gap: 8px; }
   .status-block :global(.system-card) { min-height: 0; padding: 12px; background: color-mix(in srgb, var(--state-bg) 54%, transparent); border-radius: 8px; }
   .status-block :global(.system-card p) { margin-top: 6px; font-size: 12px; }
