@@ -1,25 +1,49 @@
 ---
+import type { ImageMetadata } from 'astro';
 import HtmlHead from '../components/layout/HtmlHead.astro';
 import Footer from '../components/layout/Footer.astro';
 import Header from '../components/layout/Header.astro';
+import PersistentSidebar from '../components/layout/PersistentSidebar.astro';
 import SearchModal from '../components/blog/SearchModal.astro';
+import { getSidebarData } from '../lib/blogData';
 
 interface Props {
   title: string;
   description: string;
+  image?: string | ImageMetadata;
+  sidebarMode?: 'overview' | 'article';
+  currentSlug?: string;
+  currentDir1?: string;
+  currentDir2?: string;
 }
 
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  image,
+  sidebarMode = 'overview',
+  currentSlug = '',
+  currentDir1 = '',
+  currentDir2 = '',
+} = Astro.props;
+const sidebarPosts = await getSidebarData();
 ---
 
 <html lang="zh-cn">
   <head>
-    <HtmlHead title={title} description={description} />
+    <HtmlHead title={title} description={description} image={image} />
     <slot name="head" />
   </head>
   <body class="public-shell">
     <Header />
     <div class="public-layout-frame">
+      <PersistentSidebar
+        posts={sidebarPosts}
+        mode={sidebarMode}
+        currentSlug={currentSlug}
+        currentDir1={currentDir1}
+        currentDir2={currentDir2}
+      />
       <main class="public-main">
         <slot />
       </main>
@@ -46,8 +70,18 @@ const { title, description } = Astro.props;
   }
 
   .public-layout-frame {
-    display: block;
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    align-items: start;
     width: 100%;
     min-width: 0;
+  }
+
+  @media (max-width: 1199px) and (min-width: 1000px) {
+    .public-layout-frame { grid-template-columns: 220px minmax(0, 1fr); }
+  }
+
+  @media (max-width: 999.98px) {
+    .public-layout-frame { display: block; }
   }
 </style>

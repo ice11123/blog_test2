@@ -71,11 +71,6 @@ function buildToc() {
 
       el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
 
-      if (window.matchMedia('(max-width: 760px)').matches) {
-        document.documentElement.classList.remove('mobile-sidebar-open');
-        document.getElementById('toggleSidebarBtn')?.setAttribute('aria-expanded', 'false');
-      }
-
       let settled = false;
       const settle = () => {
         if (settled) return;

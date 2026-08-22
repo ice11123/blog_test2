@@ -12,7 +12,6 @@ import GitHubContributions from '../components/github/GitHubContributions.astro'
 import GitHubRepoStats from '../components/github/GitHubRepoStats.astro';
 import GitHubLanguages from '../components/github/GitHubLanguages.astro';
 import PublicStatus from '../components/home/PublicStatus.astro';
-import HomeSidebar from '../components/home/HomeSidebar.astro';
 import { blogPostPath, withBase } from '../lib/urls';
 import maintenanceSource from '../content/maintenance.md?raw';
 import homeHeroImage from '../assets/home-hero.jpg';
@@ -73,7 +72,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     </section>
 
     <div class="home-content-layout">
-      <HomeSidebar stats={stats} />
       <div class="home-main-column">
     <section class="recent-section" aria-labelledby="recent-title">
       <header class="section-heading">
@@ -247,7 +245,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .cover-wave-track-back { fill: color-mix(in srgb, var(--accent-secondary) 38%, var(--surface-subtle)); opacity: .68; animation: cover-wave-scroll 28s linear infinite; }
   .cover-wave-track-front { fill: var(--canvas); animation: cover-wave-scroll 18s linear infinite; }
 
-  .home-content-layout { position: relative; z-index: 4; display: grid; grid-template-columns: 236px minmax(0, 1fr); align-items: start; width: min(1320px, calc(100% - 48px)); margin: 40px auto 0; gap: 32px; }
+  .home-content-layout { position: relative; z-index: 4; width: min(1080px, calc(100% - 48px)); margin: 40px auto 0; }
   .home-main-column { min-width: 0; }
   .section-link:focus-visible, .home-post-link:focus-visible, .info-fold > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
@@ -328,14 +326,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .home-post-card { transition: transform 180ms cubic-bezier(.23,1,.32,1), border-color 180ms ease, box-shadow 180ms ease; }
     .home-post-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 12px 32px color-mix(in srgb, var(--text-primary) 9%, transparent); }
     .home-post-card:hover .home-post-media :global(img) { transform: scale(1.025); }
-  }
-
-  @media (max-width: 1399px) and (min-width: 1100px) {
-    .home-content-layout { grid-template-columns: 212px minmax(0, 1fr); }
-  }
-
-  @media (max-width: 1099px) {
-    .home-content-layout { display: block; width: min(1080px, calc(100% - 48px)); }
   }
 
   @media (max-width: 900px) {

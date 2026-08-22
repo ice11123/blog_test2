@@ -3,10 +3,8 @@ import type { ImageMetadata } from 'astro';
 import { SITE_TITLE } from '../../consts';
 import { ClientRouter } from 'astro:transitions';
 import globalCss from '../../styles/global.scss?url';
-import sidebarSharedCss from '../../styles/sidebar-shared.scss?url';
-import sidebarTocCss from '../../styles/sidebar-toc.scss?url';
+import persistentSidebarCss from '../../styles/persistent-sidebar.scss?url';
 import blogPostCss from '../../styles/blog-post.scss?url';
-import sidebarTreeCss from '../../styles/sidebar-tree.scss?url';
 import systemStatusCss from '../../styles/system-status.scss?url';
 import katexCss from 'katex/dist/katex.min.css?url';
 import { withBase } from '../../lib/urls';
@@ -51,10 +49,8 @@ if (image) {
 	<!-- 样式表通过 <link> 加载，确保 dev 模式下视图过渡后样式不丢失 -->
 	<link rel="stylesheet" href={globalCss}>
 	<link rel="stylesheet" href={katexCss}>
-	<link rel="stylesheet" href={sidebarSharedCss}>
-	<link rel="stylesheet" href={sidebarTocCss}>
+	<link rel="stylesheet" href={persistentSidebarCss}>
 	<link rel="stylesheet" href={blogPostCss}>
-	<link rel="stylesheet" href={sidebarTreeCss}>
 	<link rel="stylesheet" href={systemStatusCss}>
 
 <!-- Primary Meta Tags -->
@@ -97,15 +93,6 @@ if (image) {
       var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
       document.documentElement.setAttribute('data-theme', prefersLight ? 'light' : 'dark');
     }
-
-    try {
-      var isMobileViewport = window.matchMedia('(max-width: 760px)').matches;
-      var rightRaw = localStorage.getItem('blog-test2-right-sidebar-collapsed');
-      // 移动端始终从收起状态进入，避免桌面端展开偏好把目录抽屉盖在正文上。
-      if (!isMobileViewport) {
-        document.documentElement.classList.toggle('sidebar-collapsed', rightRaw !== 'false');
-      }
-    } catch (_) {}
 
     try {
       if (localStorage.getItem('blog-test2-header-collapsed') === 'true') {

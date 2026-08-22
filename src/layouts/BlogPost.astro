@@ -1,118 +1,57 @@
 ---
-// 博客文章布局组件 - 三栏可折叠双侧栏版本
+// 博客文章布局组件 - 统一常驻侧栏版本
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import HtmlHead from '../components/layout/HtmlHead.astro';
-import Footer from '../components/layout/Footer.astro';
 import FormattedDate from '../components/blog/FormattedDate.astro';
-import Header from '../components/layout/Header.astro';
-import SidebarLeft from '../components/layout/SidebarLeft.astro';
-import SidebarRight from '../components/layout/SidebarRight.astro';
-import { getSidebarData } from '../lib/blogData';
-
-import SearchModal from '../components/blog/SearchModal.astro';
+import PublicLayout from './PublicLayout.astro';
 import { stripBase, withBase } from '../lib/urls';
 
 type BlogData = CollectionEntry<'blog'>['data'];
 type Props = Omit<BlogData, 'tags'> & { tags?: string[]; sidebarsExpanded?: boolean; hidePageHeader?: boolean };
-const { title, description, pubDate, updatedDate, heroImage, dir1, dir2, tags = [], sidebarsExpanded = false, hidePageHeader = false } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, dir1, dir2, tags = [], hidePageHeader = false } = Astro.props;
 
-// 构建左侧栏数据
-const sidebarData = await getSidebarData();
 const routePath = stripBase(Astro.url.pathname);
 const slugMatch = routePath.match(/^\/blog\/(.+)/);
 const currentSlug = slugMatch ? decodeURIComponent(slugMatch[1].replace(/\/+$/, '')) : '';
 ---
 
-<html lang="zh-cn" class:list={{ 'sidebar-collapsed': !sidebarsExpanded }}>
-	<head>
-		<HtmlHead title={title} description={description} />
-		<slot name="head" />
-	</head>
-
-	<body>
-		<Header />
-		<main>
-			<article>
-				{!hidePageHeader && (
-					<div class="hero-image">
-						{heroImage && <Image width={200} height={200} src={heroImage} alt="" />}
+<PublicLayout
+	title={title}
+	description={description}
+	image={heroImage}
+	sidebarMode="article"
+	currentSlug={currentSlug}
+	currentDir1={dir1}
+	currentDir2={dir2}
+>
+	<slot name="head" slot="head" />
+	<article class="blog-post-page">
+		{!hidePageHeader && heroImage && (
+			<div class="hero-image"><Image width={960} height={420} src={heroImage} alt="" /></div>
+		)}
+		<div class="content-main">
+			<div class="prose">
+				{!hidePageHeader && <div class="title">
+					<div class="date">
+						<FormattedDate date={pubDate} />
+						{updatedDate && <div class="last-updated-on">Last updated on <FormattedDate date={updatedDate} /></div>}
 					</div>
-				)}
-
-				<!-- 三栏布局容器 -->
-				<div class="three-col-layout">
-					<!-- 左侧：可折叠侧边栏（目录树 / 标签树） -->
-					<SidebarLeft posts={sidebarData} currentSlug={currentSlug} />
-
-					<!-- 左侧间隙按钮：位于侧栏与正文之间 -->
-					<div class="sidebar-gutter" id="left-gutter">
-						<button class="sidebar-toggle-btn" id="toggleLeftSidebarBtn" aria-label="切换左侧栏" aria-expanded="false" type="button">
-							<svg class="gutter-arrow gutter-arrow-left" width="18" height="18" viewBox="0 0 12 12" aria-hidden="true">
-								<path d="M2 5 L6 8 L10 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</button>
-					</div>
-
-					<!-- 中间：正文区域 -->
-					<div class="content-main">
-						<div class="prose">
-							{!hidePageHeader && <div class="title">
-								<div class="date">
-									<FormattedDate date={pubDate} />
-									{updatedDate && (
-										<div class="last-updated-on">
-											Last updated on <FormattedDate date={updatedDate} />
-										</div>
-									)}
-								</div>
-								<h1>{title}</h1>
-								{(dir1 || tags.length > 0) && (
-									<div class="post-meta">
-										{dir1 && (
-											<span class="post-category">
-												分类：<a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/`)}>{dir1}</a>
-												{dir2 && <span> / <a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/${encodeURIComponent(dir2)}/`)}>{dir2}</a></span>}
-											</span>
-										)}
-										{tags.length > 0 && (
-											<span class="post-tags">
-												{tags.map(tag => (
-													<a href={withBase(`/blog/tag/${encodeURIComponent(tag)}/`)} class="tag-pill">{tag}</a>
-												))}
-											</span>
-										)}
-									</div>
-								)}
-								<hr />
-							</div>}
-							<slot />
+					<h1>{title}</h1>
+					{(dir1 || tags.length > 0) && (
+						<div class="post-meta">
+							{dir1 && <span class="post-category">
+								分类：<a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/`)}>{dir1}</a>
+								{dir2 && <span> / <a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/${encodeURIComponent(dir2)}/`)}>{dir2}</a></span>}
+							</span>}
+							{tags.length > 0 && <span class="post-tags">{tags.map((tag) => <a href={withBase(`/blog/tag/${encodeURIComponent(tag)}/`)} class="tag-pill">{tag}</a>)}</span>}
 						</div>
-					</div>
-
-					<!-- 右侧间隙按钮：位于正文与侧栏之间 -->
-					<div class="sidebar-gutter" id="right-gutter">
-						<button class="sidebar-toggle-btn" id="toggleSidebarBtn" aria-label="切换文章目录" aria-expanded="false" type="button">
-							<svg class="gutter-arrow gutter-arrow-right" width="18" height="18" viewBox="0 0 12 12" aria-hidden="true">
-								<path d="M2 5 L6 8 L10 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</button>
-					</div>
-
-					<!-- 右侧：可折叠侧边栏（目录 + 简介） -->
-					<SidebarRight description={description} />
-				</div>
-			</article>
-		</main>
-		<Footer />
-
-		<SearchModal />
-
-		<!-- 左侧栏交互脚本 -->
-		<script src="../scripts/sidebar-tree"></script>
-		<!-- 目录生成脚本 -->
-		<script src="../scripts/toc"></script>
-		<!-- Mermaid 图表渲染 -->
-		<script src="../scripts/mermaid"></script>
-	</body>
-</html>
+					)}
+					<hr />
+				</div>}
+				<slot />
+			</div>
+		</div>
+	</article>
+	<script src="../scripts/toc"></script>
+	<script src="../scripts/mermaid"></script>
+</PublicLayout>

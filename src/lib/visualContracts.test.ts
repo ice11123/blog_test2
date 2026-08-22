@@ -44,9 +44,10 @@ test('全局动效令牌与降低动态契约保持稳定', () => {
   assert.match(home, /\.cover-wave-track-back,\s*\.cover-wave-track-front\s*\{\s*animation:\s*none/);
 });
 
-test('高频导航即时可见且非文章页不渲染完整侧栏', () => {
+test('高频导航即时可见且公共页面复用统一侧栏', () => {
   assert.doesNotMatch(readSource('layouts/BlogPost.astro'), /fade-in-on-scroll|class:list=\{\['fade-/);
-  assert.doesNotMatch(readSource('layouts/PublicLayout.astro'), /SidebarLeft|sidebar-tree/);
+  assert.match(readSource('layouts/PublicLayout.astro'), /PersistentSidebar/);
+  assert.doesNotMatch(readSource('layouts/PublicLayout.astro'), /SidebarLeft|SidebarRight|sidebar-tree/);
   for (const page of ['pages/blog/index.astro', 'pages/blog/tags.astro', 'pages/friends.astro', 'pages/about.astro', 'pages/404.astro']) {
     assert.doesNotMatch(readSource(page), /layouts\/BlogPost\.astro/);
   }
@@ -66,16 +67,31 @@ test('TOC、搜索与 Spoiler 使用新的交互契约', () => {
   assert.match(spoiler, /dataset\.revealed\s*=\s*'true'/);
 });
 
-test('移动文章树与 TOC 抽屉保持互斥', () => {
-  const rightDrawer = readSource('scripts/sidebar-collapse.ts');
-  const leftDrawer = readSource('scripts/sidebar-tree.ts');
-  assert.match(rightDrawer, /getElementById\('leftSidebar'\)\?\.classList\.remove\('overlay-open'\)/);
-  assert.match(leftDrawer, /classList\.remove\('mobile-sidebar-open'\)/);
+test('文章页侧栏三个内容槽支持点击、键盘和 ARIA 切换', () => {
+  const sidebar = readSource('components/layout/PersistentSidebar.astro');
+  const interaction = readSource('scripts/persistent-sidebar.ts');
+  const postLayout = readSource('layouts/BlogPost.astro');
+
+  assert.match(sidebar, /role="tablist"/);
+  assert.match(sidebar, /data-sidebar-tab="overview"/);
+  assert.match(sidebar, /data-sidebar-tab="toc"/);
+  assert.match(sidebar, /data-sidebar-tab="series"/);
+  assert.match(sidebar, /aria-label="站点概览"/);
+  assert.match(sidebar, /id="toc-list"/);
+  assert.match(sidebar, /aria-current=\{post\.slug === currentSlug/);
+  assert.match(interaction, /ArrowLeft/);
+  assert.match(interaction, /ArrowRight/);
+  assert.match(interaction, /aria-selected/);
+  assert.doesNotMatch(postLayout, /SidebarLeft|SidebarRight|sidebar-gutter|three-col-layout/);
 });
 
-test('中等桌面文章侧栏保留身份区最小可读宽度', () => {
-  const sharedSidebar = readSource('styles/sidebar-shared.scss');
-  assert.match(sharedSidebar, /max-width:\s*1099px[\s\S]*min-width:\s*900px[\s\S]*--sidebar-width:\s*180px/);
+test('统一侧栏在桌面常驻并在小屏让位给正文', () => {
+  const styles = readSource('styles/persistent-sidebar.scss');
+  assert.match(styles, /position:\s*sticky/);
+  assert.match(styles, /top:\s*81px/);
+  assert.match(styles, /height:\s*calc\(100dvh\s*-\s*81px\)/);
+  assert.match(styles, /max-width:\s*999\.98px[\s\S]*\.persistent-sidebar\s*\{\s*display:\s*none/);
+  assert.match(styles, /prefers-reduced-motion:\s*reduce/);
 });
 
 test('顶部栏背景全宽且导航内容保持居中约束', () => {
@@ -85,19 +101,18 @@ test('顶部栏背景全宽且导航内容保持居中约束', () => {
   assert.doesNotMatch(header, /header\s*\{[^}]*width:\s*min\(1200px/);
 });
 
-test('主页使用专用个人侧栏并移除高饱和巨大字占位', () => {
+test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
   const home = readSource('pages/index.astro');
-  const sidebar = readSource('components/home/HomeSidebar.astro');
+  const layout = readSource('layouts/PublicLayout.astro');
+  const sidebar = readSource('components/layout/PersistentSidebar.astro');
 
-  assert.match(home, /import HomeSidebar/);
-  assert.match(home, /<HomeSidebar stats=\{stats\}/);
-  assert.match(home, /grid-template-columns:\s*236px minmax\(0,\s*1fr\)/);
+  assert.doesNotMatch(home, /HomeSidebar/);
+  assert.match(layout, /<PersistentSidebar/);
+  assert.match(layout, /grid-template-columns:\s*248px minmax\(0,\s*1fr\)/);
   assert.match(home, /class="document-preview"/);
   assert.doesNotMatch(home, /cover-letter|cover-grid|--cover-hue|home-intro/);
 
-  assert.match(sidebar, /aria-current="page"/);
-  assert.match(sidebar, /position:\s*sticky/);
-  assert.match(sidebar, /max-width:\s*1099px[\s\S]*\.home-sidebar\s*\{\s*display:\s*none/);
+  assert.match(sidebar, /aria-current=\{isHome \? 'page'/);
   assert.match(sidebar, /全部文章[\s\S]*标签索引/);
 });
 
