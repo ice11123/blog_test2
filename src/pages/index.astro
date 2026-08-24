@@ -38,7 +38,8 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   <JsonLd slot="head" data={websiteLd} />
 
   <div class="home-page">
-    <section class="home-cover" aria-labelledby="home-title">
+    <div class="home-cover-shell">
+      <section class="home-cover" id="home-cover" data-home-cover data-expanded="false" aria-labelledby="home-title" aria-describedby="home-cover-description">
       <div class="cover-photo-frame" aria-hidden="true">
         <Image
           class="cover-photo"
@@ -59,6 +60,22 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
         <h1 id="home-title">离子怪的博客</h1>
         <p>记录学习、技术与思考的个人博客</p>
       </div>
+      <span class="sr-only" id="home-cover-description">展开后完整展示主页壁纸，可点击箭头、按 Escape 或向下滑动收回。</span>
+      <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
+      <button
+        type="button"
+        class="cover-expand-toggle"
+        data-home-cover-toggle
+        aria-controls="home-cover"
+        aria-expanded="false"
+        aria-label="展开全图壁纸"
+        title="展开全图壁纸"
+      >
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span class="sr-only" data-home-cover-toggle-label>展开全图壁纸</span>
+      </button>
       <svg class="cover-waves" viewBox="0 0 1440 180" preserveAspectRatio="none" aria-hidden="true">
         <g class="cover-wave-track cover-wave-track-back">
           <path d="M0 90C180 35 330 48 500 94C675 142 825 142 1000 92C1180 41 1305 45 1440 90V180H0Z" />
@@ -69,7 +86,8 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
           <path transform="translate(1440 0)" d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
         </g>
       </svg>
-    </section>
+      </section>
+    </div>
 
     <div class="home-content-layout">
       <div class="home-main-column">
@@ -209,10 +227,28 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     isolation: isolate;
     color: #fff;
     background: var(--cover-start);
+    view-transition-name: home-wallpaper;
   }
 
-  .cover-photo-frame { position: absolute; z-index: 0; inset: 0; overflow: hidden; }
+  .home-cover-shell { min-height: clamp(540px, 42vw, 660px); background: var(--cover-start); }
+  .home-cover-shell .home-cover { min-height: inherit; }
+
+  .cover-photo-frame { position: absolute; z-index: 0; inset: 0; overflow: hidden; background: #0a0d0d; }
+  .cover-photo-frame::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    inset: -24px;
+    background-image: var(--home-cover-backdrop, none);
+    background-position: center;
+    background-size: cover;
+    filter: blur(16px);
+    opacity: 0;
+    transform: scale(1.08);
+  }
   .cover-photo-frame :global(.cover-photo) {
+    position: relative;
+    z-index: 1;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -220,6 +256,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     transform: scale(1.025);
     transform-origin: 54% 55%;
     will-change: transform;
+    border-radius: 0;
   }
   .cover-photo-overlay {
     position: absolute;
@@ -240,10 +277,85 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .cover-copy .home-eyebrow { color: rgba(255,255,255,.78); }
   .cover-copy h1 { margin: 0; color: #fff; font-size: 48px; line-height: 1.2; letter-spacing: .08em; }
   .cover-copy > p:last-child { margin: 20px 0 0; color: rgba(255,255,255,.86); font-size: 16px; letter-spacing: .08em; }
+  .cover-expand-toggle {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    bottom: clamp(72px, 8vw, 110px);
+    display: grid;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    place-items: center;
+    color: #fff;
+    background: rgba(8, 12, 14, .3);
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .24);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+    touch-action: manipulation;
+    transform: translateX(-50%);
+    transition: transform 150ms var(--ease-out), background-color 150ms ease, border-color 150ms ease;
+  }
+  :global(html[data-home-cover-transition]) .cover-expand-toggle svg { transition: transform 180ms var(--ease-in-out); }
+  .cover-expand-toggle:active { transform: translateX(-50%) scale(.96); }
+  .cover-expand-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  .cover-gesture-zone {
+    position: absolute;
+    z-index: 4;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: clamp(112px, 10vw, 152px);
+    touch-action: pan-x pinch-zoom;
+  }
   .cover-waves { position: absolute; z-index: 3; left: 0; right: 0; bottom: -1px; width: 100%; height: 150px; pointer-events: none; }
   .cover-wave-track { transform-box: fill-box; transform-origin: left bottom; will-change: transform; }
   .cover-wave-track-back { fill: color-mix(in srgb, var(--accent-secondary) 38%, var(--surface-subtle)); opacity: .68; animation: cover-wave-scroll 28s linear infinite; }
   .cover-wave-track-front { fill: var(--canvas); animation: cover-wave-scroll 18s linear infinite; }
+
+  :global(html[data-home-cover-expanded='true']) { overflow: hidden; scrollbar-gutter: auto; background: #0a0d0d; }
+  :global(html[data-home-cover-expanded='true']) .home-page { overflow: visible; }
+  .home-cover[data-expanded='true'] {
+    position: fixed;
+    z-index: 10000;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    touch-action: pan-x pinch-zoom;
+    background: #0a0d0d;
+  }
+  .home-cover[data-expanded='true'] .cover-photo-frame::before { opacity: .62; }
+  .home-cover[data-expanded='true'] .cover-photo-frame :global(.cover-photo) {
+    object-fit: contain;
+    object-position: center;
+    transform: none !important;
+    transform-origin: center;
+    will-change: auto;
+  }
+  .home-cover[data-expanded='true'] .cover-photo-overlay { opacity: .08; }
+  .home-cover[data-expanded='true'] .cover-copy,
+  .home-cover[data-expanded='true'] .cover-waves { opacity: 0; pointer-events: none; }
+  .home-cover[data-expanded='true'] .cover-expand-toggle { bottom: max(24px, env(safe-area-inset-bottom)); }
+  .home-cover[data-expanded='true'] .cover-gesture-zone { height: 100%; }
+  .home-cover[data-expanded='true'] .cover-expand-toggle svg { transform: rotate(180deg); }
+
+  :global(html[data-home-cover-transition='expand']::view-transition-group(home-wallpaper)) {
+    animation-duration: 280ms;
+    animation-timing-function: var(--ease-in-out);
+  }
+  :global(html[data-home-cover-transition='collapse']::view-transition-group(home-wallpaper)) {
+    animation-duration: 240ms;
+    animation-timing-function: var(--ease-in-out);
+  }
+  :global(html[data-home-cover-transition]::view-transition-old(home-wallpaper)),
+  :global(html[data-home-cover-transition]::view-transition-new(home-wallpaper)) {
+    overflow: clip;
+    mix-blend-mode: normal;
+  }
 
   .home-content-layout { position: relative; z-index: 4; width: min(1080px, calc(100% - 48px)); margin: 40px auto 0; }
   .home-main-column { min-width: 0; }
@@ -323,6 +435,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .contribution-content :global(.gh-grid-wrapper) { padding: 16px 0; background: transparent; border: 0; }
 
   @media (hover: hover) and (pointer: fine) {
+    .cover-expand-toggle:hover { background: rgba(8, 12, 14, .48); border-color: #fff; }
     .home-post-card { transition: transform 180ms cubic-bezier(.23,1,.32,1), border-color 180ms ease, box-shadow 180ms ease; }
     .home-post-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 12px 32px color-mix(in srgb, var(--text-primary) 9%, transparent); }
     .home-post-card:hover .home-post-media :global(img) { transform: scale(1.025); }
@@ -338,7 +451,8 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
 
   @media (max-width: 640px) {
     .home-page { padding-bottom: 48px; }
-    .home-cover { min-height: clamp(380px, 108vw, 460px); }
+    .home-cover-shell { min-height: clamp(380px, 108vw, 460px); }
+    .home-cover { min-height: inherit; }
     .cover-photo-frame :global(.cover-photo) { object-position: 44% 50%; transform-origin: 44% 50%; }
     .cover-photo-overlay {
       background:
@@ -378,7 +492,10 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   @media (prefers-reduced-motion: reduce) {
     .cover-photo-frame :global(.cover-photo) { transform: scale(1.025) !important; will-change: auto; }
     .cover-wave-track-back, .cover-wave-track-front { animation: none; }
-    .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
+    .cover-expand-toggle, .cover-expand-toggle svg, .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
+    :global(html[data-home-cover-transition]::view-transition-group(home-wallpaper)),
+    :global(html[data-home-cover-transition]::view-transition-old(home-wallpaper)),
+    :global(html[data-home-cover-transition]::view-transition-new(home-wallpaper)) { animation: none; }
   }
 
   @keyframes cover-wave-scroll {

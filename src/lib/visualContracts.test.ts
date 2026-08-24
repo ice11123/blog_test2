@@ -154,6 +154,34 @@ test('主页运行状态提供可见的手动刷新入口', () => {
   assert.match(statusScript, /refreshInFlight/);
 });
 
+test('主页壁纸支持可访问的点击与触屏手势展开', () => {
+  const home = readSource('pages/index.astro');
+  const motion = readSource('scripts/home-hero-motion.ts');
+  const gesture = readSource('lib/homeCoverGesture.ts');
+
+  assert.match(home, /data-home-cover-toggle/);
+  assert.match(home, /data-home-cover-gesture/);
+  assert.match(home, /aria-controls="home-cover"/);
+  assert.match(home, /aria-expanded="false"/);
+  assert.match(home, /view-transition-name:\s*home-wallpaper/);
+  assert.match(home, /object-fit:\s*contain/);
+  assert.match(home, /prefers-reduced-motion:\s*reduce/);
+
+  assert.match(gesture, /HOME_COVER_SWIPE_DISTANCE\s*=\s*56/);
+  assert.match(gesture, /HOME_COVER_SWIPE_MIN_DISTANCE\s*=\s*20/);
+  assert.match(gesture, /HOME_COVER_SWIPE_VELOCITY\s*=\s*0\.45/);
+  assert.match(motion, /classifyHomeCoverSwipe/);
+  assert.match(motion, /setPointerCapture/);
+  assert.match(motion, /releasePointerCapture/);
+  assert.match(motion, /touchPointers\.size\s*>\s*1/);
+  assert.match(motion, /toggle\.contains\(event\.target as Node\)/);
+  assert.match(motion, /sequence\s*===\s*transitionSequence/);
+  assert.match(motion, /event\.detail\s*>\s*0/);
+  assert.match(motion, /startViewTransition/);
+  assert.match(motion, /prefers-reduced-motion:\s*reduce/);
+  assert.match(motion, /event\.key\s*===\s*'Escape'/);
+});
+
 test('Worker 状态服务由 Pages 构建变量注入且写入开关独立', () => {
   const constants = readSource('consts.ts');
   const workflow = readFileSync(join(srcRoot, '..', '.github', 'workflows', 'deploy.yml'), 'utf8');
