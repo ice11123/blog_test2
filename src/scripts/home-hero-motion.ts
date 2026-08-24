@@ -10,6 +10,7 @@ import {
 const COVER_SELECTOR = '[data-home-cover]';
 const SOURCE_SELECTOR = '.home-cover';
 const HERO_SELECTOR = '[data-home-hero-photo]';
+const HERO_SOURCE_SELECTOR = '[data-home-hero-source]';
 const STAGE_SELECTOR = '[data-home-cover-stage]';
 const FULL_IMAGE_SELECTOR = '[data-home-hero-full]';
 const TOGGLE_SELECTOR = '[data-home-cover-toggle]';
@@ -58,6 +59,7 @@ function initHomeHeroMotion() {
   const shell = document.querySelector<HTMLElement>(COVER_SELECTOR);
   const source = shell?.querySelector<HTMLElement>(SOURCE_SELECTOR);
   const heroImage = shell?.querySelector<HTMLImageElement>(HERO_SELECTOR);
+  const heroSource = shell?.querySelector<HTMLSourceElement>(HERO_SOURCE_SELECTOR);
   const stage = shell?.querySelector<HTMLElement>(STAGE_SELECTOR);
   const fullImage = shell?.querySelector<HTMLImageElement>(FULL_IMAGE_SELECTOR);
   const toggle = shell?.querySelector<HTMLButtonElement>(TOGGLE_SELECTOR);
@@ -68,7 +70,7 @@ function initHomeHeroMotion() {
   const header = document.querySelector<HTMLElement>(HEADER_SELECTOR);
   const homeContent = document.querySelector<HTMLElement>('.home-content-layout');
   const footer = document.querySelector<HTMLElement>('body > footer');
-  if (!shell || !source || !heroImage || !stage || !fullImage || !toggle || !handle || !lower || !header || !homeContent) return;
+  if (!shell || !source || !heroImage || !heroSource || !stage || !fullImage || !toggle || !handle || !lower || !header || !homeContent) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const desktopWheel = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -101,6 +103,7 @@ function initHomeHeroMotion() {
   let wheelDirection = 0;
   let lastWheelTime = 0;
   let wheelResetTimer: number | undefined;
+  let activeHeroTheme: 'light' | 'dark' | undefined;
 
   const setElementUnavailable = (element: HTMLElement | null, unavailable: boolean) => {
     if (!element) return;
@@ -161,6 +164,35 @@ function initHomeHeroMotion() {
   const reuseDecodedHero = () => {
     const src = heroImage.currentSrc || heroImage.src;
     if (src) fullImage.src = src;
+  };
+
+  const syncHeroTheme = () => {
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    if (theme === activeHeroTheme) return;
+    activeHeroTheme = theme;
+    highResolutionRequested = false;
+    highResolutionLoader = undefined;
+
+    const sourceSrcset = heroSource.getAttribute(`data-${theme}-srcset`);
+    const heroSrcset = heroImage.getAttribute(`data-${theme}-srcset`);
+    const heroSrc = heroImage.getAttribute(`data-${theme}-src`);
+    const lqip = fullImage.getAttribute(`data-${theme}-lqip`);
+    const fullSrc = fullImage.getAttribute(`data-${theme}-full-src`);
+    const fullSrcset = fullImage.getAttribute(`data-${theme}-full-srcset`);
+    if (!sourceSrcset || !heroSrcset || !heroSrc || !lqip || !fullSrc || !fullSrcset) return;
+
+    heroSource.srcset = sourceSrcset;
+    heroImage.srcset = heroSrcset;
+    heroImage.src = heroSrc;
+    fullImage.removeAttribute('srcset');
+    fullImage.src = lqip;
+    fullImage.dataset.fullSrc = fullSrc;
+    fullImage.dataset.fullSrcset = fullSrcset;
+    if (requestedTarget === 1) requestHighResolution();
+  };
+
+  const handleHeroLoad = () => {
+    if (requestedTarget === 0 && !highResolutionRequested) reuseDecodedHero();
   };
 
   const clearAnimations = () => {
@@ -483,11 +515,14 @@ function initHomeHeroMotion() {
     updateWaves();
   });
   coverObserver.observe(source);
+  const themeObserver = new MutationObserver(syncHeroTheme);
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   updateLayoutGeometry();
   settleStable(0);
-  if (heroImage.complete) reuseDecodedHero();
-  else heroImage.addEventListener('load', reuseDecodedHero, { once: true });
+  heroImage.addEventListener('load', handleHeroLoad);
+  syncHeroTheme();
+  if (heroImage.complete) handleHeroLoad();
   toggle.addEventListener('click', handleToggle);
   shell.addEventListener('pointerdown', handlePointerDown);
   shell.addEventListener('pointermove', handlePointerMove);
@@ -504,6 +539,7 @@ function initHomeHeroMotion() {
     highResolutionLoader = undefined;
     layoutObserver.disconnect();
     coverObserver.disconnect();
+    themeObserver.disconnect();
     clearAnimations();
     settleStable(0);
     document.documentElement.style.removeProperty('--site-header-height');
@@ -516,7 +552,7 @@ function initHomeHeroMotion() {
     shell.removeEventListener('pointerup', handlePointerUp);
     shell.removeEventListener('pointercancel', handlePointerCancel);
     shell.removeEventListener('lostpointercapture', handleLostPointerCapture);
-    heroImage.removeEventListener('load', reuseDecodedHero);
+    heroImage.removeEventListener('load', handleHeroLoad);
     document.removeEventListener('keydown', handleKeydown);
     document.removeEventListener('wheel', handleWheel);
     document.removeEventListener('visibilitychange', handleVisibility);

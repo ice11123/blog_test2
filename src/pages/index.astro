@@ -15,14 +15,28 @@ import PublicStatus from '../components/home/PublicStatus.astro';
 import { blogPostPath, withBase } from '../lib/urls';
 import maintenanceSource from '../content/maintenance.md?raw';
 import homeHeroImage from '../assets/home-hero.jpg';
+import homeHeroDarkImage from '../assets/home-hero-dark.png';
 
 const homeHeroWidths = [640, 960, 1440];
 const homeHeroFullWidths = [1440, 1920, 2560, 3840];
-const [homeHeroLqip, homeHeroAvifSources, homeHeroWebpSources, homeHeroFullSources] = await Promise.all([
+const [
+  homeHeroLqip,
+  homeHeroAvifSources,
+  homeHeroWebpSources,
+  homeHeroFullSources,
+  homeHeroDarkLqip,
+  homeHeroDarkAvifSources,
+  homeHeroDarkWebpSources,
+  homeHeroDarkFullSources,
+] = await Promise.all([
   getImage({ src: homeHeroImage, width: 64, format: 'webp', quality: 28 }),
   Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'avif', quality: 58 }))),
   Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 80 }))),
   Promise.all(homeHeroFullWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 90 }))),
+  getImage({ src: homeHeroDarkImage, width: 64, format: 'webp', quality: 28 }),
+  Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroDarkImage, width, format: 'avif', quality: 58 }))),
+  Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroDarkImage, width, format: 'webp', quality: 80 }))),
+  Promise.all(homeHeroFullWidths.map((width) => getImage({ src: homeHeroDarkImage, width, format: 'webp', quality: 90 }))),
 ]);
 const toSrcset = (sources: typeof homeHeroWebpSources, widths: number[]) => sources
   .map((source, index) => `${source.src} ${widths[index]}w`)
@@ -34,6 +48,13 @@ const homeHeroFullSrcset = homeHeroFullSources
   .join(', ');
 const homeHeroFallback = homeHeroWebpSources.at(-1)?.src ?? homeHeroLqip.src;
 const homeHeroFullFallback = homeHeroFullSources.at(-1)?.src ?? homeHeroLqip.src;
+const homeHeroDarkAvifSrcset = toSrcset(homeHeroDarkAvifSources, homeHeroWidths);
+const homeHeroDarkWebpSrcset = toSrcset(homeHeroDarkWebpSources, homeHeroWidths);
+const homeHeroDarkFullSrcset = homeHeroDarkFullSources
+  .map((source, index) => `${source.src} ${homeHeroFullWidths[index]}w`)
+  .join(', ');
+const homeHeroDarkFallback = homeHeroDarkWebpSources.at(-1)?.src ?? homeHeroDarkLqip.src;
+const homeHeroDarkFullFallback = homeHeroDarkFullSources.at(-1)?.src ?? homeHeroDarkLqip.src;
 
 const websiteLd = {
   '@context': 'https://schema.org',
@@ -62,21 +83,26 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       id="home-cover"
       data-home-cover
       data-expanded="false"
-      style={`--home-cover-lqip: url("${homeHeroLqip.src}")`}
+      style={`--home-cover-light-lqip: url("${homeHeroLqip.src}"); --home-cover-dark-lqip: url("${homeHeroDarkLqip.src}")`}
     >
       <section class="home-cover" aria-labelledby="home-title" aria-describedby="home-cover-description">
       <div class="cover-photo-frame" aria-hidden="true">
         <picture>
           <source
+            data-home-hero-source
             type="image/avif"
-            srcset={homeHeroAvifSrcset}
+            data-light-srcset={homeHeroAvifSrcset}
+            data-dark-srcset={homeHeroDarkAvifSrcset}
             sizes="(min-width: 1688px) 1440px, (min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
           />
           <img
             class="cover-photo"
             data-home-hero-photo
-            src={homeHeroFallback}
-            srcset={homeHeroWebpSrcset}
+            src={homeHeroLqip.src}
+            data-light-src={homeHeroFallback}
+            data-light-srcset={homeHeroWebpSrcset}
+            data-dark-src={homeHeroDarkFallback}
+            data-dark-srcset={homeHeroDarkWebpSrcset}
             sizes="(min-width: 1688px) 1440px, (min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
             alt=""
             width={homeHeroImage.width}
@@ -114,8 +140,14 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
           class="cover-full-photo"
           data-home-hero-full
           src={homeHeroLqip.src}
+          data-light-lqip={homeHeroLqip.src}
+          data-dark-lqip={homeHeroDarkLqip.src}
           data-full-src={homeHeroFullFallback}
           data-full-srcset={homeHeroFullSrcset}
+          data-light-full-src={homeHeroFullFallback}
+          data-light-full-srcset={homeHeroFullSrcset}
+          data-dark-full-src={homeHeroDarkFullFallback}
+          data-dark-full-srcset={homeHeroDarkFullSrcset}
           data-full-sizes="(min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
           alt=""
           width={homeHeroImage.width}
@@ -282,7 +314,13 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     background: var(--cover-start);
   }
 
-  .home-cover-shell { position: relative; min-height: clamp(540px, 42vw, 660px); background: var(--cover-start); }
+  .home-cover-shell {
+    --home-cover-lqip: var(--home-cover-light-lqip);
+    position: relative;
+    min-height: clamp(540px, 42vw, 660px);
+    background: var(--cover-start);
+  }
+  :global([data-theme='dark']) .home-cover-shell { --home-cover-lqip: var(--home-cover-dark-lqip); }
   .home-cover-shell .home-cover { min-height: inherit; }
 
   .cover-photo-frame { position: absolute; z-index: 0; inset: 0; overflow: hidden; background: #0a0d0d var(--home-cover-lqip) center / cover no-repeat; }
@@ -316,9 +354,10 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   :global([data-theme='dark']) .cover-photo-overlay,
   :global([data-theme='dark']) .cover-full-stage::after {
     background:
-      linear-gradient(90deg, rgba(0, 0, 0, .8) 0%, rgba(0, 0, 0, .46) 38%, rgba(0, 0, 0, .16) 70%),
-      linear-gradient(180deg, rgba(0, 0, 0, .18) 28%, rgba(0, 0, 0, .62) 100%);
+      linear-gradient(90deg, rgba(0, 0, 0, .76) 0%, rgba(0, 0, 0, .42) 38%, rgba(0, 0, 0, .08) 70%),
+      linear-gradient(180deg, rgba(0, 0, 0, .08) 30%, rgba(0, 0, 0, .4) 100%);
   }
+  :global([data-theme='dark']) .cover-photo-frame :global(.cover-photo) { object-position: 62% 52%; }
   .cover-copy { position: relative; z-index: 2; width: min(780px, calc(100% - 64px)); box-sizing: border-box; margin-right: auto; padding: 32px 24px 108px max(48px, 8vw); text-align: left; text-shadow: 0 3px 24px rgba(12, 4, 18, .58); }
   .home-eyebrow, .section-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
   .cover-copy .home-eyebrow { color: rgba(255,255,255,.78); }
@@ -563,6 +602,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .home-cover-shell { min-height: clamp(380px, 108vw, 460px); }
     .home-cover { min-height: inherit; }
     .cover-photo-frame :global(.cover-photo) { object-position: 44% 50%; }
+    :global([data-theme='dark']) .cover-photo-frame :global(.cover-photo) { object-position: 63% 50%; }
     .cover-photo-overlay,
     .cover-full-stage::after {
       background:
