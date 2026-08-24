@@ -192,7 +192,7 @@ test('主页运行状态提供可见的手动刷新入口', () => {
   assert.match(statusScript, /refreshInFlight/);
 });
 
-test('主页壁纸支持可访问的点击与触屏手势展开', () => {
+test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开', () => {
   const home = readSource('pages/index.astro');
   const motion = readSource('scripts/home-hero-motion.ts');
   const gesture = readSource('lib/homeCoverGesture.ts');
@@ -217,6 +217,8 @@ test('主页壁纸支持可访问的点击与触屏手势展开', () => {
   assert.match(gesture, /resolveHomeCoverRelease/);
   assert.match(gesture, /HOME_COVER_SETTLE_MIN_MS\s*=\s*140/);
   assert.match(gesture, /HOME_COVER_SETTLE_MAX_MS\s*=\s*240/);
+  assert.match(gesture, /HOME_COVER_WHEEL_THRESHOLD\s*=\s*40/);
+  assert.match(gesture, /resolveHomeCoverWheelTarget/);
   assert.match(motion, /ResizeObserver/);
   assert.match(motion, /\.animate\(/);
   assert.match(motion, /animation\.currentTime\s*=/);
@@ -228,6 +230,10 @@ test('主页壁纸支持可访问的点击与触屏手势展开', () => {
   assert.match(motion, /releasePointerCapture/);
   assert.match(motion, /trackedPointers\.size\s*>\s*1/);
   assert.match(motion, /event\.pointerType\s*!==\s*'pen'/);
+  assert.match(motion, /\(hover:\s*hover\) and \(pointer:\s*fine\)/);
+  assert.match(motion, /addEventListener\('wheel',\s*handleWheel,\s*\{\s*passive:\s*false\s*\}\)/);
+  assert.match(motion, /deltaY\s*<\s*0\s*&&\s*isPointInside\(event,\s*source\)/);
+  assert.match(motion, /deltaY\s*>\s*0\s*&&\s*event\.clientY\s*>=\s*measuredHeaderHeight/);
   assert.match(motion, /requestHighResolution\(\)/);
   assert.match(motion, /IntersectionObserver/);
   assert.doesNotMatch(motion, /startViewTransition/);

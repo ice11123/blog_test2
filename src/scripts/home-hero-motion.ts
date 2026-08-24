@@ -1,8 +1,10 @@
 import {
+  normalizeHomeCoverWheelDelta,
   resolveHomeCoverDirection,
   resolveHomeCoverProgress,
   resolveHomeCoverRelease,
   resolveHomeCoverSettleDuration,
+  resolveHomeCoverWheelTarget,
 } from '../lib/homeCoverGesture';
 
 const COVER_SELECTOR = '[data-home-cover]';
@@ -17,6 +19,7 @@ const SIDEBAR_SELECTOR = '[data-persistent-sidebar]';
 const STATUS_SELECTOR = '[data-home-cover-status]';
 const HEADER_SELECTOR = '#site-header';
 const TIMELINE_DURATION = 1000;
+const WHEEL_GESTURE_IDLE_MS = 180;
 
 function cubicBezierCoordinate(t: number, first: number, second: number): number {
   const inverse = 1 - t;
@@ -68,6 +71,7 @@ function initHomeHeroMotion() {
   if (!shell || !source || !heroImage || !stage || !fullImage || !toggle || !handle || !lower || !header || !homeContent) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const desktopWheel = window.matchMedia('(hover: hover) and (pointer: fine)');
   const trackedPointers = new Set<number>();
   const dragAnimations: Animation[] = [];
   const settleAnimations: Animation[] = [];
@@ -93,6 +97,10 @@ function initHomeHeroMotion() {
   let highResolutionLoader: HTMLImageElement | undefined;
   let coverIsVisible = false;
   let measuredHeaderHeight = 1;
+  let wheelAccumulator = 0;
+  let wheelDirection = 0;
+  let lastWheelTime = 0;
+  let wheelResetTimer: number | undefined;
 
   const setElementUnavailable = (element: HTMLElement | null, unavailable: boolean) => {
     if (!element) return;
@@ -406,6 +414,55 @@ function initHomeHeroMotion() {
     settleTo(nextTarget, event.detail === 0 ? 0 : nextTarget === 1 ? 240 : 220);
   };
 
+  const resetWheelGesture = () => {
+    if (wheelResetTimer !== undefined) window.clearTimeout(wheelResetTimer);
+    wheelResetTimer = undefined;
+    wheelAccumulator = 0;
+    wheelDirection = 0;
+    lastWheelTime = 0;
+  };
+
+  const isPointInside = (event: WheelEvent, element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    return event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+  };
+
+  const handleWheel = (event: WheelEvent) => {
+    if (!desktopWheel.matches || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+
+    const deltaY = normalizeHomeCoverWheelDelta(event.deltaY, event.deltaMode, window.innerHeight);
+    if (deltaY === 0) return;
+    const expanded = requestedTarget === 1;
+    const canHandle = expanded
+      ? deltaY > 0 && event.clientY >= measuredHeaderHeight
+      : deltaY < 0 && isPointInside(event, source);
+    if (!canHandle) {
+      resetWheelGesture();
+      return;
+    }
+
+    event.preventDefault();
+    const now = performance.now();
+    const direction = Math.sign(deltaY);
+    if (now - lastWheelTime > WHEEL_GESTURE_IDLE_MS || (wheelDirection !== 0 && direction !== wheelDirection)) {
+      wheelAccumulator = 0;
+    }
+    wheelDirection = direction;
+    lastWheelTime = now;
+    wheelAccumulator += deltaY;
+
+    if (wheelResetTimer !== undefined) window.clearTimeout(wheelResetTimer);
+    wheelResetTimer = window.setTimeout(resetWheelGesture, WHEEL_GESTURE_IDLE_MS);
+    const target = resolveHomeCoverWheelTarget(wheelAccumulator, expanded);
+    if (target === null) return;
+
+    resetWheelGesture();
+    if (target === 1) requestHighResolution();
+    interruptMotion();
+    settleTo(target, target === 1 ? 240 : 220);
+  };
+
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key !== 'Escape' || requestedTarget !== 1) return;
     event.preventDefault();
@@ -439,6 +496,7 @@ function initHomeHeroMotion() {
   shell.addEventListener('pointercancel', handlePointerCancel);
   shell.addEventListener('lostpointercapture', handleLostPointerCapture);
   document.addEventListener('keydown', handleKeydown);
+  document.addEventListener('wheel', handleWheel, { passive: false });
   document.addEventListener('visibilitychange', handleVisibility);
   reduceMotion.addEventListener('change', handleMotionPreference);
 
@@ -458,8 +516,10 @@ function initHomeHeroMotion() {
     shell.removeEventListener('lostpointercapture', handleLostPointerCapture);
     heroImage.removeEventListener('load', reuseDecodedHero);
     document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('wheel', handleWheel);
     document.removeEventListener('visibilitychange', handleVisibility);
     reduceMotion.removeEventListener('change', handleMotionPreference);
+    resetWheelGesture();
   };
 }
 

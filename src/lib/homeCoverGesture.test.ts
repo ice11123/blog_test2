@@ -7,6 +7,8 @@ import {
   resolveHomeCoverRelease,
   resolveHomeCoverSettleDuration,
   resolveHomeCoverTarget,
+  normalizeHomeCoverWheelDelta,
+  resolveHomeCoverWheelTarget,
 } from './homeCoverGesture.ts';
 
 test('主页壁纸按方向展开和收回', () => {
@@ -72,4 +74,18 @@ test('指针取消回到最近端点，降低动态立即结算', () => {
   assert.equal(resolveHomeCoverRelease({ progress: 0.7, deltaY: -90, elapsedMs: 100, cancelled: true }).target, 1);
   assert.equal(resolveHomeCoverRelease({ progress: 0.3, deltaY: 90, elapsedMs: 100, cancelled: true }).target, 0);
   assert.equal(resolveHomeCoverRelease({ progress: 0.7, deltaY: 0, elapsedMs: 1, reduceMotion: true }).durationMs, 0);
+});
+
+test('桌面滚轮按方向和累计阈值展开或收回', () => {
+  assert.equal(resolveHomeCoverWheelTarget(-39, false), null);
+  assert.equal(resolveHomeCoverWheelTarget(-40, false), 1);
+  assert.equal(resolveHomeCoverWheelTarget(40, true), 0);
+  assert.equal(resolveHomeCoverWheelTarget(80, false), null);
+  assert.equal(resolveHomeCoverWheelTarget(-80, true), null);
+});
+
+test('滚轮按像素、行和页面模式统一归一化', () => {
+  assert.equal(normalizeHomeCoverWheelDelta(-120, 0, 900), -120);
+  assert.equal(normalizeHomeCoverWheelDelta(-3, 1, 900), -48);
+  assert.equal(normalizeHomeCoverWheelDelta(1, 2, 900), 900);
 });

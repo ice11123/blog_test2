@@ -5,6 +5,8 @@ export const HOME_COVER_SWIPE_MIN_DISTANCE = 20;
 export const HOME_COVER_SWIPE_VELOCITY = 0.11;
 export const HOME_COVER_SETTLE_MIN_MS = 140;
 export const HOME_COVER_SETTLE_MAX_MS = 240;
+export const HOME_COVER_WHEEL_THRESHOLD = 40;
+export const HOME_COVER_WHEEL_LINE_HEIGHT = 16;
 
 export type HomeCoverSwipeAction = 'expand' | 'collapse';
 export type HomeCoverGestureDirection = 'horizontal' | 'vertical' | null;
@@ -120,4 +122,16 @@ export function resolveHomeCoverRelease(input: HomeCoverSettleInput & { reduceMo
     target,
     durationMs: resolveHomeCoverSettleDuration(progress, target, input.reduceMotion),
   };
+}
+
+export function normalizeHomeCoverWheelDelta(deltaY: number, deltaMode: number, viewportHeight: number): number {
+  if (deltaMode === 1) return deltaY * HOME_COVER_WHEEL_LINE_HEIGHT;
+  if (deltaMode === 2) return deltaY * Math.max(viewportHeight, 1);
+  return deltaY;
+}
+
+export function resolveHomeCoverWheelTarget(accumulatedDeltaY: number, expanded: boolean): 0 | 1 | null {
+  if (!expanded && accumulatedDeltaY <= -HOME_COVER_WHEEL_THRESHOLD) return 1;
+  if (expanded && accumulatedDeltaY >= HOME_COVER_WHEEL_THRESHOLD) return 0;
+  return null;
 }
