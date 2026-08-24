@@ -41,8 +41,14 @@ test('全局动效令牌与降低动态契约保持稳定', () => {
   assert.match(globalStyles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
 
   const home = readSource('pages/index.astro');
-  assert.match(home, /\.cover-wave-track-front\s*\{\s*animation:\s*none/);
-  assert.doesNotMatch(home, /cover-wave-track-back/);
+  assert.match(home, /\.cover-wave-layer\s*\{\s*animation:\s*none/);
+  assert.match(home, /<defs>[\s\S]*id="home-gentle-wave"/);
+  assert.equal((home.match(/<use class="cover-wave-layer/g) ?? []).length, 3);
+  assert.match(home, /cover-wave-layer-back[\s\S]*animation-duration:\s*12s/);
+  assert.match(home, /cover-wave-layer-middle[\s\S]*animation-duration:\s*7s/);
+  assert.match(home, /cover-wave-layer-front[\s\S]*animation-duration:\s*4s/);
+  assert.match(home, /@keyframes cover-wave-drift\s*\{[\s\S]*translate3d\(-96px,[\s\S]*translate3d\(0,/);
+  assert.doesNotMatch(home, /cover-wave-layer[^}]*filter:/);
 });
 
 test('高频导航即时可见且公共页面复用统一侧栏', () => {

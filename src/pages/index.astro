@@ -95,10 +95,17 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       </div>
       <span class="sr-only" id="home-cover-description">展开后完整展示主页壁纸，可点击箭头、使用桌面滚轮、按 Escape 或向下滑动收回。</span>
       <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
-      <svg class="cover-waves" viewBox="0 0 1440 180" preserveAspectRatio="none" aria-hidden="true">
-        <g class="cover-wave-track cover-wave-track-front">
-          <path d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
-          <path transform="translate(1440 0)" d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
+      <svg class="cover-waves" viewBox="0 0 192 64" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <path
+            id="home-gentle-wave"
+            d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z"
+          />
+        </defs>
+        <g class="cover-wave-parallax">
+          <use class="cover-wave-layer cover-wave-layer-back" href="#home-gentle-wave" y="0" />
+          <use class="cover-wave-layer cover-wave-layer-middle" href="#home-gentle-wave" y="6" />
+          <use class="cover-wave-layer cover-wave-layer-front" href="#home-gentle-wave" y="12" />
         </g>
       </svg>
       </section>
@@ -380,10 +387,45 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     touch-action: pan-x pinch-zoom;
     transform: translateX(-50%);
   }
-  .cover-waves { position: absolute; z-index: 3; left: 0; right: 0; bottom: -1px; width: 100%; height: 150px; pointer-events: none; }
-  .cover-wave-track { transform-box: fill-box; transform-origin: left bottom; animation-play-state: paused; }
-  .cover-wave-track-front { fill: var(--canvas); animation: cover-wave-scroll 18s linear infinite; }
-  .home-cover[data-waves-visible='true'] .cover-wave-track { animation-play-state: running; }
+  .cover-waves {
+    position: absolute;
+    z-index: 3;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: clamp(64px, 13dvh, 150px);
+    pointer-events: none;
+  }
+  .cover-wave-layer {
+    transform-origin: center;
+    animation-name: cover-wave-drift;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
+  }
+  .cover-wave-layer-back {
+    fill: color-mix(in srgb, var(--canvas) 72%, var(--accent) 28%);
+    opacity: .58;
+    animation-duration: 12s;
+    animation-delay: -2s;
+  }
+  .cover-wave-layer-middle {
+    fill: color-mix(in srgb, var(--canvas) 84%, var(--accent) 16%);
+    opacity: .76;
+    animation-duration: 7s;
+    animation-delay: -3s;
+  }
+  .cover-wave-layer-front {
+    fill: var(--canvas);
+    animation-duration: 4s;
+    animation-delay: -4s;
+  }
+  .home-cover[data-waves-visible='true'] .cover-wave-layer {
+    animation-play-state: running;
+    will-change: transform;
+  }
 
   :global(html[data-home-cover-motion-active='true']),
   :global(html[data-home-cover-expanded='true']) {
@@ -531,7 +573,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .cover-copy .home-eyebrow { max-width: 100%; font-size: 10px; line-height: 1.5; letter-spacing: .1em; white-space: normal; overflow-wrap: anywhere; }
     .cover-copy h1 { font-size: 30px; letter-spacing: .02em; }
     .cover-copy > p:last-child { font-size: 14px; line-height: 1.7; }
-    .cover-waves { height: 96px; }
+    .cover-waves { height: clamp(56px, 12dvh, 96px); }
     .home-content-layout { width: calc(100% - 32px); margin-top: 28px; }
     .recent-section { padding-bottom: 48px; }
     .home-info-strip { padding-top: 48px; }
@@ -558,12 +600,12 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cover-wave-track-front { animation: none; }
+    .cover-wave-layer { animation: none; }
     .cover-expand-toggle, .cover-expand-toggle svg, .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
   }
 
-  @keyframes cover-wave-scroll {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(-50%, 0, 0); }
+  @keyframes cover-wave-drift {
+    from { transform: translate3d(-96px, 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
   }
 </style>
