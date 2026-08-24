@@ -2,13 +2,13 @@ name = "blog-test2-admin-api"
 main = "src/index.js"
 compatibility_date = "2026-08-12"
 
-# 部署后将此地址填入 GitHub Pages 构建变量 PUBLIC_ADMIN_SYNC_API_URL。
+# 线上地址：https://blog-test2-admin-api.2799587522.workers.dev
 # routes 不绑定主站，避免把管理 API 混入静态站点。
 
 [[kv_namespaces]]
 binding = "SESSIONS"
-# 当前未部署。未来启用前必须创建 blog_test2 独立 KV，并替换此占位符。
-id = "YOUR_BLOG_TEST2_KV_NAMESPACE_ID"
+# blog_test2 独立会话与公共状态缓存，不与其他站点共用。
+id = "b1d90f3e70ab4c7f8ab78586b03afdf4"
 
 [vars]
 ALLOWED_ORIGIN = "https://ice11123.github.io"

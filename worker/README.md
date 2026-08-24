@@ -1,8 +1,8 @@
-# Cloudflare Worker 管理 API（当前实验版未部署）
+# Cloudflare Worker 管理 API
 
-`blog_test2` 本轮仅做首页视觉实验，Pages 构建不会部署此 Worker，管理台发布按钮也保持禁用。代码中的仓库目标和回跳路径已经统一为 `blog_test2`，写接口也会拒绝非 `ice11123/blog_test2/main` 的配置，但此目录仍只是未来接入参考，不能用于当前站点的发布链路。
+`blog_test2` 的 Worker 与独立 KV 已于 2026-08-24 部署到 `https://blog-test2-admin-api.2799587522.workers.dev`。主页和管理台已接入健康检查及公共仓库状态；GitHub OAuth App 尚未配置，因此远程发布按钮继续关闭，不能将“状态服务可用”误写成“云端写入已启用”。
 
-`wrangler.toml` 中的 KV namespace 使用明确占位符。未来启用前必须创建 `blog_test2` 独立 KV、替换真实 ID，并完成 Secret 配置；在此之前不要执行部署。
+`wrangler.toml` 绑定 `blog-test2-SESSIONS` 独立 KV，`SESSION_SECRET` 已通过 Cloudflare Secret 配置，不进入仓库。GitHub OAuth Client ID/Secret 仍必须在正式启用写入前配置。
 
 Worker 负责 GitHub OAuth 和管理台文章发布。GitHub OAuth token 加密后保存在 Worker KV，会话通过 HttpOnly Cookie 传递给本站管理台。
 
@@ -25,7 +25,7 @@ GitHub Developer Settings → OAuth Apps：
 
 ## 部署
 
-以下步骤仅供未来启用时使用，当前版本不要执行。先创建独立 KV namespace，并将真实 ID 写入 `wrangler.toml`。
+当前 Worker 已部署。首次部署或迁移账号时，先创建独立 KV namespace，并将真实 ID 写入 `wrangler.toml`。
 
 在 `worker/` 目录执行：
 
@@ -56,4 +56,7 @@ npx wrangler deploy
 
 ```text
 PUBLIC_ADMIN_SYNC_API_URL=https://YOUR_WORKER_DOMAIN
+PUBLIC_CLOUD_PUBLISH_ENABLED=false
 ```
+
+当前 Pages 工作流使用真实 Worker URL，并保持 `PUBLIC_CLOUD_PUBLISH_ENABLED=false`。只有完成 GitHub OAuth App 配置并验证授权回调后，才可把该值改为 `true`。

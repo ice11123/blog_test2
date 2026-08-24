@@ -12,8 +12,8 @@ export const SITE_URL = 'https://ice11123.github.io/blog_test2/';
 // 请在本地生成哈希后替换此占位符；该机制不能替代服务端认证。
 export const ADMIN_PASSWORD_HASH = '7e54a220c203783d049a2769a84ae09d716d288d54a8369a6691bbba84b9e052';
 export const ADMIN_UNLOCK_STORAGE_KEY = 'blog-test2-admin-unlocked';
-export const ADMIN_SYNC_API_URL = '';
-export const CLOUD_PUBLISH_ENABLED = false;
+export const ADMIN_SYNC_API_URL = import.meta.env.PUBLIC_ADMIN_SYNC_API_URL?.trim() || '';
+export const CLOUD_PUBLISH_ENABLED = import.meta.env.PUBLIC_CLOUD_PUBLISH_ENABLED === 'true';
 export const TARGET_REPOSITORY = 'ice11123/blog_test2';
 
 // 留空时按文章目录名称自动排序；需要固定顺序时可在这里追加名称。

@@ -10,6 +10,11 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  PUBLIC_ADMIN_SYNC_API_URL: https://blog-test2-admin-api.2799587522.workers.dev
+  # GitHub OAuth App 尚未配置；状态服务已接入，远程写入继续关闭。
+  PUBLIC_CLOUD_PUBLISH_ENABLED: 'false'
+
 concurrency:
   group: pages
   cancel-in-progress: true

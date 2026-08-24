@@ -1,5 +1,11 @@
 # 博客维护公告
 
+## 2026-08-24｜Worker 状态服务接入
+
+- 部署 `blog-test2-admin-api` Cloudflare Worker，并为 `blog_test2` 创建独立 KV 命名空间；主页和管理台开始使用真实 Worker 健康检查与公共仓库状态。
+- Pages 构建通过 `PUBLIC_ADMIN_SYNC_API_URL` 注入 Worker 地址，Worker 已验证可读取 `ice11123/blog_test2/main` 与最近一次 Pages 部署。
+- GitHub OAuth App 的 Client ID/Secret 尚未配置，因此远程发布继续关闭；本次没有把状态服务正常误写成云端写入已启用。
+
 ## 2026-08-22｜公共页面常驻三态侧栏
 
 - 公共桌面页面改用同一条常驻左侧栏，移除首页浮动资料卡、文章树与右侧目录相互割裂的旧布局。

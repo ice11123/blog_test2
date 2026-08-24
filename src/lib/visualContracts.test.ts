@@ -153,3 +153,13 @@ test('主页运行状态提供可见的手动刷新入口', () => {
   assert.doesNotMatch(publicStatus, /data-public-status-refresh/);
   assert.match(statusScript, /refreshInFlight/);
 });
+
+test('Worker 状态服务由 Pages 构建变量注入且写入开关独立', () => {
+  const constants = readSource('consts.ts');
+  const workflow = readFileSync(join(srcRoot, '..', '.github', 'workflows', 'deploy.yml'), 'utf8');
+
+  assert.match(constants, /import\.meta\.env\.PUBLIC_ADMIN_SYNC_API_URL/);
+  assert.match(constants, /import\.meta\.env\.PUBLIC_CLOUD_PUBLISH_ENABLED\s*===\s*'true'/);
+  assert.match(workflow, /PUBLIC_ADMIN_SYNC_API_URL:\s*https:\/\/blog-test2-admin-api\.2799587522\.workers\.dev/);
+  assert.match(workflow, /PUBLIC_CLOUD_PUBLISH_ENABLED:\s*'false'/);
+});
