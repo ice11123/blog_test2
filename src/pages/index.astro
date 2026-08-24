@@ -204,7 +204,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     position: relative;
     display: grid;
     place-items: center;
-    min-height: 470px;
+    min-height: clamp(540px, 42vw, 660px);
     overflow: hidden;
     isolation: isolate;
     color: #fff;
@@ -216,9 +216,9 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 52% 43%;
+    object-position: 54% 55%;
     transform: scale(1.025);
-    transform-origin: 52% 43%;
+    transform-origin: 54% 55%;
     will-change: transform;
   }
   .cover-photo-overlay {
@@ -338,16 +338,16 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
 
   @media (max-width: 640px) {
     .home-page { padding-bottom: 48px; }
-    .home-cover { min-height: 330px; }
-    .cover-photo-frame :global(.cover-photo) { object-position: 54% 43%; transform-origin: 54% 43%; }
+    .home-cover { min-height: clamp(380px, 108vw, 460px); }
+    .cover-photo-frame :global(.cover-photo) { object-position: 44% 50%; transform-origin: 44% 50%; }
     .cover-photo-overlay {
       background:
-        linear-gradient(180deg, rgba(18, 3, 16, .24) 0%, rgba(18, 3, 16, .18) 34%, rgba(18, 3, 16, .68) 100%),
-        linear-gradient(90deg, rgba(18, 3, 16, .38), transparent 72%);
+        linear-gradient(90deg, rgba(12, 17, 19, .72) 0%, rgba(12, 17, 19, .42) 42%, rgba(12, 17, 19, .08) 78%),
+        linear-gradient(180deg, rgba(12, 17, 19, .08) 38%, rgba(12, 17, 19, .5) 100%);
     }
-    .cover-copy { align-self: end; width: calc(100% - 32px); padding: 24px 20px 96px; text-align: left; }
+    .cover-copy { align-self: start; width: min(240px, calc(100% - 32px)); margin: 0 auto 0 16px; padding: 56px 16px 0; text-align: left; }
     .cover-copy .home-eyebrow { max-width: 100%; font-size: 10px; line-height: 1.5; letter-spacing: .1em; white-space: normal; overflow-wrap: anywhere; }
-    .cover-copy h1 { font-size: 34px; letter-spacing: .04em; }
+    .cover-copy h1 { font-size: 30px; letter-spacing: .02em; }
     .cover-copy > p:last-child { font-size: 14px; line-height: 1.7; }
     .cover-waves { height: 96px; }
     .home-content-layout { width: calc(100% - 32px); margin-top: 28px; }
