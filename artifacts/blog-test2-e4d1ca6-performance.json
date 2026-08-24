@@ -1,0 +1,33 @@
+{
+  "commit": "e4d1ca684af9c70ba543b29c85baee49afb6c1bd",
+  "measuredAt": "2026-08-24T19:05:05.9295374+08:00",
+  "environment": {
+    "browser": "Chromium headless",
+    "mobileViewport": "390x844 DPR3",
+    "cpuThrottle": 4,
+    "networkProfile": "Fast 4G for loading metrics"
+  },
+  "loading": {
+    "desktopFirstPartyTransferKiB": 287.7,
+    "mobileFirstPartyTransferKiB": 254.7,
+    "initialExternalRequests": 0,
+    "initialDomNodes": 687,
+    "mobileLcpMs": 1800,
+    "mobileCls": 0,
+    "mobileInteractionDurationMs": 56,
+    "mobileLongTasks": 0,
+    "hero1440AvifKiB": 217.1
+  },
+  "motion": {
+    "settleP95MsRange": [5.7, 11.1],
+    "warmMaxFrameMs": 27.8,
+    "coldMaxFrameMs": 33.3,
+    "longTasks": 0,
+    "note": "冷启动最大帧比严格 <33ms 门禁高约 0.3ms；多轮热态最大值为 27.8ms，p95 与 Long Task 门禁通过。"
+  },
+  "deployment": {
+    "workflowRun": "https://github.com/ice11123/blog_test2/actions/runs/32719489150",
+    "site": "https://ice11123.github.io/blog_test2/",
+    "result": "success"
+  }
+}
