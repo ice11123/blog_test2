@@ -41,7 +41,8 @@ test('全局动效令牌与降低动态契约保持稳定', () => {
   assert.match(globalStyles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
 
   const home = readSource('pages/index.astro');
-  assert.match(home, /\.cover-wave-track-back,\s*\.cover-wave-track-front\s*\{\s*animation:\s*none/);
+  assert.match(home, /\.cover-wave-track-front\s*\{\s*animation:\s*none/);
+  assert.doesNotMatch(home, /cover-wave-track-back/);
 });
 
 test('高频导航即时可见且公共页面复用统一侧栏', () => {
@@ -205,8 +206,12 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(home, /object-fit:\s*contain/);
   assert.match(home, /prefers-reduced-motion:\s*reduce/);
   assert.match(home, /const homeHeroWidths = \[640, 960, 1440\]/);
+  assert.match(home, /const homeHeroFullWidths = \[1440, 1920, 2560, 3840\]/);
   assert.match(home, /width:\s*64,\s*format:\s*'webp'/);
   assert.match(home, /data-full-srcset/);
+  assert.match(home, /\.cover-full-stage::after/);
+  assert.match(home, /\.cover-full-stage\s*>\s*:global\(\.cover-full-photo\)[\s\S]*height:\s*100%/);
+  assert.match(home, /max-width:\s*none/);
 
   assert.match(gesture, /HOME_COVER_DIRECTION_LOCK_DISTANCE\s*=\s*12/);
   assert.match(gesture, /HOME_COVER_DIRECTION_RATIO\s*=\s*1\.25/);
@@ -243,6 +248,9 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(motion, /event\.detail\s*===\s*0\s*\?\s*0/);
   assert.match(motion, /event\.key\s*!==\s*'Escape'/);
   assert.match(motion, /settleTo\(0,\s*0\)/);
+  assert.doesNotMatch(motion, /createProgressAnimation\(sidebar/);
+  assert.doesNotMatch(motion, /setElementUnavailable\(sidebar/);
+  assert.match(motion, /stageLeft\s*=\s*sidebarIsVisible[\s\S]*sidebar\.getBoundingClientRect\(\)\.right\s*:\s*0/);
 });
 
 test('Worker 状态服务由 Pages 构建变量注入且写入开关独立', () => {

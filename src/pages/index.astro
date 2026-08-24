@@ -17,12 +17,12 @@ import maintenanceSource from '../content/maintenance.md?raw';
 import homeHeroImage from '../assets/home-hero.jpg';
 
 const homeHeroWidths = [640, 960, 1440];
-const homeHeroFullWidths = [960, 1440, 1920];
+const homeHeroFullWidths = [1440, 1920, 2560, 3840];
 const [homeHeroLqip, homeHeroAvifSources, homeHeroWebpSources, homeHeroFullSources] = await Promise.all([
   getImage({ src: homeHeroImage, width: 64, format: 'webp', quality: 28 }),
   Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'avif', quality: 58 }))),
   Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 80 }))),
-  Promise.all(homeHeroFullWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 80 }))),
+  Promise.all(homeHeroFullWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 90 }))),
 ]);
 const toSrcset = (sources: typeof homeHeroWebpSources, widths: number[]) => sources
   .map((source, index) => `${source.src} ${widths[index]}w`)
@@ -96,10 +96,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       <span class="sr-only" id="home-cover-description">展开后完整展示主页壁纸，可点击箭头、使用桌面滚轮、按 Escape 或向下滑动收回。</span>
       <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
       <svg class="cover-waves" viewBox="0 0 1440 180" preserveAspectRatio="none" aria-hidden="true">
-        <g class="cover-wave-track cover-wave-track-back">
-          <path d="M0 90C180 35 330 48 500 94C675 142 825 142 1000 92C1180 41 1305 45 1440 90V180H0Z" />
-          <path transform="translate(1440 0)" d="M0 90C180 35 330 48 500 94C675 142 825 142 1000 92C1180 41 1305 45 1440 90V180H0Z" />
-        </g>
         <g class="cover-wave-track cover-wave-track-front">
           <path d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
           <path transform="translate(1440 0)" d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
@@ -113,7 +109,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
           src={homeHeroLqip.src}
           data-full-src={homeHeroFullFallback}
           data-full-srcset={homeHeroFullSrcset}
-          data-full-sizes="100vw"
+          data-full-sizes="(min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
           alt=""
           width={homeHeroImage.width}
           height={homeHeroImage.height}
@@ -293,7 +289,8 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     object-position: 54% 55%;
     border-radius: 0;
   }
-  .cover-photo-overlay {
+  .cover-photo-overlay,
+  .cover-full-stage::after {
     position: absolute;
     z-index: 1;
     inset: 0;
@@ -302,7 +299,15 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       linear-gradient(90deg, rgba(25, 5, 15, .72) 0%, rgba(34, 8, 24, .42) 36%, rgba(20, 4, 18, .1) 68%),
       linear-gradient(180deg, rgba(14, 4, 18, .12) 35%, rgba(14, 4, 18, .48) 100%);
   }
-  :global([data-theme='dark']) .cover-photo-overlay {
+  .cover-full-stage::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+  }
+  :global([data-theme='dark']) .cover-photo-overlay,
+  :global([data-theme='dark']) .cover-full-stage::after {
     background:
       linear-gradient(90deg, rgba(0, 0, 0, .8) 0%, rgba(0, 0, 0, .46) 38%, rgba(0, 0, 0, .16) 70%),
       linear-gradient(180deg, rgba(0, 0, 0, .18) 28%, rgba(0, 0, 0, .62) 100%);
@@ -318,7 +323,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     top: var(--site-header-height, 81px);
     right: auto;
     bottom: 0;
-    left: calc((100% - 100vw) / 2);
+    left: 0;
     display: grid;
     width: 100vw;
     visibility: hidden;
@@ -326,12 +331,20 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     place-items: center;
     opacity: 0;
     pointer-events: none;
-    background:
-      linear-gradient(rgba(7, 10, 12, .2), rgba(7, 10, 12, .2)),
-      #0a0d0d var(--home-cover-lqip) center / cover no-repeat;
+    background: #0a0d0d var(--home-cover-lqip) center / cover no-repeat;
     transform-origin: 0 0;
   }
-  .cover-full-photo { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: 0; }
+  .cover-full-stage > :global(.cover-full-photo) {
+    position: relative;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 0;
+  }
   .cover-expand-toggle {
     position: absolute;
     z-index: 922;
@@ -369,7 +382,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   }
   .cover-waves { position: absolute; z-index: 3; left: 0; right: 0; bottom: -1px; width: 100%; height: 150px; pointer-events: none; }
   .cover-wave-track { transform-box: fill-box; transform-origin: left bottom; animation-play-state: paused; }
-  .cover-wave-track-back { fill: color-mix(in srgb, var(--accent-secondary) 38%, var(--surface-subtle)); opacity: .68; animation: cover-wave-scroll 28s linear infinite; }
   .cover-wave-track-front { fill: var(--canvas); animation: cover-wave-scroll 18s linear infinite; }
   .home-cover[data-waves-visible='true'] .cover-wave-track { animation-play-state: running; }
 
@@ -385,26 +397,29 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   :global(html[data-home-cover-motion-active='true']) .cover-expand-toggle {
     position: fixed;
     top: calc(var(--site-header-height, 81px) + 16px);
-    left: 50%;
+    left: var(--home-cover-stage-center, 50vw);
   }
   :global(html[data-home-cover-motion-active='true']) .cover-gesture-zone,
   .home-cover-shell[data-state='expanded'] .cover-gesture-zone {
     position: fixed;
     top: var(--site-header-height, 81px);
-    left: 50%;
+    left: var(--home-cover-stage-center, 50vw);
   }
-  :global(html[data-home-cover-motion-active='true']) .home-content-layout,
-  :global(html[data-home-cover-motion-active='true'] [data-persistent-sidebar]) {
+  :global(html[data-home-cover-motion-active='true']) .home-content-layout {
     position: relative;
     z-index: 910;
     pointer-events: none;
+  }
+  :global(html[data-home-cover-motion-active='true'] [data-persistent-sidebar]),
+  :global(html[data-home-cover-expanded='true'] [data-persistent-sidebar]) {
+    z-index: 910;
   }
   .home-cover-shell[data-state='expanded'] .cover-full-stage { opacity: 1; transform: translate3d(0, 0, 0) scale(1, 1); }
   .home-cover-shell[data-state='expanded'] .home-cover { visibility: hidden; }
   .home-cover-shell[data-state='expanded'] .cover-expand-toggle {
     position: fixed;
     top: calc(var(--site-header-height, 81px) + 16px);
-    left: 50%;
+    left: var(--home-cover-stage-center, 50vw);
   }
   .home-cover-shell[data-state='expanded'] .cover-expand-toggle svg { transform: rotate(180deg); }
 
@@ -506,7 +521,8 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .home-cover-shell { min-height: clamp(380px, 108vw, 460px); }
     .home-cover { min-height: inherit; }
     .cover-photo-frame :global(.cover-photo) { object-position: 44% 50%; }
-    .cover-photo-overlay {
+    .cover-photo-overlay,
+    .cover-full-stage::after {
       background:
         linear-gradient(90deg, rgba(12, 17, 19, .72) 0%, rgba(12, 17, 19, .42) 42%, rgba(12, 17, 19, .08) 78%),
         linear-gradient(180deg, rgba(12, 17, 19, .08) 38%, rgba(12, 17, 19, .5) 100%);
@@ -542,7 +558,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cover-wave-track-back, .cover-wave-track-front { animation: none; }
+    .cover-wave-track-front { animation: none; }
     .cover-expand-toggle, .cover-expand-toggle svg, .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
   }
 

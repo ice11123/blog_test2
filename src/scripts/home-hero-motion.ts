@@ -114,9 +114,15 @@ function initHomeHeroMotion() {
     }
   };
 
-  const updateHeaderHeight = () => {
+  const updateLayoutGeometry = () => {
     measuredHeaderHeight = Math.max(header.getBoundingClientRect().height, 1);
     document.documentElement.style.setProperty('--site-header-height', `${measuredHeaderHeight}px`);
+    const sidebarIsVisible = Boolean(sidebar && getComputedStyle(sidebar).display !== 'none');
+    const stageLeft = sidebarIsVisible && sidebar ? sidebar.getBoundingClientRect().right : 0;
+    const stageWidth = Math.max(window.innerWidth - stageLeft, 1);
+    stage.style.left = `${stageLeft}px`;
+    stage.style.width = `${stageWidth}px`;
+    shell.style.setProperty('--home-cover-stage-center', `${stageLeft + stageWidth / 2}px`);
   };
 
   const updateToggle = (expanded: boolean) => {
@@ -183,17 +189,18 @@ function initHomeHeroMotion() {
 
   const createTimelines = () => {
     clearAnimations();
-    updateHeaderHeight();
+    updateLayoutGeometry();
     const headerHeight = measuredHeaderHeight;
     const sourceRect = source.getBoundingClientRect();
-    const stageWidth = Math.max(window.innerWidth, 1);
-    const stageHeight = Math.max(window.innerHeight - headerHeight, 1);
-    const targetHandleX = window.innerWidth / 2;
+    const stageRect = stage.getBoundingClientRect();
+    const stageWidth = Math.max(stageRect.width, 1);
+    const stageHeight = Math.max(stageRect.height, 1);
+    const targetHandleX = stageRect.left + stageWidth / 2;
     const targetHandleY = headerHeight + 16 + toggle.offsetHeight / 2;
     const handleX = sourceRect.left + sourceRect.width / 2 - targetHandleX;
     const handleY = sourceRect.top + 16 + toggle.offsetHeight / 2 - targetHandleY;
 
-    const collapsedX = sourceRect.left;
+    const collapsedX = sourceRect.left - stageRect.left;
     const collapsedY = sourceRect.top - headerHeight;
     const collapsedScaleX = sourceRect.width / stageWidth;
     const collapsedScaleY = sourceRect.height / stageHeight;
@@ -209,12 +216,6 @@ function initHomeHeroMotion() {
       transform: `translate3d(0, ${96 * value}px, 0)`,
       opacity: 1 - value,
     }));
-    if (sidebar && getComputedStyle(sidebar).display !== 'none') {
-      createProgressAnimation(sidebar, (value) => ({
-        transform: `translate3d(${-110 * value}%, 0, 0)`,
-        opacity: 1 - value,
-      }));
-    }
     createProgressAnimation(toggle, (value) => ({
       transform: `translate3d(${handleX * (1 - value)}px, ${handleY * (1 - value)}px, 0) translateX(-50%)`,
     }));
@@ -243,7 +244,6 @@ function initHomeHeroMotion() {
 
   const beginMotion = () => {
     setElementUnavailable(homeContent, false);
-    setElementUnavailable(sidebar, false);
     setElementUnavailable(footer, false);
     source.removeAttribute('aria-hidden');
     document.documentElement.dataset.homeCoverMotionActive = 'true';
@@ -271,7 +271,6 @@ function initHomeHeroMotion() {
       delete document.documentElement.dataset.homeCoverExpanded;
       source.removeAttribute('aria-hidden');
       setElementUnavailable(homeContent, false);
-      setElementUnavailable(sidebar, false);
       setElementUnavailable(footer, false);
       if (status) status.textContent = '全图壁纸已收回';
     }
@@ -283,7 +282,6 @@ function initHomeHeroMotion() {
       if (target === 1) {
         source.setAttribute('aria-hidden', 'true');
         setElementUnavailable(homeContent, true);
-        setElementUnavailable(sidebar, true);
         setElementUnavailable(footer, true);
       }
       clearAnimations();
@@ -477,15 +475,16 @@ function initHomeHeroMotion() {
   };
   const handleVisibility = () => updateWaves();
 
-  const headerObserver = new ResizeObserver(updateHeaderHeight);
-  headerObserver.observe(header);
+  const layoutObserver = new ResizeObserver(updateLayoutGeometry);
+  layoutObserver.observe(header);
+  if (sidebar) layoutObserver.observe(sidebar);
   const coverObserver = new IntersectionObserver(([entry]) => {
     coverIsVisible = Boolean(entry?.isIntersecting);
     updateWaves();
   });
   coverObserver.observe(source);
 
-  updateHeaderHeight();
+  updateLayoutGeometry();
   settleStable(0);
   if (heroImage.complete) reuseDecodedHero();
   else heroImage.addEventListener('load', reuseDecodedHero, { once: true });
@@ -503,11 +502,14 @@ function initHomeHeroMotion() {
   cleanupCurrentHero = () => {
     settleSequence += 1;
     highResolutionLoader = undefined;
-    headerObserver.disconnect();
+    layoutObserver.disconnect();
     coverObserver.disconnect();
     clearAnimations();
     settleStable(0);
     document.documentElement.style.removeProperty('--site-header-height');
+    shell.style.removeProperty('--home-cover-stage-center');
+    stage.style.removeProperty('left');
+    stage.style.removeProperty('width');
     toggle.removeEventListener('click', handleToggle);
     shell.removeEventListener('pointerdown', handlePointerDown);
     shell.removeEventListener('pointermove', handlePointerMove);
