@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import PublicLayout from './PublicLayout.astro';
 import FormattedDate from '../components/blog/FormattedDate.astro';
 import { withBase } from '../lib/urls';
+import blogPostCss from '../styles/blog-post.scss?url';
 
 type BlogData = CollectionEntry<'blog'>['data'];
 type Props = Pick<BlogData, 'title' | 'description' | 'pubDate'> & {
@@ -18,6 +19,7 @@ const { title, description, pubDate, updatedDate, dir1, dir2, tags = [], hidePag
 ---
 
 <PublicLayout title={title} description={description}>
+  <link slot="head" rel="stylesheet" href={blogPostCss} />
   <slot name="head" slot="head" />
   <article class="public-content-page">
     <div class="prose">

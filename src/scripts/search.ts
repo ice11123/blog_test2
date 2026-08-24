@@ -1,4 +1,5 @@
-import Fuse, { type FuseResult } from 'fuse.js';
+import type Fuse from 'fuse.js';
+import type { FuseResult } from 'fuse.js';
 import { blogPostPath } from '../lib/urls';
 
 // 防止 dev 模式下视图过渡导致脚本重复执行
@@ -15,6 +16,7 @@ interface SearchItem {
 }
 
 let fuse: Fuse<SearchItem> | null = null;
+let fusePromise: Promise<Fuse<SearchItem> | null> | null = null;
 let results: FuseResult<SearchItem>[] = [];
 let selectedIndex = -1;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -25,8 +27,9 @@ function getSearchData(): SearchItem[] {
 }
 
 // ---- Initialize Fuse ----
-function initFuse(data: SearchItem[]): Fuse<SearchItem> {
-  return new Fuse(data, {
+async function initFuse(data: SearchItem[]): Promise<Fuse<SearchItem>> {
+  const { default: FuseConstructor } = await import('fuse.js');
+  return new FuseConstructor(data, {
     keys: [
       { name: 'title', weight: 0.4 },
       { name: 'description', weight: 0.3 },
@@ -39,6 +42,27 @@ function initFuse(data: SearchItem[]): Fuse<SearchItem> {
     includeMatches: true,
     includeScore: true,
   });
+}
+
+function ensureFuse(): Promise<Fuse<SearchItem> | null> {
+  if (fuse) return Promise.resolve(fuse);
+
+  const data = getSearchData();
+  if (data.length === 0) return Promise.resolve(null);
+
+  if (!fusePromise) {
+    fusePromise = initFuse(data)
+      .then((instance) => {
+        fuse = instance;
+        return instance;
+      })
+      .catch((error) => {
+        console.error('搜索模块加载失败', error);
+        fusePromise = null;
+        return null;
+      });
+  }
+  return fusePromise;
 }
 
 // ---- DOM refs ----
@@ -65,6 +89,7 @@ function openModal(source: SearchOpenSource): void {
   modal.dataset.openSource = source;
   modal.showModal();
   input.focus({ preventScroll: true });
+  void ensureFuse();
 
   // Clear previous state
   input.value = '';
@@ -112,14 +137,26 @@ function buildPostUrl(slug: string): string {
 }
 
 // ---- Perform search ----
-function performSearch(query: string): void {
-  if (!fuse || !query.trim()) {
+async function performSearch(query: string): Promise<void> {
+  const normalizedQuery = query.trim();
+  if (!normalizedQuery) {
     results = [];
     selectedIndex = -1;
     renderResults();
     return;
   }
-  results = fuse.search(query.trim());
+
+  const searchEngine = await ensureFuse();
+  const input = getInput();
+  if (!input || input.value.trim() !== normalizedQuery) return;
+
+  if (!searchEngine) {
+    const list = getResultsList();
+    if (list) list.innerHTML = '<li class="search-no-results">搜索功能加载失败，请稍后重试</li>';
+    return;
+  }
+
+  results = searchEngine.search(normalizedQuery);
   selectedIndex = -1;
   renderResults();
 }
@@ -225,7 +262,7 @@ function handleTriggerClick(): void {
 function handleInput(e: Event): void {
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    performSearch((e.target as HTMLInputElement).value);
+    void performSearch((e.target as HTMLInputElement).value);
   }, 150);
 }
 
@@ -233,10 +270,6 @@ function handleInput(e: Event): void {
 function init(): void {
   const data = getSearchData();
   if (data.length === 0) return;
-
-  if (!fuse) {
-    fuse = initFuse(data);
-  }
 
   // Bind modal listeners
   const modal = getModal();

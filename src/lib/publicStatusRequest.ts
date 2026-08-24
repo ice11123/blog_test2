@@ -3,6 +3,7 @@ export interface StatusRequestOptions {
   timeoutMs?: number;
   retryDelaysMs?: number[];
   fetchImpl?: typeof fetch;
+  signal?: AbortSignal;
 }
 
 export type StatusRequestResult =
@@ -22,6 +23,20 @@ export type GitHubStatusFailure =
   | { kind: 'configuration'; severity: 'error'; status: number };
 
 const DEFAULT_RETRY_DELAYS_MS = [450, 1_100];
+
+function waitForRetry(delayMs: number, signal?: AbortSignal): Promise<void> {
+  if (delayMs <= 0 || signal?.aborted) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(done, delayMs);
+    signal?.addEventListener('abort', done, { once: true });
+
+    function done() {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', done);
+      resolve();
+    }
+  });
+}
 
 export function shouldRefreshFromGitHub(result: StatusRequestResult): boolean {
   return result.kind !== 'ok' || result.body?.ok !== true || result.body?.stale === true;
@@ -68,10 +83,12 @@ export async function requestStatusJson(url: string, options: StatusRequestOptio
   let lastNetworkReason: 'timeout' | 'network' = 'network';
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    if (options.signal?.aborted) return { kind: 'network-error', reason: 'network', attempts: Math.max(1, attempt - 1) };
     try {
+      const timeoutSignal = AbortSignal.timeout(timeoutMs);
       const response = await fetchImpl(url, {
         cache: 'no-store',
-        signal: AbortSignal.timeout(timeoutMs),
+        signal: options.signal ? AbortSignal.any([options.signal, timeoutSignal]) : timeoutSignal,
       });
       const body = await response.json().catch(() => ({}));
       if (response.ok || body?.stale === true) return { kind: 'ok', status: response.status, body, attempts: attempt };
@@ -80,12 +97,13 @@ export async function requestStatusJson(url: string, options: StatusRequestOptio
       if (response.status < 500 || attempt === attempts) return lastHttp;
     } catch (error) {
       const name = error instanceof Error ? error.name : '';
-      lastNetworkReason = name === 'TimeoutError' || name === 'AbortError' ? 'timeout' : 'network';
+      lastNetworkReason = options.signal?.aborted ? 'network' : name === 'TimeoutError' || name === 'AbortError' ? 'timeout' : 'network';
+      if (options.signal?.aborted) return { kind: 'network-error', reason: lastNetworkReason, attempts: attempt };
       if (attempt === attempts) return { kind: 'network-error', reason: lastNetworkReason, attempts: attempt };
     }
 
     const delayMs = retryDelaysMs[Math.min(attempt - 1, retryDelaysMs.length - 1)] ?? 0;
-    if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs));
+    await waitForRetry(delayMs, options.signal);
   }
 
   return lastHttp ?? { kind: 'network-error', reason: lastNetworkReason, attempts };

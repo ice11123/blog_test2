@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Header from '../../components/layout/Header.astro';
 import Footer from '../../components/layout/Footer.astro';
 import HtmlHead from '../../components/layout/HtmlHead.astro';
+import katexCss from 'katex/dist/katex.min.css?url';
 import { ADMIN_SYNC_API_URL, CLOUD_PUBLISH_ENABLED, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import type { AdminPostDraft } from '../../lib/adminDrafts';
 import { resolveDirs } from '../../lib/utils';
@@ -41,6 +42,7 @@ const systemCards = [
 <html lang="zh-cn">
   <head>
     <HtmlHead title={`管理台 - ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+    <link rel="stylesheet" href={katexCss} />
     <meta name="robots" content="noindex,nofollow" />
   </head>
   <body class="admin-page">

@@ -119,9 +119,13 @@ const LANG_COLORS: Record<string, string> = {
 
 <script>
   // @ts-nocheck -- 这是独立运行的浏览器端统计脚本，包含完备的失败降级。
+  import { mapWithConcurrency } from '../../lib/boundedConcurrency';
+
   (function() {
     var USERNAME = 'ice11123';
     var LANG_COLORS = {};
+    var LANGUAGE_CONCURRENCY = 3;
+    var CACHE_PREFIX = 'blog-test2-github-languages-v1:';
 
     var PI = Math.PI;
     var CX = 100, CY = 100, R = 85, INNER_R = 48;
@@ -202,32 +206,65 @@ const LANG_COLORS: Record<string, string> = {
       if (content) content.style.display = '';
     }
 
-    async function load() {
-      var root = document.getElementById('ghl-root');
+    function readCache(username) {
+      try {
+        var cached = JSON.parse(sessionStorage.getItem(CACHE_PREFIX + username) || 'null');
+        if (!cached || !Array.isArray(cached.entries) || !Number.isFinite(cached.totalBytes)) return null;
+        var entries = cached.entries.filter(function(entry) {
+          return entry && typeof entry.name === 'string' && Number.isFinite(entry.bytes) && entry.bytes > 0;
+        });
+        return entries.length ? { entries: entries, totalBytes: cached.totalBytes } : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function writeCache(username, entries, totalBytes) {
+      try {
+        sessionStorage.setItem(CACHE_PREFIX + username, JSON.stringify({ entries: entries, totalBytes: totalBytes }));
+      } catch {
+        // 私密模式或存储配额不足时仅跳过缓存。
+      }
+    }
+
+    async function load(root, signal) {
       if (!root || root.dataset.loadState) return;
       root.dataset.loadState = 'loading';
       USERNAME = root.getAttribute('data-username') || 'ice11123';
       LANG_COLORS = JSON.parse(root.getAttribute('data-colors') || '{}');
       try {
-        var reposRes = await fetch('https://api.github.com/users/' + USERNAME + '/repos?per_page=100&type=owner');
+        var cached = readCache(USERNAME);
+        if (cached) {
+          renderPie(cached.entries, cached.totalBytes);
+          showContent();
+          root.dataset.loadState = 'loaded';
+          return;
+        }
+
+        var reposRes = await fetch('https://api.github.com/users/' + USERNAME + '/repos?per_page=100&type=owner', { signal: signal });
         if (!reposRes.ok) throw new Error('repos HTTP ' + reposRes.status);
         var repos = await reposRes.json();
         if (!Array.isArray(repos) || repos.length === 0) throw new Error('no repos');
 
         var langTotals = {};
         var ownRepos = repos.filter(function(r) { return !r.fork; });
-
-        for (var i = 0; i < ownRepos.length; i++) {
+        var languageMaps = await mapWithConcurrency(ownRepos, LANGUAGE_CONCURRENCY, async function(repo) {
           try {
-            var res = await fetch(ownRepos[i].languages_url);
-            if (!res.ok) continue;
-            var langs = await res.json();
-            for (var name in langs) {
-              if (!langs.hasOwnProperty(name)) continue;
-              langTotals[name] = (langTotals[name] || 0) + langs[name];
-            }
+            var res = await fetch(repo.languages_url, { signal: signal });
+            if (!res.ok) return null;
+            return await res.json();
           } catch (e) {
-            // skip failed repo language fetches
+            if (signal.aborted) throw e;
+            return null;
+          }
+        });
+
+        for (var i = 0; i < languageMaps.length; i++) {
+          var langs = languageMaps[i];
+          if (!langs) continue;
+          for (var name in langs) {
+            if (!Object.prototype.hasOwnProperty.call(langs, name)) continue;
+            langTotals[name] = (langTotals[name] || 0) + langs[name];
           }
         }
 
@@ -242,10 +279,12 @@ const LANG_COLORS: Record<string, string> = {
         var totalBytes = entries.reduce(function(s, e) { return s + e.bytes; }, 0);
         var topEntries = entries.slice(0, 8);
 
+        writeCache(USERNAME, topEntries, totalBytes);
         renderPie(topEntries, totalBytes);
         showContent();
         root.dataset.loadState = 'loaded';
       } catch (err) {
+        if (signal.aborted) return;
         console.warn('GitHub languages fetch failed:', err.message);
         root.dataset.loadState = 'error';
         var skeleton = document.getElementById('ghl-skeleton');
@@ -255,13 +294,45 @@ const LANG_COLORS: Record<string, string> = {
       }
     }
 
-    window.__githubLanguagesInit = load;
+    function init() {
+      var root = document.getElementById('ghl-root');
+      if (!root || root.dataset.bound === 'true') return;
+      root.dataset.bound = 'true';
+
+      var controller = new AbortController();
+      var observer = null;
+      var begin = function() {
+        if (observer) observer.disconnect();
+        observer = null;
+        void load(root, controller.signal);
+      };
+
+      if ('IntersectionObserver' in window) {
+        observer = new IntersectionObserver(function(entries) {
+          if (entries.some(function(entry) { return entry.isIntersecting; })) begin();
+        }, { rootMargin: '120px 0px', threshold: 0.01 });
+        observer.observe(root);
+      } else {
+        begin();
+      }
+
+      window.__githubLanguagesCleanup = function() {
+        if (observer) observer.disconnect();
+        controller.abort();
+      };
+    }
+
+    window.__githubLanguagesInit = init;
     if (!window.__githubLanguagesPageLoadBound) {
       window.__githubLanguagesPageLoadBound = true;
       document.addEventListener('astro:page-load', function() {
         void window.__githubLanguagesInit?.();
       });
+      document.addEventListener('astro:before-swap', function() {
+        window.__githubLanguagesCleanup?.();
+        window.__githubLanguagesCleanup = undefined;
+      });
     }
-    void load();
+    init();
   })();
 </script>

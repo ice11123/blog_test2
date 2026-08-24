@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import { SITE_DESCRIPTION, SITE_TITLE, fmtNum } from '../consts';
 import { computeSiteStats } from '../lib/blogStats';
 import { getRepoLanguages } from '../lib/repoStats';
@@ -15,6 +15,25 @@ import PublicStatus from '../components/home/PublicStatus.astro';
 import { blogPostPath, withBase } from '../lib/urls';
 import maintenanceSource from '../content/maintenance.md?raw';
 import homeHeroImage from '../assets/home-hero.jpg';
+
+const homeHeroWidths = [640, 960, 1440];
+const homeHeroFullWidths = [960, 1440, 1920];
+const [homeHeroLqip, homeHeroAvifSources, homeHeroWebpSources, homeHeroFullSources] = await Promise.all([
+  getImage({ src: homeHeroImage, width: 64, format: 'webp', quality: 28 }),
+  Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'avif', quality: 58 }))),
+  Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 80 }))),
+  Promise.all(homeHeroFullWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 80 }))),
+]);
+const toSrcset = (sources: typeof homeHeroWebpSources, widths: number[]) => sources
+  .map((source, index) => `${source.src} ${widths[index]}w`)
+  .join(', ');
+const homeHeroAvifSrcset = toSrcset(homeHeroAvifSources, homeHeroWidths);
+const homeHeroWebpSrcset = toSrcset(homeHeroWebpSources, homeHeroWidths);
+const homeHeroFullSrcset = homeHeroFullSources
+  .map((source, index) => `${source.src} ${homeHeroFullWidths[index]}w`)
+  .join(', ');
+const homeHeroFallback = homeHeroWebpSources.at(-1)?.src ?? homeHeroLqip.src;
+const homeHeroFullFallback = homeHeroFullSources.at(-1)?.src ?? homeHeroLqip.src;
 
 const websiteLd = {
   '@context': 'https://schema.org',
@@ -38,21 +57,35 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   <JsonLd slot="head" data={websiteLd} />
 
   <div class="home-page">
-    <div class="home-cover-shell">
-      <section class="home-cover" id="home-cover" data-home-cover data-expanded="false" aria-labelledby="home-title" aria-describedby="home-cover-description">
+    <div
+      class="home-cover-shell"
+      id="home-cover"
+      data-home-cover
+      data-expanded="false"
+      style={`--home-cover-lqip: url("${homeHeroLqip.src}")`}
+    >
+      <section class="home-cover" aria-labelledby="home-title" aria-describedby="home-cover-description">
       <div class="cover-photo-frame" aria-hidden="true">
-        <Image
-          class="cover-photo"
-          data-home-hero-photo
-          src={homeHeroImage}
-          alt=""
-          widths={[640, 960, 1440, 1920, 2837]}
-          sizes="100vw"
-          format="webp"
-          quality={86}
-          loading="eager"
-          fetchpriority="high"
-        />
+        <picture>
+          <source
+            type="image/avif"
+            srcset={homeHeroAvifSrcset}
+            sizes="(min-width: 1688px) 1440px, (min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
+          />
+          <img
+            class="cover-photo"
+            data-home-hero-photo
+            src={homeHeroFallback}
+            srcset={homeHeroWebpSrcset}
+            sizes="(min-width: 1688px) 1440px, (min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
+            alt=""
+            width={homeHeroImage.width}
+            height={homeHeroImage.height}
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </picture>
       </div>
       <div class="cover-photo-overlay" aria-hidden="true"></div>
       <div class="cover-copy">
@@ -62,6 +95,31 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       </div>
       <span class="sr-only" id="home-cover-description">展开后完整展示主页壁纸，可点击箭头、按 Escape 或向下滑动收回。</span>
       <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
+      <svg class="cover-waves" viewBox="0 0 1440 180" preserveAspectRatio="none" aria-hidden="true">
+        <g class="cover-wave-track cover-wave-track-back">
+          <path d="M0 90C180 35 330 48 500 94C675 142 825 142 1000 92C1180 41 1305 45 1440 90V180H0Z" />
+          <path transform="translate(1440 0)" d="M0 90C180 35 330 48 500 94C675 142 825 142 1000 92C1180 41 1305 45 1440 90V180H0Z" />
+        </g>
+        <g class="cover-wave-track cover-wave-track-front">
+          <path d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
+          <path transform="translate(1440 0)" d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
+        </g>
+      </svg>
+      </section>
+      <div class="cover-full-stage" data-home-cover-stage aria-hidden="true">
+        <img
+          class="cover-full-photo"
+          data-home-hero-full
+          src={homeHeroLqip.src}
+          data-full-src={homeHeroFullFallback}
+          data-full-srcset={homeHeroFullSrcset}
+          data-full-sizes="100vw"
+          alt=""
+          width={homeHeroImage.width}
+          height={homeHeroImage.height}
+          decoding="async"
+        />
+      </div>
       <button
         type="button"
         class="cover-expand-toggle"
@@ -76,21 +134,12 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
         </svg>
         <span class="sr-only" data-home-cover-toggle-label>展开全图壁纸</span>
       </button>
-      <svg class="cover-waves" viewBox="0 0 1440 180" preserveAspectRatio="none" aria-hidden="true">
-        <g class="cover-wave-track cover-wave-track-back">
-          <path d="M0 90C180 35 330 48 500 94C675 142 825 142 1000 92C1180 41 1305 45 1440 90V180H0Z" />
-          <path transform="translate(1440 0)" d="M0 90C180 35 330 48 500 94C675 142 825 142 1000 92C1180 41 1305 45 1440 90V180H0Z" />
-        </g>
-        <g class="cover-wave-track cover-wave-track-front">
-          <path d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
-          <path transform="translate(1440 0)" d="M0 122C180 78 330 96 500 130C675 165 830 160 1010 118C1190 78 1305 88 1440 122V180H0Z" />
-        </g>
-      </svg>
-      </section>
+      <span class="sr-only" role="status" aria-live="polite" data-home-cover-status></span>
     </div>
 
     <div class="home-content-layout">
       <div class="home-main-column">
+    <div class="home-lower-motion-shell" data-home-lower-motion>
     <section class="recent-section" aria-labelledby="recent-title">
       <header class="section-heading">
         <div>
@@ -146,6 +195,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
         </div>
       )}
     </section>
+    </div>
 
     <section class="home-info-strip" aria-labelledby="site-info-title">
       <header class="info-strip-heading">
@@ -227,25 +277,13 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     isolation: isolate;
     color: #fff;
     background: var(--cover-start);
-    view-transition-name: home-wallpaper;
   }
 
-  .home-cover-shell { min-height: clamp(540px, 42vw, 660px); background: var(--cover-start); }
+  .home-cover-shell { position: relative; min-height: clamp(540px, 42vw, 660px); background: var(--cover-start); }
   .home-cover-shell .home-cover { min-height: inherit; }
 
-  .cover-photo-frame { position: absolute; z-index: 0; inset: 0; overflow: hidden; background: #0a0d0d; }
-  .cover-photo-frame::before {
-    content: '';
-    position: absolute;
-    z-index: 0;
-    inset: -24px;
-    background-image: var(--home-cover-backdrop, none);
-    background-position: center;
-    background-size: cover;
-    filter: blur(16px);
-    opacity: 0;
-    transform: scale(1.08);
-  }
+  .cover-photo-frame { position: absolute; z-index: 0; inset: 0; overflow: hidden; background: #0a0d0d var(--home-cover-lqip) center / cover no-repeat; }
+  .cover-photo-frame picture { display: block; width: 100%; height: 100%; }
   .cover-photo-frame :global(.cover-photo) {
     position: relative;
     z-index: 1;
@@ -253,9 +291,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     height: 100%;
     object-fit: cover;
     object-position: 54% 55%;
-    transform: scale(1.025);
-    transform-origin: 54% 55%;
-    will-change: transform;
     border-radius: 0;
   }
   .cover-photo-overlay {
@@ -277,11 +312,31 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .cover-copy .home-eyebrow { color: rgba(255,255,255,.78); }
   .cover-copy h1 { margin: 0; color: #fff; font-size: 48px; line-height: 1.2; letter-spacing: .08em; }
   .cover-copy > p:last-child { margin: 20px 0 0; color: rgba(255,255,255,.86); font-size: 16px; letter-spacing: .08em; }
+  .cover-full-stage {
+    position: fixed;
+    z-index: 900;
+    top: var(--site-header-height, 81px);
+    right: auto;
+    bottom: 0;
+    left: calc((100% - 100vw) / 2);
+    display: grid;
+    width: 100vw;
+    visibility: hidden;
+    overflow: hidden;
+    place-items: center;
+    opacity: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(rgba(7, 10, 12, .2), rgba(7, 10, 12, .2)),
+      #0a0d0d var(--home-cover-lqip) center / cover no-repeat;
+    transform-origin: 0 0;
+  }
+  .cover-full-photo { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: 0; }
   .cover-expand-toggle {
     position: absolute;
-    z-index: 5;
+    z-index: 922;
+    top: 16px;
     left: 50%;
-    bottom: clamp(72px, 8vw, 110px);
     display: grid;
     width: 44px;
     height: 44px;
@@ -295,70 +350,67 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     cursor: pointer;
-    touch-action: manipulation;
+    touch-action: pan-x pinch-zoom;
     transform: translateX(-50%);
     transition: transform 150ms var(--ease-out), background-color 150ms ease, border-color 150ms ease;
   }
-  :global(html[data-home-cover-transition]) .cover-expand-toggle svg { transition: transform 180ms var(--ease-in-out); }
+  .cover-expand-toggle svg { transition: transform 140ms var(--ease-out); }
   .cover-expand-toggle:active { transform: translateX(-50%) scale(.96); }
   .cover-expand-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
   .cover-gesture-zone {
     position: absolute;
-    z-index: 4;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: clamp(112px, 10vw, 152px);
+    z-index: 921;
+    top: 0;
+    left: 50%;
+    width: 144px;
+    height: 88px;
     touch-action: pan-x pinch-zoom;
+    transform: translateX(-50%);
   }
   .cover-waves { position: absolute; z-index: 3; left: 0; right: 0; bottom: -1px; width: 100%; height: 150px; pointer-events: none; }
-  .cover-wave-track { transform-box: fill-box; transform-origin: left bottom; will-change: transform; }
+  .cover-wave-track { transform-box: fill-box; transform-origin: left bottom; animation-play-state: paused; }
   .cover-wave-track-back { fill: color-mix(in srgb, var(--accent-secondary) 38%, var(--surface-subtle)); opacity: .68; animation: cover-wave-scroll 28s linear infinite; }
   .cover-wave-track-front { fill: var(--canvas); animation: cover-wave-scroll 18s linear infinite; }
+  .home-cover[data-waves-visible='true'] .cover-wave-track { animation-play-state: running; }
 
-  :global(html[data-home-cover-expanded='true']) { overflow: hidden; scrollbar-gutter: auto; background: #0a0d0d; }
+  :global(html[data-home-cover-motion-active='true']),
+  :global(html[data-home-cover-expanded='true']) {
+    overflow: hidden;
+    scrollbar-gutter: auto;
+  }
+  :global(html[data-home-cover-motion-active='true']) .home-page,
   :global(html[data-home-cover-expanded='true']) .home-page { overflow: visible; }
-  .home-cover[data-expanded='true'] {
+  :global(html[data-home-cover-motion-active='true']) .cover-full-stage,
+  .home-cover-shell[data-state='expanded'] .cover-full-stage { visibility: visible; }
+  :global(html[data-home-cover-motion-active='true']) .cover-expand-toggle {
     position: fixed;
-    z-index: 10000;
-    inset: 0;
-    width: 100vw;
-    height: 100dvh;
-    min-height: 100dvh;
-    touch-action: pan-x pinch-zoom;
-    background: #0a0d0d;
+    top: calc(var(--site-header-height, 81px) + 16px);
+    left: 50%;
   }
-  .home-cover[data-expanded='true'] .cover-photo-frame::before { opacity: .62; }
-  .home-cover[data-expanded='true'] .cover-photo-frame :global(.cover-photo) {
-    object-fit: contain;
-    object-position: center;
-    transform: none !important;
-    transform-origin: center;
-    will-change: auto;
+  :global(html[data-home-cover-motion-active='true']) .cover-gesture-zone,
+  .home-cover-shell[data-state='expanded'] .cover-gesture-zone {
+    position: fixed;
+    top: var(--site-header-height, 81px);
+    left: 50%;
   }
-  .home-cover[data-expanded='true'] .cover-photo-overlay { opacity: .08; }
-  .home-cover[data-expanded='true'] .cover-copy,
-  .home-cover[data-expanded='true'] .cover-waves { opacity: 0; pointer-events: none; }
-  .home-cover[data-expanded='true'] .cover-expand-toggle { bottom: max(24px, env(safe-area-inset-bottom)); }
-  .home-cover[data-expanded='true'] .cover-gesture-zone { height: 100%; }
-  .home-cover[data-expanded='true'] .cover-expand-toggle svg { transform: rotate(180deg); }
-
-  :global(html[data-home-cover-transition='expand']::view-transition-group(home-wallpaper)) {
-    animation-duration: 280ms;
-    animation-timing-function: var(--ease-in-out);
+  :global(html[data-home-cover-motion-active='true']) .home-content-layout,
+  :global(html[data-home-cover-motion-active='true'] [data-persistent-sidebar]) {
+    position: relative;
+    z-index: 910;
+    pointer-events: none;
   }
-  :global(html[data-home-cover-transition='collapse']::view-transition-group(home-wallpaper)) {
-    animation-duration: 240ms;
-    animation-timing-function: var(--ease-in-out);
+  .home-cover-shell[data-state='expanded'] .cover-full-stage { opacity: 1; transform: translate3d(0, 0, 0) scale(1, 1); }
+  .home-cover-shell[data-state='expanded'] .home-cover { visibility: hidden; }
+  .home-cover-shell[data-state='expanded'] .cover-expand-toggle {
+    position: fixed;
+    top: calc(var(--site-header-height, 81px) + 16px);
+    left: 50%;
   }
-  :global(html[data-home-cover-transition]::view-transition-old(home-wallpaper)),
-  :global(html[data-home-cover-transition]::view-transition-new(home-wallpaper)) {
-    overflow: clip;
-    mix-blend-mode: normal;
-  }
+  .home-cover-shell[data-state='expanded'] .cover-expand-toggle svg { transform: rotate(180deg); }
 
   .home-content-layout { position: relative; z-index: 4; width: min(1080px, calc(100% - 48px)); margin: 40px auto 0; }
   .home-main-column { min-width: 0; }
+  .home-lower-motion-shell { min-width: 0; }
   .section-link:focus-visible, .home-post-link:focus-visible, .info-fold > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
   .recent-section { padding: 0 0 64px; border-bottom: 1px solid var(--border); }
@@ -453,7 +505,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .home-page { padding-bottom: 48px; }
     .home-cover-shell { min-height: clamp(380px, 108vw, 460px); }
     .home-cover { min-height: inherit; }
-    .cover-photo-frame :global(.cover-photo) { object-position: 44% 50%; transform-origin: 44% 50%; }
+    .cover-photo-frame :global(.cover-photo) { object-position: 44% 50%; }
     .cover-photo-overlay {
       background:
         linear-gradient(90deg, rgba(12, 17, 19, .72) 0%, rgba(12, 17, 19, .42) 42%, rgba(12, 17, 19, .08) 78%),
@@ -490,12 +542,8 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cover-photo-frame :global(.cover-photo) { transform: scale(1.025) !important; will-change: auto; }
     .cover-wave-track-back, .cover-wave-track-front { animation: none; }
     .cover-expand-toggle, .cover-expand-toggle svg, .home-post-card, .home-post-media :global(img), .info-fold > summary::after { transition-duration: 0ms; }
-    :global(html[data-home-cover-transition]::view-transition-group(home-wallpaper)),
-    :global(html[data-home-cover-transition]::view-transition-old(home-wallpaper)),
-    :global(html[data-home-cover-transition]::view-transition-new(home-wallpaper)) { animation: none; }
   }
 
   @keyframes cover-wave-scroll {

@@ -1,4 +1,5 @@
 const TAB_SELECTOR = '[data-sidebar-tab]';
+const desktopSidebarQuery = window.matchMedia('(min-width: 1000px)');
 
 function activateTab(root: HTMLElement, button: HTMLButtonElement, focus = false) {
   const name = button.dataset.sidebarTab;
@@ -18,6 +19,8 @@ function activateTab(root: HTMLElement, button: HTMLButtonElement, focus = false
 }
 
 function initPersistentSidebars() {
+  if (!desktopSidebarQuery.matches) return;
+
   document.querySelectorAll<HTMLElement>('[data-persistent-sidebar]').forEach((root) => {
     if (root.dataset.sidebarBound === 'true') return;
     root.dataset.sidebarBound = 'true';
@@ -44,4 +47,7 @@ function initPersistentSidebars() {
   });
 }
 
+desktopSidebarQuery.addEventListener('change', (event) => {
+  if (event.matches) initPersistentSidebars();
+});
 document.addEventListener('astro:page-load', initPersistentSidebars);

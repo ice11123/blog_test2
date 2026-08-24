@@ -8,17 +8,22 @@ import {
 
 const REQUEST_TIMEOUT_MS = 15_000;
 const WORKER_TIMEOUT_MS = 4_500;
-const WORKER_ATTEMPTS = 3;
+const WORKER_INITIAL_ATTEMPTS = 1;
+const WORKER_MANUAL_ATTEMPTS = 3;
 const PUBLIC_STATUS_HEDGE_DELAY_MS = 900;
 const GITHUB_API = 'https://api.github.com';
 const REPOSITORY = 'ice11123/blog_test2';
 const BRANCH = 'main';
 
+let cleanupCurrentPublicStatus: (() => void) | undefined;
+
 function initPublicStatus(): void {
   const root = document.querySelector<HTMLElement>('[data-public-status]');
   if (!root || root.dataset.bound === 'true') return;
+  cleanupCurrentPublicStatus?.();
   root.dataset.bound = 'true';
   const endpoint = (root.dataset.statusEndpoint || '').replace(/\/$/, '');
+  const controller = new AbortController();
 
   const setCard = (name: string, state: string, value: string, detail = '', link = '') => {
     const card = root.querySelector<HTMLElement>(`[data-public-card="${name}"]`);
@@ -38,6 +43,10 @@ function initPublicStatus(): void {
     }
   };
 
+  ['frontend', 'worker', 'repository', 'deployment'].forEach((key) => {
+    setCard(key, 'waiting', '等待按需检测', '滚动到运行状态区域或点击刷新开始检测');
+  });
+
   const formatTime = (value?: string | null) => {
     if (!value) return '暂无更新时间';
     const date = new Date(value);
@@ -49,10 +58,12 @@ function initPublicStatus(): void {
       requestStatusJson(`${GITHUB_API}/repos/${REPOSITORY}/git/ref/heads/${BRANCH}`, {
         attempts: 1,
         timeoutMs: REQUEST_TIMEOUT_MS,
+        signal: controller.signal,
       }),
       requestStatusJson(`${GITHUB_API}/repos/${REPOSITORY}/actions/workflows/deploy.yml/runs?branch=${BRANCH}&per_page=1`, {
         attempts: 1,
         timeoutMs: REQUEST_TIMEOUT_MS,
+        signal: controller.signal,
       }),
     ]);
 
@@ -147,10 +158,11 @@ function initPublicStatus(): void {
     return true;
   };
 
-  const refreshRepositoryStatus = async () => {
+  const refreshRepositoryStatus = async (workerAttempts: number) => {
     const publicRequest = requestStatusJson(`${endpoint}/api/public-status`, {
-      attempts: WORKER_ATTEMPTS,
+      attempts: workerAttempts,
       timeoutMs: WORKER_TIMEOUT_MS,
+      signal: controller.signal,
     });
     const earlyResult = await waitForStatusResult(publicRequest, PUBLIC_STATUS_HEDGE_DELAY_MS);
 
@@ -174,7 +186,8 @@ function initPublicStatus(): void {
     renderRepositoryStatus(await publicRequest);
   };
 
-  const refresh = async () => {
+  const refresh = async (manual: boolean) => {
+    const workerAttempts = manual ? WORKER_MANUAL_ATTEMPTS : WORKER_INITIAL_ATTEMPTS;
     setCard('frontend', 'ok', '首页脚本已初始化', '公开状态模块工作正常');
     if (!endpoint) {
       setCard('worker', 'waiting', '实验版未接入发布服务', 'blog_test2 暂不部署 Worker');
@@ -185,17 +198,18 @@ function initPublicStatus(): void {
     }
     ['worker', 'repository', 'deployment'].forEach((key) => setCard(key, 'checking', '正在检测', '请稍候'));
     const healthTask = requestStatusJson(`${endpoint}/health`, {
-      attempts: WORKER_ATTEMPTS,
+      attempts: workerAttempts,
       timeoutMs: WORKER_TIMEOUT_MS,
+      signal: controller.signal,
     }).then(setWorkerStatus);
-    await Promise.all([healthTask, refreshRepositoryStatus()]);
+    await Promise.all([healthTask, refreshRepositoryStatus(workerAttempts)]);
   };
 
   const refreshButton = root.closest<HTMLElement>('.status-block')
     ?.querySelector<HTMLButtonElement>('[data-public-status-refresh]');
   const refreshLabel = refreshButton?.querySelector<HTMLElement>('[data-public-status-refresh-label]');
   let refreshInFlight: Promise<void> | null = null;
-  const runRefresh = () => {
+  const runRefresh = (manual = false) => {
     if (refreshInFlight) return refreshInFlight;
     if (refreshButton) {
       refreshButton.disabled = true;
@@ -203,7 +217,7 @@ function initPublicStatus(): void {
       refreshButton.setAttribute('aria-busy', 'true');
     }
     if (refreshLabel) refreshLabel.textContent = '检测中';
-    refreshInFlight = refresh().finally(() => {
+    refreshInFlight = refresh(manual).finally(() => {
       refreshInFlight = null;
       if (refreshButton) {
         refreshButton.disabled = false;
@@ -215,9 +229,32 @@ function initPublicStatus(): void {
     return refreshInFlight;
   };
 
-  refreshButton?.addEventListener('click', () => { void runRefresh(); });
-  void runRefresh();
+  const handleRefreshClick = () => { void runRefresh(true); };
+  refreshButton?.addEventListener('click', handleRefreshClick);
+
+  let observer: IntersectionObserver | undefined;
+  if ('IntersectionObserver' in window) {
+    observer = new IntersectionObserver((entries) => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      observer?.disconnect();
+      observer = undefined;
+      void runRefresh(false);
+    }, { threshold: 0.1 });
+    observer.observe(root);
+  } else {
+    void runRefresh(false);
+  }
+
+  cleanupCurrentPublicStatus = () => {
+    observer?.disconnect();
+    controller.abort();
+    refreshButton?.removeEventListener('click', handleRefreshClick);
+  };
 }
 
 document.addEventListener('DOMContentLoaded', initPublicStatus);
 document.addEventListener('astro:page-load', initPublicStatus);
+document.addEventListener('astro:before-swap', () => {
+  cleanupCurrentPublicStatus?.();
+  cleanupCurrentPublicStatus = undefined;
+});

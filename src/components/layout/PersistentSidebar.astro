@@ -3,6 +3,7 @@ import { SITE_AUTHOR, SITE_DESCRIPTION } from '../../consts';
 import type { SidebarPost } from '../../lib/blogData';
 import { computeSidebarStats, getSeriesPosts } from '../../lib/persistentSidebar';
 import { blogPostPath, stripBase, withBase } from '../../lib/urls';
+import '../../styles/persistent-sidebar.scss';
 import SocialLinks from '../ui/SocialLinks.astro';
 
 interface Props {
@@ -52,7 +53,7 @@ const isAbout = currentPath.startsWith('/about');
     <section id="sidebar-panel-overview" class="sidebar-panel-content overview-panel" role={mode === 'article' ? 'tabpanel' : undefined} aria-labelledby={mode === 'article' ? 'sidebar-tab-overview' : undefined} aria-label={mode === 'overview' ? '站点概览' : undefined} hidden={mode === 'article'}>
       <div class="sidebar-profile">
         <a class="profile-avatar" href={withBase('/')} aria-label={`${SITE_AUTHOR} 的博客首页`}>
-          <img src={withBase('/avatar.jpg')} alt={`${SITE_AUTHOR}的头像`} width="120" height="120" />
+          <img src={withBase('/avatar.jpg')} alt={`${SITE_AUTHOR}的头像`} width="120" height="120" loading="lazy" decoding="async" />
         </a>
         <strong>{SITE_AUTHOR}</strong>
         <p>{SITE_DESCRIPTION}</p>

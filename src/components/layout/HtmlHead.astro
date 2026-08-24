@@ -3,10 +3,6 @@ import type { ImageMetadata } from 'astro';
 import { SITE_TITLE } from '../../consts';
 import { ClientRouter } from 'astro:transitions';
 import globalCss from '../../styles/global.scss?url';
-import persistentSidebarCss from '../../styles/persistent-sidebar.scss?url';
-import blogPostCss from '../../styles/blog-post.scss?url';
-import systemStatusCss from '../../styles/system-status.scss?url';
-import katexCss from 'katex/dist/katex.min.css?url';
 import { withBase } from '../../lib/urls';
 
 interface Props {
@@ -48,10 +44,6 @@ if (image) {
 
 	<!-- 样式表通过 <link> 加载，确保 dev 模式下视图过渡后样式不丢失 -->
 	<link rel="stylesheet" href={globalCss}>
-	<link rel="stylesheet" href={katexCss}>
-	<link rel="stylesheet" href={persistentSidebarCss}>
-	<link rel="stylesheet" href={blogPostCss}>
-	<link rel="stylesheet" href={systemStatusCss}>
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>

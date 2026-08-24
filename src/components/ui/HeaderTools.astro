@@ -9,7 +9,7 @@ import Icon from './Icon.astro';
     <span class="header-search-shortcut">Ctrl+K</span>
   </button>
   <button id="theme-switcher-btn" class="header-tool-button header-theme-button" aria-label="切换到深色主题" aria-pressed="false" title="切换到深色主题" type="button">
-    <span class="theme-icon theme-icon-sun" aria-hidden="true">
+    <span class="theme-icon theme-icon-sun icon" aria-hidden="true">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="5"></circle>
         <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -22,7 +22,7 @@ import Icon from './Icon.astro';
         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
       </svg>
     </span>
-    <span class="theme-icon theme-icon-moon" aria-hidden="true">
+    <span class="theme-icon theme-icon-moon icon" aria-hidden="true">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
       </svg>
@@ -47,7 +47,7 @@ import Icon from './Icon.astro';
   @media (max-width: 1099px) and (min-width: 769px) {
     .header-tools { grid-template-columns: 2.25rem 2.25rem; }
     .header-tool-button { padding: .35rem; }
-    .header-tool-button > span { display: none; }
+    .header-tool-button > span:not(.theme-icon) { display: none; }
   }
   @media (max-width: 768px) {
     .header-tools { width: min(100%, 21rem); grid-template-columns: minmax(0, 1.65fr) minmax(5.6rem, 1fr); }

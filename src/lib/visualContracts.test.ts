@@ -94,11 +94,47 @@ test('统一侧栏在桌面常驻并在小屏让位给正文', () => {
   assert.match(styles, /prefers-reduced-motion:\s*reduce/);
 });
 
+test('非首屏样式、搜索引擎与移动端侧栏按需加载', () => {
+  const globalStyles = readSource('styles/global.scss');
+  const htmlHead = readSource('components/layout/HtmlHead.astro');
+  const sidebar = readSource('components/layout/PersistentSidebar.astro');
+  const sidebarScript = readSource('scripts/persistent-sidebar.ts');
+  const publicStatus = readSource('components/home/PublicStatus.astro');
+  const publicContentLayout = readSource('layouts/PublicContentLayout.astro');
+  const blogPostLayout = readSource('layouts/BlogPost.astro');
+  const adminPage = readSource('pages/admin/index.astro');
+  const search = readSource('scripts/search.ts');
+
+  assert.doesNotMatch(globalStyles, /@import\s+url\(/);
+  assert.doesNotMatch(globalStyles, /MaoKenTangYuan/);
+  assert.match(globalStyles, /--font-sans-zh:[^;]*PingFang SC[^;]*Microsoft YaHei/);
+
+  assert.doesNotMatch(htmlHead, /persistent-sidebar\.scss|blog-post\.scss|system-status\.scss|katex\/dist/);
+  assert.match(sidebar, /import ['"]\.\.\/\.\.\/styles\/persistent-sidebar\.scss['"]/);
+  assert.match(sidebar, /loading="lazy" decoding="async"/);
+  assert.match(sidebarScript, /matchMedia\(['"]\(min-width:\s*1000px\)['"]\)/);
+  assert.match(sidebarScript, /if \(!desktopSidebarQuery\.matches\) return/);
+  assert.match(publicStatus, /import ['"]\.\.\/\.\.\/styles\/system-status\.scss['"]/);
+  assert.match(publicContentLayout, /import blogPostCss from ['"]\.\.\/styles\/blog-post\.scss\?url['"]/);
+  assert.match(publicContentLayout, /<link slot="head" rel="stylesheet" href=\{blogPostCss\}/);
+  assert.match(blogPostLayout, /import katexCss from ['"]katex\/dist\/katex\.min\.css\?url['"]/);
+  assert.match(blogPostLayout, /<link slot="head" rel="stylesheet" href=\{katexCss\}/);
+  assert.match(adminPage, /import katexCss from ['"]katex\/dist\/katex\.min\.css\?url['"]/);
+
+  assert.doesNotMatch(search, /^import Fuse\b/m);
+  assert.match(search, /await import\(['"]fuse\.js['"]\)/);
+  assert.match(search, /void ensureFuse\(\)/);
+  assert.ok(search.indexOf("input.focus({ preventScroll: true })") < search.indexOf('void ensureFuse()'));
+  assert.match(search, /搜索功能加载失败，请稍后重试/);
+});
+
 test('顶部栏背景全宽且导航内容保持居中约束', () => {
   const header = readSource('components/layout/Header.astro');
+  const globalStyles = readSource('styles/global.scss');
   assert.match(header, /header\s*\{[^}]*width:\s*100%/);
   assert.match(header, /\.site-nav\s*\{[^}]*width:\s*min\(1200px,\s*calc\(100%\s*-\s*48px\)\)[^}]*margin:\s*0 auto/);
   assert.doesNotMatch(header, /header\s*\{[^}]*width:\s*min\(1200px/);
+  assert.doesNotMatch(globalStyles, /scrollbar-gutter:\s*stable both-edges/);
 });
 
 test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
@@ -126,6 +162,8 @@ test('主题按钮直接切换并提供双向可降级圆形过渡', () => {
   assert.doesNotMatch(search, /theme-dropdown|aria-expanded/);
   assert.match(tools, /theme-icon-sun/);
   assert.match(tools, /theme-icon-moon/);
+  assert.match(tools, /theme-icon-sun icon/);
+  assert.match(tools, /header-tool-button > span:not\(\.theme-icon\)/);
   assert.match(tools, /aria-pressed="false"/);
 
   assert.match(theme, /event\.detail\s*>\s*0/);
@@ -163,23 +201,42 @@ test('主页壁纸支持可访问的点击与触屏手势展开', () => {
   assert.match(home, /data-home-cover-gesture/);
   assert.match(home, /aria-controls="home-cover"/);
   assert.match(home, /aria-expanded="false"/);
-  assert.match(home, /view-transition-name:\s*home-wallpaper/);
+  assert.doesNotMatch(home, /view-transition-name:\s*home-wallpaper/);
   assert.match(home, /object-fit:\s*contain/);
   assert.match(home, /prefers-reduced-motion:\s*reduce/);
+  assert.match(home, /const homeHeroWidths = \[640, 960, 1440\]/);
+  assert.match(home, /width:\s*64,\s*format:\s*'webp'/);
+  assert.match(home, /data-full-srcset/);
 
+  assert.match(gesture, /HOME_COVER_DIRECTION_LOCK_DISTANCE\s*=\s*12/);
+  assert.match(gesture, /HOME_COVER_DIRECTION_RATIO\s*=\s*1\.25/);
   assert.match(gesture, /HOME_COVER_SWIPE_DISTANCE\s*=\s*56/);
   assert.match(gesture, /HOME_COVER_SWIPE_MIN_DISTANCE\s*=\s*20/);
-  assert.match(gesture, /HOME_COVER_SWIPE_VELOCITY\s*=\s*0\.45/);
-  assert.match(motion, /classifyHomeCoverSwipe/);
+  assert.match(gesture, /HOME_COVER_SWIPE_VELOCITY\s*=\s*0\.11/);
+  assert.match(gesture, /resolveHomeCoverProgress/);
+  assert.match(gesture, /resolveHomeCoverRelease/);
+  assert.match(gesture, /HOME_COVER_SETTLE_MIN_MS\s*=\s*140/);
+  assert.match(gesture, /HOME_COVER_SETTLE_MAX_MS\s*=\s*240/);
+  assert.match(motion, /ResizeObserver/);
+  assert.match(motion, /\.animate\(/);
+  assert.match(motion, /animation\.currentTime\s*=/);
+  assert.match(motion, /cubicBezierCoordinate\(parameter, 0\.77, 0\.175\)/);
+  assert.match(motion, /easing:\s*'cubic-bezier\(0\.77, 0, 0\.175, 1\)'/);
+  assert.match(motion, /settleAnimations\[0\]/);
+  assert.doesNotMatch(motion, /requestAnimationFrame/);
   assert.match(motion, /setPointerCapture/);
   assert.match(motion, /releasePointerCapture/);
-  assert.match(motion, /touchPointers\.size\s*>\s*1/);
-  assert.match(motion, /toggle\.contains\(event\.target as Node\)/);
-  assert.match(motion, /sequence\s*===\s*transitionSequence/);
-  assert.match(motion, /event\.detail\s*>\s*0/);
-  assert.match(motion, /startViewTransition/);
+  assert.match(motion, /trackedPointers\.size\s*>\s*1/);
+  assert.match(motion, /event\.pointerType\s*!==\s*'pen'/);
+  assert.match(motion, /requestHighResolution\(\)/);
+  assert.match(motion, /IntersectionObserver/);
+  assert.doesNotMatch(motion, /startViewTransition/);
+  assert.doesNotMatch(motion, /addEventListener\('scroll'/);
+  assert.doesNotMatch(motion, /aria-modal|event\.key\s*===\s*'Tab'/);
   assert.match(motion, /prefers-reduced-motion:\s*reduce/);
-  assert.match(motion, /event\.key\s*===\s*'Escape'/);
+  assert.match(motion, /event\.detail\s*===\s*0\s*\?\s*0/);
+  assert.match(motion, /event\.key\s*!==\s*'Escape'/);
+  assert.match(motion, /settleTo\(0,\s*0\)/);
 });
 
 test('Worker 状态服务由 Pages 构建变量注入且写入开关独立', () => {

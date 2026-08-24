@@ -5,6 +5,8 @@ import type { CollectionEntry } from 'astro:content';
 import FormattedDate from '../components/blog/FormattedDate.astro';
 import PublicLayout from './PublicLayout.astro';
 import { stripBase, withBase } from '../lib/urls';
+import blogPostCss from '../styles/blog-post.scss?url';
+import katexCss from 'katex/dist/katex.min.css?url';
 
 type BlogData = CollectionEntry<'blog'>['data'];
 type Props = Omit<BlogData, 'tags'> & { tags?: string[]; sidebarsExpanded?: boolean; hidePageHeader?: boolean };
@@ -24,6 +26,8 @@ const currentSlug = slugMatch ? decodeURIComponent(slugMatch[1].replace(/\/+$/, 
 	currentDir1={dir1}
 	currentDir2={dir2}
 >
+	<link slot="head" rel="stylesheet" href={blogPostCss} />
+	<link slot="head" rel="stylesheet" href={katexCss} />
 	<slot name="head" slot="head" />
 	<article class="blog-post-page">
 		{!hidePageHeader && heroImage && (

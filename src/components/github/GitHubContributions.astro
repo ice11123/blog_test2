@@ -9,7 +9,7 @@ import { GITHUB_USERNAME } from '../../consts';
     <div class="stat-label">我在 GitHub 上的贡献</div>
     <p>过去一年的公开贡献活跃度</p>
   </div>
-  <div class="gh-grid-wrapper" id="gh-grid-wrapper"></div>
+  <div class="gh-grid-wrapper" id="gh-grid-wrapper"><p class="gh-deferred-message">展开后加载贡献记录。</p></div>
 </div>
 
 <style is:global>
@@ -45,6 +45,13 @@ import { GITHUB_USERNAME } from '../../consts';
   }
 
   .gh-grid-wrapper.has-error {
+    color: var(--foreground-dark);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  .gh-deferred-message {
+    margin: 0;
     color: var(--foreground-dark);
     font-size: 0.82rem;
     line-height: 1.6;
@@ -384,9 +391,9 @@ import { GITHUB_USERNAME } from '../../consts';
       }
     }
 
-    async function colorize(username, wrapper) {
+    async function colorize(username, wrapper, signal) {
       try {
-        var res = await fetch('https://github-contributions-api.deno.dev/' + username + '.json');
+        var res = await fetch('https://github-contributions-api.deno.dev/' + username + '.json', { signal: signal });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         var json = await res.json();
         var weeksData = json.contributions;
@@ -416,6 +423,7 @@ import { GITHUB_USERNAME } from '../../consts';
         wrapper.classList.remove('is-loading');
         return true;
       } catch (err) {
+        if (signal.aborted) return false;
         console.warn('GitHub contributions fetch failed:', err.message);
         wrapper.classList.remove('is-loading');
         wrapper.classList.add('has-error');
@@ -432,7 +440,7 @@ import { GITHUB_USERNAME } from '../../consts';
       tip.style.cssText = 'position:fixed;pointer-events:none;z-index:9999;padding:4px 10px;border-radius:6px;background:var(--muted);color:var(--foreground);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.15);font-size:0.75rem;white-space:nowrap;opacity:0;transition:opacity 0.15s;';
       document.body.appendChild(tip);
 
-      wrapper.addEventListener('mousemove', function(e) {
+      var handleMouseMove = function(e) {
         var cell = e.target.closest('.gh-cell[data-date]');
         if (!cell || cell.dataset.count === undefined) {
           tip.style.opacity = '0';
@@ -448,7 +456,12 @@ import { GITHUB_USERNAME } from '../../consts';
         if (ty < 8) ty = e.clientY + 14;
         tip.style.left = tx + 'px';
         tip.style.top = ty + 'px';
-      });
+      };
+      wrapper.addEventListener('mousemove', handleMouseMove);
+      return function() {
+        wrapper.removeEventListener('mousemove', handleMouseMove);
+        tip.remove();
+      };
     }
 
     function scrollToEnd() {
@@ -456,9 +469,7 @@ import { GITHUB_USERNAME } from '../../consts';
       if (scrollArea) scrollArea.scrollLeft = scrollArea.scrollWidth;
     }
 
-    async function init() {
-      var root = document.getElementById('gh-contributions');
-      if (!root) return;
+    async function load(root, signal, registerTooltipCleanup) {
       if (root.dataset.loadState) return;
       root.dataset.loadState = 'loading';
       var username = root.getAttribute('data-username') || 'ice11123';
@@ -469,9 +480,37 @@ import { GITHUB_USERNAME } from '../../consts';
       }
 
       buildGrid(wrapper);
-      setupTooltip(wrapper);
+      registerTooltipCleanup(setupTooltip(wrapper));
       scrollToEnd();
-      root.dataset.loadState = await colorize(username, wrapper) ? 'loaded' : 'error';
+      var loaded = await colorize(username, wrapper, signal);
+      if (!signal.aborted) root.dataset.loadState = loaded ? 'loaded' : 'error';
+    }
+
+    function init() {
+      var root = document.getElementById('gh-contributions');
+      if (!root || root.dataset.bound === 'true') return;
+      root.dataset.bound = 'true';
+
+      var details = root.closest('details');
+      var controller = new AbortController();
+      var tooltipCleanup = null;
+      var registerTooltipCleanup = function(cleanup) { tooltipCleanup = cleanup; };
+      var begin = function() {
+        if (details) details.removeEventListener('toggle', handleToggle);
+        void load(root, controller.signal, registerTooltipCleanup);
+      };
+      var handleToggle = function() {
+        if (details && details.open) begin();
+      };
+
+      if (!details || details.open) begin();
+      else details.addEventListener('toggle', handleToggle);
+
+      window.__githubContributionsCleanup = function() {
+        if (details) details.removeEventListener('toggle', handleToggle);
+        controller.abort();
+        if (tooltipCleanup) tooltipCleanup();
+      };
     }
 
     window.__githubContributionsInit = init;
@@ -480,7 +519,11 @@ import { GITHUB_USERNAME } from '../../consts';
       document.addEventListener('astro:page-load', function() {
         void window.__githubContributionsInit?.();
       });
+      document.addEventListener('astro:before-swap', function() {
+        window.__githubContributionsCleanup?.();
+        window.__githubContributionsCleanup = undefined;
+      });
     }
-    void init();
+    init();
   })();
 </script>

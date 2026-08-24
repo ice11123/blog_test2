@@ -141,3 +141,24 @@ test('GitHub 资源不存在仍归类为真实配置错误', () => {
     attempts: 1,
   }), { kind: 'configuration', severity: 'error', status: 404 });
 });
+
+test('页面导航中止状态请求后不会继续重试', async () => {
+  const controller = new AbortController();
+  let calls = 0;
+  const result = await requestStatusJson('https://worker.test/health', {
+    attempts: 3,
+    timeoutMs: 1_000,
+    retryDelaysMs: [500, 500],
+    signal: controller.signal,
+    fetchImpl: async (_url, init) => {
+      calls += 1;
+      return await new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true });
+        controller.abort();
+      });
+    },
+  });
+
+  assert.deepEqual(result, { kind: 'network-error', reason: 'network', attempts: 1 });
+  assert.equal(calls, 1);
+});
