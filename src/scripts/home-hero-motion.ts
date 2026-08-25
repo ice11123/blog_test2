@@ -174,13 +174,15 @@ function initHomeHeroMotion() {
     highResolutionLoader = undefined;
 
     const sourceSrcset = heroSource.getAttribute(`data-${theme}-srcset`);
+    const sourceType = heroSource.getAttribute(`data-${theme}-type`);
     const heroSrcset = heroImage.getAttribute(`data-${theme}-srcset`);
     const heroSrc = heroImage.getAttribute(`data-${theme}-src`);
     const lqip = fullImage.getAttribute(`data-${theme}-lqip`);
     const fullSrc = fullImage.getAttribute(`data-${theme}-full-src`);
     const fullSrcset = fullImage.getAttribute(`data-${theme}-full-srcset`);
-    if (!sourceSrcset || !heroSrcset || !heroSrc || !lqip || !fullSrc || !fullSrcset) return;
+    if (!sourceType || !sourceSrcset || !heroSrcset || !heroSrc || !lqip || !fullSrc || !fullSrcset) return;
 
+    heroSource.type = sourceType;
     heroSource.srcset = sourceSrcset;
     heroImage.srcset = heroSrcset;
     heroImage.src = heroSrc;

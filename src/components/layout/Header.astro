@@ -69,6 +69,13 @@ import { withBase } from '../../lib/urls';
     .site-nav { gap: 16px; }
     .nav-links { gap: 16px; }
   }
+  @media (max-width: 999px) {
+    header {
+      background: color-mix(in srgb, var(--canvas) 97%, var(--surface) 3%);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
   @media (max-width: 680px) {
     header { padding: 16px 0 8px; }
     .site-nav { width: calc(100% - 32px); }

@@ -42,8 +42,9 @@ test('全局动效令牌与降低动态契约保持稳定', () => {
 
   const home = readSource('pages/index.astro');
   assert.match(home, /\.cover-wave-layer\s*\{\s*animation:\s*none/);
-  assert.match(home, /<defs>[\s\S]*id="home-gentle-wave"/);
-  assert.equal((home.match(/<use class="cover-wave-layer/g) ?? []).length, 3);
+  assert.equal((home.match(/<svg class="cover-wave-layer/g) ?? []).length, 3);
+  assert.doesNotMatch(home, /<use class="cover-wave-layer/);
+  assert.match(home, /\.cover-wave-layer\s*\{[\s\S]*contain:\s*paint/);
   assert.match(home, /cover-wave-layer-back[\s\S]*animation-duration:\s*12s/);
   assert.match(home, /cover-wave-layer-middle[\s\S]*animation-duration:\s*7s/);
   assert.match(home, /cover-wave-layer-front[\s\S]*animation-duration:\s*4s/);
@@ -142,6 +143,7 @@ test('顶部栏背景全宽且导航内容保持居中约束', () => {
   assert.match(header, /\.site-nav\s*\{[^}]*width:\s*min\(1200px,\s*calc\(100%\s*-\s*48px\)\)[^}]*margin:\s*0 auto/);
   assert.doesNotMatch(header, /header\s*\{[^}]*width:\s*min\(1200px/);
   assert.doesNotMatch(globalStyles, /scrollbar-gutter:\s*stable both-edges/);
+  assert.match(header, /@media\s*\(max-width:\s*999px\)[\s\S]*header\s*\{[\s\S]*backdrop-filter:\s*none/);
 });
 
 test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
@@ -195,7 +197,7 @@ test('主页运行状态提供可见的手动刷新入口', () => {
 
   assert.match(home, /data-public-status-refresh/);
   assert.doesNotMatch(home, /system-status-heading\)\s*\{\s*display:\s*none/);
-  assert.doesNotMatch(publicStatus, /data-public-status-refresh/);
+  assert.doesNotMatch(publicStatus, /<button[^>]*data-public-status-refresh/);
   assert.match(statusScript, /refreshInFlight/);
 });
 
@@ -214,6 +216,11 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(home, /const homeHeroWidths = \[640, 960, 1440\]/);
   assert.match(home, /const homeHeroFullWidths = \[1440, 1920, 2560, 3840\]/);
   assert.match(home, /width:\s*64,\s*format:\s*'webp'/);
+  assert.match(home, /data-light-type="image\/webp"/);
+  assert.match(home, /data-dark-type="image\/avif"/);
+  assert.match(home, /document\.currentScript/);
+  assert.match(home, /fetchpriority="high"/);
+  assert.doesNotMatch(home, /homeHeroAvifSources/);
   assert.match(home, /data-full-srcset/);
   assert.match(home, /\.cover-full-stage::after/);
   assert.match(home, /\.cover-full-stage\s*>\s*:global\(\.cover-full-photo\)[\s\S]*height:\s*100%/);

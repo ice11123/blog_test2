@@ -252,6 +252,7 @@ function initPublicStatus(): void {
   };
 }
 
+initPublicStatus();
 document.addEventListener('DOMContentLoaded', initPublicStatus);
 document.addEventListener('astro:page-load', initPublicStatus);
 document.addEventListener('astro:before-swap', () => {

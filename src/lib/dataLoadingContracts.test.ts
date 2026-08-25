@@ -28,6 +28,7 @@ test('GitHub Contributions 仅在折叠区首次展开后加载', () => {
 
 test('PublicStatus 可见或手动触发，共享请求且初次不连续重试', () => {
   const source = readSource('scripts/public-status.ts');
+  const component = readSource('components/home/PublicStatus.astro');
   assert.match(source, /WORKER_INITIAL_ATTEMPTS\s*=\s*1/);
   assert.match(source, /WORKER_MANUAL_ATTEMPTS\s*=\s*3/);
   assert.match(source, /new IntersectionObserver/);
@@ -35,4 +36,11 @@ test('PublicStatus 可见或手动触发，共享请求且初次不连续重试'
   assert.match(source, /if \(refreshInFlight\) return refreshInFlight/);
   assert.match(source, /astro:before-swap/);
   assert.match(source, /controller\.abort\(\)/);
+  assert.match(source, /initPublicStatus\(\);/);
+  assert.match(component, /import\(['"]\.\.\/\.\.\/scripts\/public-status['"]\)/);
+  assert.match(component, /rootMargin:\s*['"]240px 0px['"]/);
+  assert.doesNotMatch(component, /<script src="\.\.\/\.\.\/scripts\/public-status"/);
+  assert.ok(component.indexOf("if (!root || root.dataset.loaderBound === 'true') return") < component.indexOf('cleanupPublicStatusLoader?.()'));
+  assert.match(component, /stopImmediatePropagation\(\)/);
+  assert.match(component, /refreshButton\?\.click\(\)/);
 });

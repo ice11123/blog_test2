@@ -21,7 +21,6 @@ const homeHeroWidths = [640, 960, 1440];
 const homeHeroFullWidths = [1440, 1920, 2560, 3840];
 const [
   homeHeroLqip,
-  homeHeroAvifSources,
   homeHeroWebpSources,
   homeHeroFullSources,
   homeHeroDarkLqip,
@@ -30,7 +29,6 @@ const [
   homeHeroDarkFullSources,
 ] = await Promise.all([
   getImage({ src: homeHeroImage, width: 64, format: 'webp', quality: 28 }),
-  Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'avif', quality: 58 }))),
   Promise.all(homeHeroWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 80 }))),
   Promise.all(homeHeroFullWidths.map((width) => getImage({ src: homeHeroImage, width, format: 'webp', quality: 90 }))),
   getImage({ src: homeHeroDarkImage, width: 64, format: 'webp', quality: 28 }),
@@ -41,7 +39,6 @@ const [
 const toSrcset = (sources: typeof homeHeroWebpSources, widths: number[]) => sources
   .map((source, index) => `${source.src} ${widths[index]}w`)
   .join(', ');
-const homeHeroAvifSrcset = toSrcset(homeHeroAvifSources, homeHeroWidths);
 const homeHeroWebpSrcset = toSrcset(homeHeroWebpSources, homeHeroWidths);
 const homeHeroFullSrcset = homeHeroFullSources
   .map((source, index) => `${source.src} ${homeHeroFullWidths[index]}w`)
@@ -90,8 +87,10 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
         <picture>
           <source
             data-home-hero-source
-            type="image/avif"
-            data-light-srcset={homeHeroAvifSrcset}
+            type="image/webp"
+            data-light-type="image/webp"
+            data-light-srcset={homeHeroWebpSrcset}
+            data-dark-type="image/avif"
             data-dark-srcset={homeHeroDarkAvifSrcset}
             sizes="(min-width: 1688px) 1440px, (min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
           />
@@ -112,6 +111,24 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
             fetchpriority="high"
           />
         </picture>
+        <script is:inline>
+          (() => {
+            const frame = document.currentScript?.parentElement;
+            const source = frame?.querySelector('[data-home-hero-source]');
+            const photo = frame?.querySelector('[data-home-hero-photo]');
+            if (!(source instanceof HTMLSourceElement) || !(photo instanceof HTMLImageElement)) return;
+            const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+            const sourceType = source.getAttribute(`data-${theme}-type`);
+            const sourceSrcset = source.getAttribute(`data-${theme}-srcset`);
+            const photoSrcset = photo.getAttribute(`data-${theme}-srcset`);
+            const photoSrc = photo.getAttribute(`data-${theme}-src`);
+            if (!sourceType || !sourceSrcset || !photoSrcset || !photoSrc) return;
+            source.type = sourceType;
+            source.srcset = sourceSrcset;
+            photo.srcset = photoSrcset;
+            photo.src = photoSrc;
+          })();
+        </script>
       </div>
       <div class="cover-photo-overlay" aria-hidden="true"></div>
       <div class="cover-copy">
@@ -121,19 +138,11 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       </div>
       <span class="sr-only" id="home-cover-description">展开后完整展示主页壁纸，可点击箭头、使用桌面滚轮、按 Escape 或向下滑动收回。</span>
       <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
-      <svg class="cover-waves" viewBox="0 0 192 64" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <path
-            id="home-gentle-wave"
-            d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z"
-          />
-        </defs>
-        <g class="cover-wave-parallax">
-          <use class="cover-wave-layer cover-wave-layer-back" href="#home-gentle-wave" y="0" />
-          <use class="cover-wave-layer cover-wave-layer-middle" href="#home-gentle-wave" y="6" />
-          <use class="cover-wave-layer cover-wave-layer-front" href="#home-gentle-wave" y="12" />
-        </g>
-      </svg>
+      <div class="cover-waves" aria-hidden="true">
+        <svg class="cover-wave-layer cover-wave-layer-back" viewBox="0 0 192 64" preserveAspectRatio="none"><path d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z" /></svg>
+        <svg class="cover-wave-layer cover-wave-layer-middle" viewBox="0 0 192 64" preserveAspectRatio="none"><path transform="translate(0 6)" d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z" /></svg>
+        <svg class="cover-wave-layer cover-wave-layer-front" viewBox="0 0 192 64" preserveAspectRatio="none"><path transform="translate(0 12)" d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z" /></svg>
+      </div>
       </section>
       <div class="cover-full-stage" data-home-cover-stage aria-hidden="true">
         <img
@@ -433,11 +442,20 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     bottom: -1px;
     left: 0;
     display: block;
+    overflow: hidden;
     width: 100%;
     height: clamp(64px, 13dvh, 150px);
     pointer-events: none;
   }
   .cover-wave-layer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -96px;
+    width: calc(100% + 192px);
+    height: 100%;
+    contain: paint;
+    backface-visibility: hidden;
     transform-origin: center;
     animation-name: cover-wave-drift;
     animation-timing-function: linear;
@@ -614,6 +632,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .cover-copy h1 { font-size: 30px; letter-spacing: .02em; }
     .cover-copy > p:last-child { font-size: 14px; line-height: 1.7; }
     .cover-waves { height: clamp(56px, 12dvh, 96px); }
+    .cover-expand-toggle { background: rgba(8, 12, 14, .58); backdrop-filter: none; -webkit-backdrop-filter: none; }
     .home-content-layout { width: calc(100% - 32px); margin-top: 28px; }
     .recent-section { padding-bottom: 48px; }
     .home-info-strip { padding-top: 48px; }

@@ -69,4 +69,46 @@ const cards = [
   }
 </style>
 
-<script src="../../scripts/public-status"></script>
+<script>
+  let cleanupPublicStatusLoader: (() => void) | undefined;
+
+  function initPublicStatusLoader() {
+    const root = document.querySelector<HTMLElement>('[data-public-status]');
+    if (!root || root.dataset.loaderBound === 'true') return;
+    cleanupPublicStatusLoader?.();
+    root.dataset.loaderBound = 'true';
+    const statusBlock = root.closest<HTMLElement>('.status-block');
+    const refreshButton = statusBlock?.querySelector<HTMLButtonElement>('[data-public-status-refresh]');
+    let runtimePromise: Promise<unknown> | undefined;
+    const requestRuntime = () => {
+      if (runtimePromise) return runtimePromise;
+      root.dataset.runtimeRequested = 'true';
+      observer?.disconnect();
+      runtimePromise = import('../../scripts/public-status');
+      return runtimePromise;
+    };
+    const handleRefresh = async (event: Event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      await requestRuntime();
+      refreshButton?.click();
+    };
+    const observer = 'IntersectionObserver' in window
+      ? new IntersectionObserver((entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) requestRuntime();
+        }, { rootMargin: '240px 0px' })
+      : undefined;
+    observer?.observe(root);
+    statusBlock?.addEventListener('pointerenter', requestRuntime, { once: true, passive: true });
+    statusBlock?.addEventListener('focusin', requestRuntime, { once: true });
+    refreshButton?.addEventListener('click', handleRefresh, { capture: true, once: true });
+    cleanupPublicStatusLoader = () => {
+      observer?.disconnect();
+      refreshButton?.removeEventListener('click', handleRefresh, { capture: true });
+    };
+  }
+
+  initPublicStatusLoader();
+  document.addEventListener('astro:page-load', initPublicStatusLoader);
+  document.addEventListener('astro:before-swap', () => cleanupPublicStatusLoader?.());
+</script>
