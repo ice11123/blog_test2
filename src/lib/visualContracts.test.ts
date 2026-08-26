@@ -42,9 +42,12 @@ test('全局动效令牌与降低动态契约保持稳定', () => {
 
   const home = readSource('pages/index.astro');
   assert.match(home, /\.cover-wave-layer\s*\{\s*animation:\s*none/);
-  assert.equal((home.match(/<svg class="cover-wave-layer/g) ?? []).length, 3);
-  assert.doesNotMatch(home, /<use class="cover-wave-layer/);
-  assert.match(home, /\.cover-wave-layer\s*\{[\s\S]*contain:\s*paint/);
+  assert.equal((home.match(/<svg class="cover-waves"/g) ?? []).length, 1);
+  assert.equal((home.match(/<use class="cover-wave-layer/g) ?? []).length, 3);
+  assert.match(home, /<defs>[\s\S]*id="home-gentle-wave"[\s\S]*<\/defs>/);
+  assert.match(home, /<g class="cover-wave-parallax">[\s\S]*<\/g>/);
+  assert.doesNotMatch(home, /<svg class="cover-wave-layer/);
+  assert.doesNotMatch(home, /\.cover-wave-layer\s*\{[\s\S]*contain:\s*paint/);
   assert.match(home, /cover-wave-layer-back[\s\S]*animation-duration:\s*12s/);
   assert.match(home, /cover-wave-layer-middle[\s\S]*animation-duration:\s*7s/);
   assert.match(home, /cover-wave-layer-front[\s\S]*animation-duration:\s*4s/);
@@ -143,7 +146,7 @@ test('顶部栏背景全宽且导航内容保持居中约束', () => {
   assert.match(header, /\.site-nav\s*\{[^}]*width:\s*min\(1200px,\s*calc\(100%\s*-\s*48px\)\)[^}]*margin:\s*0 auto/);
   assert.doesNotMatch(header, /header\s*\{[^}]*width:\s*min\(1200px/);
   assert.doesNotMatch(globalStyles, /scrollbar-gutter:\s*stable both-edges/);
-  assert.match(header, /@media\s*\(max-width:\s*999px\)[\s\S]*header\s*\{[\s\S]*backdrop-filter:\s*none/);
+  assert.doesNotMatch(header, /@media\s*\(max-width:\s*999px\)[\s\S]*header\s*\{[\s\S]*backdrop-filter:\s*none/);
 });
 
 test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
@@ -221,6 +224,7 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(home, /document\.currentScript/);
   assert.match(home, /fetchpriority="high"/);
   assert.doesNotMatch(home, /homeHeroAvifSources/);
+  assert.doesNotMatch(home, /\.cover-expand-toggle\s*\{[^}]*backdrop-filter:\s*none/);
   assert.match(home, /data-full-srcset/);
   assert.match(home, /\.cover-full-stage::after/);
   assert.match(home, /\.cover-full-stage\s*>\s*:global\(\.cover-full-photo\)[\s\S]*height:\s*100%/);

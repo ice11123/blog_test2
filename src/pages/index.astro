@@ -138,11 +138,19 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       </div>
       <span class="sr-only" id="home-cover-description">展开后完整展示主页壁纸，可点击箭头、使用桌面滚轮、按 Escape 或向下滑动收回。</span>
       <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
-      <div class="cover-waves" aria-hidden="true">
-        <svg class="cover-wave-layer cover-wave-layer-back" viewBox="0 0 192 64" preserveAspectRatio="none"><path d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z" /></svg>
-        <svg class="cover-wave-layer cover-wave-layer-middle" viewBox="0 0 192 64" preserveAspectRatio="none"><path transform="translate(0 6)" d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z" /></svg>
-        <svg class="cover-wave-layer cover-wave-layer-front" viewBox="0 0 192 64" preserveAspectRatio="none"><path transform="translate(0 12)" d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z" /></svg>
-      </div>
+      <svg class="cover-waves" viewBox="0 0 192 64" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <path
+            id="home-gentle-wave"
+            d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z"
+          />
+        </defs>
+        <g class="cover-wave-parallax">
+          <use class="cover-wave-layer cover-wave-layer-back" href="#home-gentle-wave" y="0" />
+          <use class="cover-wave-layer cover-wave-layer-middle" href="#home-gentle-wave" y="6" />
+          <use class="cover-wave-layer cover-wave-layer-front" href="#home-gentle-wave" y="12" />
+        </g>
+      </svg>
       </section>
       <div class="cover-full-stage" data-home-cover-stage aria-hidden="true">
         <img
@@ -442,20 +450,11 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     bottom: -1px;
     left: 0;
     display: block;
-    overflow: hidden;
     width: 100%;
     height: clamp(64px, 13dvh, 150px);
     pointer-events: none;
   }
   .cover-wave-layer {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -96px;
-    width: calc(100% + 192px);
-    height: 100%;
-    contain: paint;
-    backface-visibility: hidden;
     transform-origin: center;
     animation-name: cover-wave-drift;
     animation-timing-function: linear;
@@ -632,7 +631,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .cover-copy h1 { font-size: 30px; letter-spacing: .02em; }
     .cover-copy > p:last-child { font-size: 14px; line-height: 1.7; }
     .cover-waves { height: clamp(56px, 12dvh, 96px); }
-    .cover-expand-toggle { background: rgba(8, 12, 14, .58); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .cover-expand-toggle { background: rgba(8, 12, 14, .58); }
     .home-content-layout { width: calc(100% - 32px); margin-top: 28px; }
     .recent-section { padding-bottom: 48px; }
     .home-info-strip { padding-top: 48px; }
