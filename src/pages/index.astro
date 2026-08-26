@@ -138,19 +138,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       </div>
       <span class="sr-only" id="home-cover-description">展开后完整展示主页壁纸，可点击箭头、使用桌面滚轮、按 Escape 或向下滑动收回。</span>
       <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
-      <svg class="cover-waves" viewBox="0 0 192 64" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <path
-            id="home-gentle-wave"
-            d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z"
-          />
-        </defs>
-        <g class="cover-wave-parallax">
-          <use class="cover-wave-layer cover-wave-layer-back" href="#home-gentle-wave" y="0" />
-          <use class="cover-wave-layer cover-wave-layer-middle" href="#home-gentle-wave" y="6" />
-          <use class="cover-wave-layer cover-wave-layer-front" href="#home-gentle-wave" y="12" />
-        </g>
-      </svg>
       </section>
       <div class="cover-full-stage" data-home-cover-stage aria-hidden="true">
         <img
@@ -189,9 +176,22 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       <span class="sr-only" role="status" aria-live="polite" data-home-cover-status></span>
     </div>
 
-    <div class="home-content-layout">
+    <div class="home-drawer" data-home-lower-motion>
+      <svg class="cover-waves" viewBox="0 0 192 64" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <path
+            id="home-gentle-wave"
+            d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z"
+          />
+        </defs>
+        <g class="cover-wave-parallax">
+          <use class="cover-wave-layer cover-wave-layer-back" href="#home-gentle-wave" y="0" />
+          <use class="cover-wave-layer cover-wave-layer-middle" href="#home-gentle-wave" y="6" />
+          <use class="cover-wave-layer cover-wave-layer-front" href="#home-gentle-wave" y="12" />
+        </g>
+      </svg>
+      <div class="home-content-layout">
       <div class="home-main-column">
-    <div class="home-lower-motion-shell" data-home-lower-motion>
     <section class="recent-section" aria-labelledby="recent-title">
       <header class="section-heading">
         <div>
@@ -247,7 +247,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
         </div>
       )}
     </section>
-    </div>
 
     <section class="home-info-strip" aria-labelledby="site-info-title">
       <header class="info-strip-heading">
@@ -306,6 +305,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     </section>
       </div>
     </div>
+    </div>
   </div>
   <script src="../scripts/home-hero-motion.ts"></script>
 </PublicLayout>
@@ -326,7 +326,6 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     place-items: center;
     min-height: clamp(540px, 42vw, 660px);
     overflow: hidden;
-    isolation: isolate;
     color: #fff;
     background: var(--cover-start);
   }
@@ -375,7 +374,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
       linear-gradient(180deg, rgba(0, 0, 0, .08) 30%, rgba(0, 0, 0, .4) 100%);
   }
   :global([data-theme='dark']) .cover-photo-frame :global(.cover-photo) { object-position: 62% 52%; }
-  .cover-copy { position: relative; z-index: 2; width: min(780px, calc(100% - 64px)); box-sizing: border-box; margin-right: auto; padding: 32px 24px 108px max(48px, 8vw); text-align: left; text-shadow: 0 3px 24px rgba(12, 4, 18, .58); }
+  .cover-copy { position: relative; z-index: 901; width: min(780px, calc(100% - 64px)); box-sizing: border-box; margin-right: auto; padding: 32px 24px 108px max(48px, 8vw); text-align: left; text-shadow: 0 3px 24px rgba(12, 4, 18, .58); }
   .home-eyebrow, .section-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
   .cover-copy .home-eyebrow { color: rgba(255,255,255,.78); }
   .cover-copy h1 { margin: 0; color: #fff; font-size: 48px; line-height: 1.2; letter-spacing: .08em; }
@@ -392,21 +391,21 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     visibility: hidden;
     overflow: hidden;
     place-items: center;
-    opacity: 0;
     pointer-events: none;
     background: #0a0d0d var(--home-cover-lqip) center / cover no-repeat;
-    transform-origin: 0 0;
+    clip-path: inset(0);
   }
   .cover-full-stage > :global(.cover-full-photo) {
-    position: relative;
+    position: absolute;
     z-index: 0;
     display: block;
-    width: 100%;
+    top: 0;
+    left: 0;
+    width: auto;
     max-width: none;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
+    height: auto;
     border-radius: 0;
+    transform-origin: 0 0;
   }
   .cover-expand-toggle {
     position: absolute;
@@ -447,7 +446,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     position: absolute;
     z-index: 3;
     right: 0;
-    bottom: -1px;
+    bottom: calc(100% - 1px);
     left: 0;
     display: block;
     width: 100%;
@@ -478,7 +477,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     animation-duration: 4s;
     animation-delay: -4s;
   }
-  .home-cover[data-waves-visible='true'] .cover-wave-layer {
+  .home-drawer[data-waves-visible='true'] .cover-wave-layer {
     animation-play-state: running;
     will-change: transform;
   }
@@ -503,7 +502,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     top: var(--site-header-height, 81px);
     left: var(--home-cover-stage-center, 50vw);
   }
-  :global(html[data-home-cover-motion-active='true']) .home-content-layout {
+  :global(html[data-home-cover-motion-active='true']) .home-drawer {
     position: relative;
     z-index: 910;
     pointer-events: none;
@@ -512,7 +511,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   :global(html[data-home-cover-expanded='true'] [data-persistent-sidebar]) {
     z-index: 910;
   }
-  .home-cover-shell[data-state='expanded'] .cover-full-stage { opacity: 1; transform: translate3d(0, 0, 0) scale(1, 1); }
+  .home-cover-shell[data-state='expanded'] .cover-full-stage { clip-path: inset(0); }
   .home-cover-shell[data-state='expanded'] .home-cover { visibility: hidden; }
   .home-cover-shell[data-state='expanded'] .cover-expand-toggle {
     position: fixed;
@@ -523,7 +522,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
 
   .home-content-layout { position: relative; z-index: 4; width: min(1080px, calc(100% - 48px)); margin: 40px auto 0; }
   .home-main-column { min-width: 0; }
-  .home-lower-motion-shell { min-width: 0; }
+  .home-drawer { position: relative; z-index: 4; min-width: 0; background: var(--canvas); }
   .section-link:focus-visible, .home-post-link:focus-visible, .info-fold > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
   .recent-section { padding: 0 0 64px; border-bottom: 1px solid var(--border); }
