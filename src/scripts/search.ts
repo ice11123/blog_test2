@@ -88,6 +88,7 @@ function openModal(source: SearchOpenSource): void {
 
   modal.dataset.openSource = source;
   modal.showModal();
+  input.setAttribute('aria-expanded', 'true');
   input.focus({ preventScroll: true });
   void ensureFuse();
 
@@ -100,6 +101,9 @@ function openModal(source: SearchOpenSource): void {
 
 function closeModal(): void {
   const modal = getModal();
+  const input = getInput();
+  input?.setAttribute('aria-expanded', 'false');
+  input?.removeAttribute('aria-activedescendant');
   if (modal) modal.close();
 }
 
@@ -171,6 +175,7 @@ function renderResults(): void {
 
   if (!hasQuery) {
     list.innerHTML = '';
+    input?.removeAttribute('aria-activedescendant');
     return;
   }
 
@@ -197,7 +202,7 @@ function renderResults(): void {
 
         const cls = i === selectedIndex ? 'search-result-item selected' : 'search-result-item';
         return `
-        <li class="${cls}" data-index="${i}" role="option" aria-selected="${i === selectedIndex}">
+        <li id="search-result-${i}" class="${cls}" data-index="${i}" role="option" aria-selected="${i === selectedIndex}">
           <a href="${buildPostUrl(item.slug)}" class="search-result-link" data-index="${i}">
             <span class="search-result-title">${titleHtml}</span>
             ${categoryHtml ? `<span class="search-result-category">${categoryHtml}</span>` : ''}
@@ -206,6 +211,12 @@ function renderResults(): void {
         </li>`;
       })
       .join('');
+  }
+
+  if (selectedIndex >= 0 && results[selectedIndex]) {
+    input?.setAttribute('aria-activedescendant', `search-result-${selectedIndex}`);
+  } else {
+    input?.removeAttribute('aria-activedescendant');
   }
 }
 

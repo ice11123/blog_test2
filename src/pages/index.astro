@@ -69,6 +69,7 @@ const recentPosts = allPosts
 const stats = computeSiteStats(allPosts);
 const { repoLanguages, totalRepoLines } = getRepoLanguages();
 const maintenanceEntries = await parseMaintenance(maintenanceSource);
+const recentMaintenanceEntries = maintenanceEntries.slice(0, 5);
 ---
 
 <PublicLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
@@ -288,12 +289,15 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
         <details class="info-fold maintenance-fold" open>
           <summary><span>03</span><strong>近期维护公告</strong><small>查看最近的功能调整与修复</small></summary>
           <div class="maintenance-list">
-            {maintenanceEntries.map((entry, index) => (
+            {recentMaintenanceEntries.map((entry, index) => (
               <details class="maintenance-entry" open={index === 0}>
                 <summary><time datetime={entry.date}>{entry.date}</time><span>{entry.title}</span></summary>
                 <div class="maintenance-body" set:html={entry.html}></div>
               </details>
             ))}
+            {maintenanceEntries.length > recentMaintenanceEntries.length && (
+              <a class="maintenance-archive-link" href={withBase('/maintenance/')}>查看全部 {maintenanceEntries.length} 条维护记录 →</a>
+            )}
           </div>
         </details>
 
@@ -601,6 +605,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .maintenance-entry > summary span { color: var(--text-primary); font-size: 14px; font-weight: 650; }
   .maintenance-body { padding: 0 0 16px 106px; color: var(--text-secondary); font-size: 14px; line-height: 1.65; }
   .maintenance-body :global(p), .maintenance-body :global(ul) { margin: 8px 0 0; }
+  .maintenance-archive-link { display: inline-flex; margin: 14px 0 0 106px; color: var(--accent); font-size: 13px; font-weight: 650; text-decoration: none; }
   .contribution-content { padding: 0 0 32px 48px; }
   .contribution-content :global(.gh-contributions) { width: 100%; max-width: none; margin: 0; padding: 0; background: transparent; border: 0; border-radius: 0; }
   .contribution-content :global(.gh-contributions > .stat-label) { display: none; }
@@ -661,7 +666,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
     .info-fold > summary small { display: none; }
     .maintenance-list, .contribution-content { padding-left: 0; }
     .maintenance-entry > summary { grid-template-columns: 76px minmax(0, 1fr); gap: 12px; }
-    .maintenance-body { padding-left: 0; }
+    .maintenance-body, .maintenance-archive-link { margin-left: 0; padding-left: 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {

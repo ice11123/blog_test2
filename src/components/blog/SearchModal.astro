@@ -20,12 +20,16 @@ const searchData = await getSearchData();
         placeholder="搜索文章..."
         autocomplete="off"
         aria-label="搜索文章"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="search-results"
+        aria-expanded="false"
       />
       <button id="search-close-btn" class="search-close-btn" aria-label="关闭搜索" type="button">
         <Icon name="close" />
       </button>
     </div>
-    <ul id="search-results" class="search-results" role="listbox" aria-label="搜索结果">
+    <ul id="search-results" class="search-results" role="listbox" aria-label="搜索结果" aria-live="polite">
     </ul>
   </div>
 </dialog>

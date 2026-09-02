@@ -168,7 +168,7 @@ async function fetchPublicStatus(env) {
       url: typeof run.html_url === 'string' ? run.html_url : null,
     };
   } catch {
-    deployment = { status: 'failure', updatedAt: null, url: null };
+    deployment = { status: 'unavailable', updatedAt: null, url: null };
   }
 
   return {
@@ -202,7 +202,7 @@ function publicStatusFailure(env) {
       headSha: null,
       commitUrl: null,
     },
-    deployment: { status: 'failure', updatedAt: null, url: null },
+    deployment: { status: 'unavailable', updatedAt: null, url: null },
   };
 }
 
@@ -216,7 +216,7 @@ async function adminStatus(request, env) {
   } catch {
     repositoryOk = false;
   }
-  let deployment = { status: repositoryOk ? 'unknown' : 'failure', githubStatus: '', conclusion: null, updatedAt: null, url: null };
+  let deployment = { status: repositoryOk ? 'unknown' : 'unavailable', githubStatus: '', conclusion: null, updatedAt: null, url: null };
   if (repositoryOk) {
     try {
       const runs = await githubFetch(`/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/actions/workflows/deploy.yml/runs`, token, {
@@ -231,7 +231,7 @@ async function adminStatus(request, env) {
         url: typeof run.html_url === 'string' ? run.html_url : null,
       };
     } catch {
-      deployment = { status: 'failure', githubStatus: '', conclusion: null, updatedAt: null, url: null };
+      deployment = { status: 'unavailable', githubStatus: '', conclusion: null, updatedAt: null, url: null };
     }
   }
 

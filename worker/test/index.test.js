@@ -88,6 +88,25 @@ test('public status 无需管理员 Cookie 且返回脱敏仓库和部署状态'
   } finally { globalThis.fetch = originalFetch; }
 });
 
+test('public status 无法读取部署记录时标记 unavailable 而非部署失败', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const target = String(url);
+    if (target.includes('/git/ref/heads/main')) return Response.json({ object: { sha: 'abcdef0123456789' } });
+    if (target.includes('/actions/workflows/deploy.yml/runs')) return new Response('upstream unavailable', { status: 503 });
+    return new Response('not found', { status: 404 });
+  };
+  try {
+    const cache = new Map();
+    const publicEnv = { ...env, SESSIONS: { get: async (key) => cache.get(key) || null, put: async (key, value) => cache.set(key, value) } };
+    const response = await worker.fetch(new Request('https://worker.test/api/public-status', { headers: { Origin: env.ALLOWED_ORIGIN } }), publicEnv);
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.repository.ok, true);
+    assert.equal(body.deployment.status, 'unavailable');
+  } finally { globalThis.fetch = originalFetch; }
+});
+
 test('public status 拒绝非法 Origin', async () => {
   const response = await worker.fetch(new Request('https://worker.test/api/public-status', { headers: { Origin: 'https://evil.example' } }), env);
   assert.equal(response.status, 403);
@@ -181,7 +200,24 @@ test('api/status 将进行中的部署归类为 pending', async () => {
   } finally { globalThis.fetch = originalFetch; }
 });
 
-test('api/status 仓库失败时仍返回可展示的安全状态', async () => {
+test('api/status 无法读取部署记录时标记 unavailable 而非部署失败', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const target = String(url);
+    if (target.includes('/git/ref/heads/main')) return Response.json({ object: { sha: 'head-sha' } });
+    if (target.includes('/actions/workflows/deploy.yml/runs')) return new Response('upstream unavailable', { status: 503 });
+    return new Response('not found', { status: 404 });
+  };
+  try {
+    const tokenCipher = await encryptSecret('github-token', env.SESSION_SECRET);
+    const sessionEnv = { ...env, SESSIONS: { get: async () => JSON.stringify({ tokenCipher, login: env.GITHUB_OWNER, csrfToken: 'csrf-ok' }), put: async () => {} } };
+    const response = await worker.fetch(new Request('https://worker.test/api/status', { headers: { Origin: env.ALLOWED_ORIGIN, Cookie: 'blog_session=session-id' } }), sessionEnv);
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).deployment.status, 'unavailable');
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test('api/status 仓库失败时将部署状态标记为 unavailable', async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response('upstream failed', { status: 500 });
   try {
@@ -192,7 +228,7 @@ test('api/status 仓库失败时仍返回可展示的安全状态', async () => 
     const body = await response.json();
     assert.equal(body.repository.ok, false);
     assert.equal(body.repository.headSha, null);
-    assert.equal(body.deployment.status, 'failure');
+    assert.equal(body.deployment.status, 'unavailable');
     assert.doesNotMatch(JSON.stringify(body), /upstream failed|github-token/);
   } finally { globalThis.fetch = originalFetch; }
 });

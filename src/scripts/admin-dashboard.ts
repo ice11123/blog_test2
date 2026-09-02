@@ -1,5 +1,5 @@
 // @ts-nocheck -- 管理台依赖构建时注入的数据和浏览器 DOM，所有入口均做运行时保护。
-import { LocalStorageDraftStore, draftToMarkdown, slugifyAdminId } from '../lib/adminDrafts';
+import { DraftStorageError, LocalStorageDraftStore, draftToMarkdown, slugifyAdminId } from '../lib/adminDrafts';
 import { renderPreview, renderPreviewMermaid } from '../lib/adminPreview';
 
 const ADMIN_UNLOCK_STORAGE_KEY = 'blog-test2-admin-unlocked';
@@ -9,8 +9,7 @@ const PENDING_CLOUD_DELETE_KEY = 'blog-test2-pending-cloud-delete-v1';
 const LEGACY_ADMIN_SESSION_KEY = 'blog-test2-cloud-session-v1';
 const REQUEST_TIMEOUT_MS = 15_000;
 
-const app = document.querySelector('#admin-app');
-if (!app) throw new Error('Admin app root is missing');
+export function mountAdminDashboard(app) {
 const CLOUD_PUBLISH_ENABLED = app.getAttribute('data-publish-enabled') === 'true';
 
 const initialDrafts = JSON.parse(app.getAttribute('data-initial-drafts') || '[]');
@@ -35,6 +34,30 @@ let previewTimer;
 let editedAt = '';
 let csrfToken = '';
 let treeState = readTreeState();
+let disposed = false;
+const eventController = new AbortController();
+const requestControllers = new Set();
+
+function listen(target, type, listener, options = {}) {
+  if (!target) return;
+  const normalizedOptions = typeof options === 'boolean' ? { capture: options } : options;
+  target.addEventListener(type, listener, { ...normalizedOptions, signal: eventController.signal });
+}
+
+async function request(input, init = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(new DOMException('请求超时', 'TimeoutError')), REQUEST_TIMEOUT_MS);
+  const abortRequest = () => controller.abort(eventController.signal.reason);
+  requestControllers.add(controller);
+  eventController.signal.addEventListener('abort', abortRequest, { once: true });
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+    eventController.signal.removeEventListener('abort', abortRequest);
+    requestControllers.delete(controller);
+  }
+}
 
 function endpoint() {
   return (app.getAttribute('data-sync-endpoint') || '').replace(/\/$/, '');
@@ -55,11 +78,11 @@ function readDrafts() {
 }
 
 function saveDraft(post) {
-  draftStore.save(normalizePublishedPath(post));
+  return draftStore.save(normalizePublishedPath(post));
 }
 
 function resetDrafts() {
-  draftStore.reset();
+  return draftStore.reset();
 }
 
 function readTreeState() {
@@ -81,10 +104,17 @@ function saveTreeState() {
 }
 
 function setStatus(text) {
-  if (statusText) statusText.textContent = text;
+  if (!disposed && statusText) statusText.textContent = text;
+}
+
+function setStorageFailureStatus(action, error) {
+  const detail = error instanceof DraftStorageError ? error.message : '本地存储发生未知错误';
+  setStatus(`${action}失败：${detail}`);
+  setCard('storage', 'error', '本地存储不可用', detail);
 }
 
 function setCard(name, state, value, detail = '', link = '') {
+  if (disposed) return;
   const card = app.querySelector(`[data-system-card="${name}"]`);
   if (!card) return;
   card.dataset.state = state;
@@ -97,10 +127,6 @@ function setCard(name, state, value, detail = '', link = '') {
     if (link) { anchor.href = link; anchor.hidden = false; }
     else { anchor.removeAttribute('href'); anchor.hidden = true; }
   }
-}
-
-function timeoutSignal() {
-  return AbortSignal.timeout(REQUEST_TIMEOUT_MS);
 }
 
 async function checkBasicStatus() {
@@ -122,7 +148,7 @@ async function checkBasicStatus() {
   }
   setCard('worker', 'checking', '正在检测 Worker', '检查运行环境与 KV 连接');
   try {
-    const response = await fetch(`${api}/health`, { credentials: 'include', signal: timeoutSignal() });
+    const response = await request(`${api}/health`, { credentials: 'include' });
     const body = await response.json().catch(() => ({}));
     if (!response.ok || body.ok !== true) throw new Error('health failed');
     setCard('worker', 'ok', 'Worker 与 KV 正常', `检测于 ${formatTime(body.checkedAt)}`);
@@ -147,7 +173,7 @@ async function checkFullStatus() {
   setCard('repository', 'checking', '正在读取实验仓库', '目标：ice11123/blog_test2 main');
   setCard('deployment', 'checking', '正在读取部署', '检查最近一次 Pages Actions');
   try {
-    const me = await fetch(`${api}/auth/me`, { credentials: 'include', signal: timeoutSignal() });
+    const me = await request(`${api}/auth/me`, { credentials: 'include' });
     if (me.status === 401) {
       csrfToken = '';
       setCard('github', 'waiting', '尚未授权或会话已过期', '发布时会跳转 GitHub 授权');
@@ -160,7 +186,7 @@ async function checkFullStatus() {
     csrfToken = meBody.csrfToken || '';
     setCard('github', 'ok', `已授权 ${meBody.login}`, 'HttpOnly 会话有效');
 
-    const response = await fetch(`${api}/api/status`, { credentials: 'include', signal: timeoutSignal() });
+    const response = await request(`${api}/api/status`, { credentials: 'include' });
     const body = await response.json().catch(() => ({}));
     if (!response.ok || body.ok !== true) throw new Error('status failed');
     if (!body.repository?.ok) {
@@ -175,13 +201,19 @@ async function checkFullStatus() {
       setCard('deployment', 'ok', '最近部署成功', formatTime(body.deployment.updatedAt), body.deployment.url || '');
     } else if (deploymentState === 'failure') {
       setCard('deployment', 'error', '最近部署失败', formatTime(body.deployment.updatedAt), body.deployment.url || '');
+    } else if (deploymentState === 'pending') {
+      setCard('deployment', 'waiting', '正在构建或排队', formatTime(body.deployment?.updatedAt), body.deployment?.url || '');
+    } else if (deploymentState === 'unavailable') {
+      setCard('deployment', 'waiting', '部署状态暂未确认', '暂时无法读取 Pages Actions，不代表部署失败');
     } else {
-      setCard('deployment', 'waiting', deploymentState === 'pending' ? '正在构建或排队' : '暂无部署记录', formatTime(body.deployment?.updatedAt), body.deployment?.url || '');
+      setCard('deployment', 'waiting', '暂无部署记录', formatTime(body.deployment?.updatedAt), body.deployment?.url || '');
     }
-  } catch {
-    setCard('github', 'error', '授权状态异常', '会话响应不符合预期');
-    setCard('repository', 'error', '仓库连接失败', '无法读取 main 分支');
-    setCard('deployment', 'error', '部署状态不可用', '无法读取 Pages Actions');
+  } catch (error) {
+    const unavailable = error instanceof DOMException && ['AbortError', 'TimeoutError'].includes(error.name);
+    const state = unavailable ? 'waiting' : 'error';
+    setCard('github', state, unavailable ? '授权状态暂未确认' : '授权状态异常', unavailable ? '网络请求超时，请稍后重试' : '会话响应不符合预期');
+    setCard('repository', state, unavailable ? '仓库状态暂未确认' : '仓库连接失败', unavailable ? '网络请求超时，不代表仓库异常' : '无法读取 main 分支');
+    setCard('deployment', 'waiting', '部署状态暂未确认', '暂时无法读取 Pages Actions，不代表部署失败');
   }
 }
 
@@ -261,7 +293,7 @@ function updatePreview() {
   try {
     preview.innerHTML = renderPreview(body.value);
     void renderPreviewMermaid(preview as HTMLElement).finally(() => {
-      if (previewStatus) previewStatus.textContent = `已更新于 ${formatTime(new Date().toISOString())}`;
+      if (!disposed && previewStatus) previewStatus.textContent = `已更新于 ${formatTime(new Date().toISOString())}`;
     });
   } catch {
     preview.innerHTML = '<p class="preview-render-error">预览暂时无法生成，请检查正文格式。</p>';
@@ -367,13 +399,13 @@ function renderTree() {
   app.querySelector('[data-tree-mode-toggle]')?.classList.toggle('tag-mode', treeState.mode === 'tag');
   const search = app.querySelector('[data-search]');
   if (search && search.value !== treeState.query) search.value = treeState.query;
-  tree.querySelectorAll('[data-node-key]').forEach((button) => button.addEventListener('click', () => {
+  tree.querySelectorAll('[data-node-key]').forEach((button) => listen(button, 'click', () => {
     const key = button.getAttribute('data-node-key');
     treeState.expanded = treeState.expanded.includes(key) ? treeState.expanded.filter((item) => item !== key) : [...treeState.expanded, key];
     saveTreeState();
     renderTree();
   }));
-  tree.querySelectorAll('[data-post-id]').forEach((button) => button.addEventListener('click', () => {
+  tree.querySelectorAll('[data-post-id]').forEach((button) => listen(button, 'click', () => {
     selectedId = button.getAttribute('data-post-id') || '';
     loadForm();
     renderTree();
@@ -385,13 +417,17 @@ function renderTree() {
 
 function save() {
   const post = collect();
-  saveDraft(post);
-  drafts = readDrafts();
-  selectedId = post.id;
-  renderTree();
-  loadForm();
-  setStatus('已保存到本浏览器');
-  void checkBasicStatus();
+  try {
+    saveDraft(post);
+    drafts = readDrafts();
+    selectedId = post.id;
+    renderTree();
+    loadForm();
+    setStatus('已保存到本浏览器');
+    void checkBasicStatus();
+  } catch (error) {
+    setStorageFailureStatus('保存草稿', error);
+  }
 }
 
 function authHeaders() {
@@ -406,7 +442,7 @@ async function publishPost(post, button) {
   if (button) button.disabled = true;
   setStatus('正在发布…');
   try {
-    const response = await fetch(`${api}/api/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, credentials: 'include', body: JSON.stringify({ post }) });
+    const response = await request(`${api}/api/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, credentials: 'include', body: JSON.stringify({ post }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result?.message || `HTTP ${response.status}`);
     localStorage.removeItem(PENDING_CLOUD_PUBLISH_KEY);
@@ -446,10 +482,15 @@ async function deleteRemotePost(post, button) {
       setStatus('云端发布未启用，正式文章不可删除');
       return false;
     }
-    removeLocalPost(post.id);
-    setStatus(post.publishedPath ? '已放弃本地修改并恢复仓库版本' : '已删除本地草稿');
-    await checkBasicStatus();
-    return true;
+    try {
+      removeLocalPost(post.id);
+      setStatus(post.publishedPath ? '已放弃本地修改并恢复仓库版本' : '已删除本地草稿');
+      await checkBasicStatus();
+      return true;
+    } catch (error) {
+      setStorageFailureStatus(post.publishedPath ? '放弃本地修改' : '删除草稿', error);
+      return false;
+    }
   }
   const api = endpoint();
   if (!api) {
@@ -457,14 +498,19 @@ async function deleteRemotePost(post, button) {
     return false;
   }
   if (!post.publishedPath) {
-    removeLocalPost(post.id);
-    setStatus('已删除本地草稿');
-    await checkBasicStatus();
-    return true;
+      try {
+        removeLocalPost(post.id);
+        setStatus('已删除本地草稿');
+        await checkBasicStatus();
+        return true;
+      } catch (error) {
+        setStorageFailureStatus('删除草稿', error);
+        return false;
+      }
   }
   if (button) button.disabled = true;
   try {
-    const me = await fetch(`${api}/auth/me`, { credentials: 'include' });
+    const me = await request(`${api}/auth/me`, { credentials: 'include' });
     if (!me.ok) {
       localStorage.setItem(PENDING_CLOUD_DELETE_KEY, JSON.stringify(post));
       window.location.href = `${api}/auth/github`;
@@ -473,7 +519,7 @@ async function deleteRemotePost(post, button) {
     const auth = await me.json().catch(() => ({}));
     csrfToken = auth?.csrfToken || '';
     if (!csrfToken) throw new Error('未获取到 CSRF token');
-    const response = await fetch(`${api}/api/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, credentials: 'include', body: JSON.stringify({ publishedPath: post.publishedPath, title: post.title }) });
+    const response = await request(`${api}/api/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, credentials: 'include', body: JSON.stringify({ publishedPath: post.publishedPath, title: post.title }) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result?.message || `HTTP ${response.status}`);
     localStorage.removeItem(PENDING_CLOUD_DELETE_KEY);
@@ -503,47 +549,55 @@ function closeDrawer() {
 }
 
 function bindEvents() {
-  form?.addEventListener('submit', (event) => { event.preventDefault(); save(); });
-  form?.addEventListener('input', queuePreviewUpdate);
-  app.querySelector('[data-search]')?.addEventListener('input', (event) => {
+  listen(form, 'submit', (event) => { event.preventDefault(); save(); });
+  listen(form, 'input', queuePreviewUpdate);
+  listen(app.querySelector('[data-search]'), 'input', (event) => {
     treeState.query = event.target.value;
     saveTreeState();
     renderTree();
   });
-  app.querySelectorAll('[data-tree-mode]').forEach((button) => button.addEventListener('click', () => {
+  app.querySelectorAll('[data-tree-mode]').forEach((button) => listen(button, 'click', () => {
     treeState.mode = button.dataset.treeMode;
     saveTreeState();
     renderTree();
   }));
-  treeScroll?.addEventListener('scroll', () => {
+  listen(treeScroll, 'scroll', () => {
     treeState.scrollTop = treeScroll.scrollTop;
     saveTreeState();
   }, { passive: true });
-  app.querySelector('[data-tree-open]')?.addEventListener('click', openDrawer);
-  app.querySelector('[data-tree-close]')?.addEventListener('click', closeDrawer);
-  drawerBackdrop?.addEventListener('click', closeDrawer);
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeDrawer(); });
-  app.querySelector('[data-status-refresh]')?.addEventListener('click', () => { void refreshSystemStatus(); });
-  app.querySelector('[data-new]')?.addEventListener('click', () => {
+  listen(app.querySelector('[data-tree-open]'), 'click', openDrawer);
+  listen(app.querySelector('[data-tree-close]'), 'click', closeDrawer);
+  listen(drawerBackdrop, 'click', closeDrawer);
+  listen(document, 'keydown', (event) => { if (event.key === 'Escape') closeDrawer(); });
+  listen(app.querySelector('[data-status-refresh]'), 'click', () => { void refreshSystemStatus(); });
+  listen(app.querySelector('[data-new]'), 'click', () => {
     const post = { id: slugifyAdminId('未命名文章'), title: '未命名文章', description: '', pubDate: new Date().toISOString().slice(0, 10), dir1: '', dir2: '', tags: [], body: '# 新文章\n\n在这里开始写作。', format: 'mdx' };
-    saveDraft(post);
-    drafts = readDrafts();
-    selectedId = post.id;
-    renderTree();
-    loadForm();
-    if (window.matchMedia('(max-width: 760px)').matches) openDrawer();
+    try {
+      saveDraft(post);
+      drafts = readDrafts();
+      selectedId = post.id;
+      renderTree();
+      loadForm();
+      if (window.matchMedia('(max-width: 760px)').matches) openDrawer();
+    } catch (error) {
+      setStorageFailureStatus('新建草稿', error);
+    }
   });
-  app.querySelector('[data-reset]')?.addEventListener('click', () => {
+  listen(app.querySelector('[data-reset]'), 'click', () => {
     if (!confirm('将清除本浏览器中的全部草稿并恢复仓库初始内容，继续吗？')) return;
-    resetDrafts();
-    drafts = readDrafts();
-    selectedId = drafts[0]?.id || '';
-    renderTree();
-    loadForm();
-    setStatus('已恢复初始内容');
-    void checkBasicStatus();
+    try {
+      resetDrafts();
+      drafts = readDrafts();
+      selectedId = drafts[0]?.id || '';
+      renderTree();
+      loadForm();
+      setStatus('已恢复初始内容');
+      void checkBasicStatus();
+    } catch (error) {
+      setStorageFailureStatus('恢复仓库内容', error);
+    }
   });
-  app.querySelector('[data-export]')?.addEventListener('click', () => {
+  listen(app.querySelector('[data-export]'), 'click', () => {
     const post = current();
     if (!post) return;
     const blob = new Blob([draftToMarkdown(collect())], { type: 'text/markdown;charset=utf-8' });
@@ -556,7 +610,7 @@ function bindEvents() {
     setStatus('已导出文件');
   });
   const deleteButton = app.querySelector('[data-delete]');
-  deleteButton?.addEventListener('click', () => {
+  listen(deleteButton, 'click', () => {
     const post = current();
     if (!post) return;
     const message = !CLOUD_PUBLISH_ENABLED && post.publishedPath
@@ -568,7 +622,7 @@ function bindEvents() {
     void deleteRemotePost(post, deleteButton);
   });
   const cloudPublishButton = app.querySelector('[data-cloud-publish]');
-  cloudPublishButton?.addEventListener('click', async () => {
+  listen(cloudPublishButton, 'click', async () => {
     if (!CLOUD_PUBLISH_ENABLED) { setStatus('视觉实验版已禁用云端发布，仅支持本地草稿与导出'); return; }
     const api = endpoint();
     if (!api) { setStatus('尚未配置云端 API'); return; }
@@ -576,7 +630,7 @@ function bindEvents() {
     if (!post.title.trim() || !post.pubDate) { setStatus('请先填写标题和发布日期'); return; }
     if (!confirm('确认通过云端提交当前文章并触发正式网站部署吗？')) return;
     try {
-      const me = await fetch(`${api}/auth/me`, { credentials: 'include' });
+      const me = await request(`${api}/auth/me`, { credentials: 'include' });
       if (!me.ok) {
         localStorage.setItem(PENDING_CLOUD_PUBLISH_KEY, JSON.stringify(post));
         window.location.href = `${api}/auth/github`;
@@ -597,7 +651,7 @@ async function initializeCloudSession() {
   localStorage.removeItem(LEGACY_ADMIN_SESSION_KEY);
   if (!endpoint() || !isUnlocked()) return;
   try {
-    const me = await fetch(`${endpoint()}/auth/me`, { credentials: 'include' });
+    const me = await request(`${endpoint()}/auth/me`, { credentials: 'include' });
     if (!me.ok) return;
     const auth = await me.json().catch(() => ({}));
     csrfToken = auth?.csrfToken || '';
@@ -628,3 +682,38 @@ function initialize() {
 }
 
 initialize();
+
+return () => {
+  if (disposed) return;
+  disposed = true;
+  eventController.abort(new DOMException('管理台已卸载', 'AbortError'));
+  requestControllers.forEach((controller) => controller.abort(new DOMException('管理台已卸载', 'AbortError')));
+  requestControllers.clear();
+  clearTimeout(previewTimer);
+  drawer?.classList.remove('open');
+  drawerBackdrop?.classList.remove('open');
+  document.body.classList.remove('admin-drawer-open');
+};
+}
+
+let mountedAdminDashboard = null;
+
+function mountCurrentAdminDashboard() {
+  const nextApp = document.querySelector('#admin-app');
+  if (mountedAdminDashboard?.app === nextApp) return;
+  mountedAdminDashboard?.dispose();
+  mountedAdminDashboard = nextApp
+    ? { app: nextApp, dispose: mountAdminDashboard(nextApp) }
+    : null;
+}
+
+function disposeCurrentAdminDashboard() {
+  mountedAdminDashboard?.dispose();
+  mountedAdminDashboard = null;
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('astro:page-load', mountCurrentAdminDashboard);
+  document.addEventListener('astro:before-swap', disposeCurrentAdminDashboard);
+  mountCurrentAdminDashboard();
+}

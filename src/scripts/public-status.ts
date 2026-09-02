@@ -157,7 +157,8 @@ function initPublicStatus(): void {
     if (deployment.status === 'success') setCard('deployment', stale ? 'waiting' : 'ok', '最近部署成功', formatTime(deployment.updatedAt), deployment.url || '');
     else if (deployment.status === 'pending') setCard('deployment', 'waiting', '正在构建或排队', formatTime(deployment.updatedAt), deployment.url || '');
     else if (deployment.status === 'unknown') setCard('deployment', 'waiting', '暂无部署记录', formatTime(deployment.updatedAt));
-    else setCard('deployment', 'error', '最近部署失败', formatTime(deployment.updatedAt), deployment.url || '');
+    else if (deployment.status === 'failure') setCard('deployment', 'error', '最近部署失败', formatTime(deployment.updatedAt), deployment.url || '');
+    else setCard('deployment', 'waiting', '部署状态暂未确认', '暂时无法读取 GitHub Pages 部署记录，不代表部署失败');
     return true;
   };
 

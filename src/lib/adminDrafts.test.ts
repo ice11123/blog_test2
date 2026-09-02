@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   ADMIN_DRAFTS_STORAGE_KEY,
   LEGACY_ADMIN_DRAFTS_STORAGE_KEY,
+  DraftStorageError,
   LocalStorageDraftStore,
   draftToMarkdown,
   type AdminPostDraft,
@@ -23,6 +24,25 @@ class MemoryStorage implements DraftStorage {
   removeItem(key: string): void {
     this.values.delete(key);
   }
+}
+
+class FailingStorage extends MemoryStorage {
+  failWrites = false;
+  failRemovals = false;
+
+  override setItem(key: string, value: string): void {
+    if (this.failWrites) throw new DOMException('Quota exceeded', 'QuotaExceededError');
+    super.setItem(key, value);
+  }
+
+  override removeItem(key: string): void {
+    if (this.failRemovals) throw new Error('storage disabled');
+    super.removeItem(key);
+  }
+}
+
+class IgnoringWriteStorage extends MemoryStorage {
+  override setItem(): void {}
 }
 
 function post(id: string, title: string, published = true): AdminPostDraft {
@@ -99,4 +119,52 @@ test('v1 迁移丢弃未修改快照并保留真实本地改动', () => {
 
 test('导出 Markdown 时 frontmatter 与正文之间保留空行', () => {
   assert.match(draftToMarkdown(post('draft/local', '导出文章', false)), /---\n\n# 导出文章\n$/);
+});
+
+test('草稿写入失败时抛出可识别错误且不会伪造持久化结果', () => {
+  const storage = new FailingStorage();
+  const store = new LocalStorageDraftStore([post('a', '仓库版本')], storage);
+  storage.failWrites = true;
+
+  assert.throws(
+    () => store.save({ ...post('a', '本地修改'), localEditedAt: '2026-09-02T10:00:00Z' }),
+    (error) => error instanceof DraftStorageError && error.operation === 'save',
+  );
+  assert.equal(storage.getItem(ADMIN_DRAFTS_STORAGE_KEY), null);
+  assert.equal(store.list()[0].title, '仓库版本');
+});
+
+test('存储静默忽略写入时由读回校验识别失败', () => {
+  const storage = new IgnoringWriteStorage();
+  const store = new LocalStorageDraftStore([], storage);
+
+  assert.throws(
+    () => store.save(post('draft/local', '本地草稿', false)),
+    (error) => error instanceof DraftStorageError && error.operation === 'save',
+  );
+  assert.equal(storage.getItem(ADMIN_DRAFTS_STORAGE_KEY), null);
+});
+
+test('损坏的现有草稿会阻止覆盖写入', () => {
+  const storage = new MemoryStorage();
+  storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, '{broken');
+  const store = new LocalStorageDraftStore([], storage);
+
+  assert.throws(
+    () => store.save(post('draft/local', '本地草稿', false)),
+    (error) => error instanceof DraftStorageError && /取消写入/.test(error.message),
+  );
+  assert.equal(storage.getItem(ADMIN_DRAFTS_STORAGE_KEY), '{broken');
+});
+
+test('清空草稿失败时不会报告成功', () => {
+  const storage = new FailingStorage();
+  storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, '[]');
+  storage.failRemovals = true;
+  const store = new LocalStorageDraftStore([], storage);
+
+  assert.throws(
+    () => store.reset(),
+    (error) => error instanceof DraftStorageError && error.operation === 'reset',
+  );
 });

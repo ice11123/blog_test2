@@ -261,6 +261,9 @@ const LANG_COLORS: Record<string, string> = {
           }
         });
 
+        // 部分仓库失败时仍展示可用结果，但绝不写入长期缓存。
+        var incomplete = languageMaps.some(function(languages) { return languages === null; });
+
         for (var i = 0; i < languageMaps.length; i++) {
           var langs = languageMaps[i];
           if (!langs) continue;
@@ -281,10 +284,17 @@ const LANG_COLORS: Record<string, string> = {
         var totalBytes = entries.reduce(function(s, e) { return s + e.bytes; }, 0);
         var topEntries = entries.slice(0, 8);
 
-        writeCache(USERNAME, topEntries, totalBytes);
+        if (!incomplete) writeCache(USERNAME, topEntries, totalBytes);
         renderPie(topEntries, totalBytes);
         showContent();
-        root.dataset.loadState = 'loaded';
+        if (incomplete) {
+          var warning = document.getElementById('ghl-error');
+          if (warning) {
+            warning.textContent = '部分仓库暂时无法读取，当前比例仅供参考，未写入长期缓存。';
+            warning.hidden = false;
+          }
+        }
+        root.dataset.loadState = incomplete ? 'partial' : 'loaded';
       } catch (err) {
         if (signal.aborted) return;
         console.warn('GitHub languages fetch failed:', err.message);

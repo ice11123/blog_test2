@@ -27,10 +27,22 @@ export interface DraftStorage {
 
 export interface DraftStore {
   list(): AdminPostDraft[];
-  save(post: AdminPostDraft): void;
-  remove(id: string): void;
+  save(post: AdminPostDraft): true;
+  remove(id: string): true;
   hasLocal(post: AdminPostDraft | string): boolean;
-  reset(): void;
+  reset(): true;
+}
+
+export type DraftStorageOperation = 'save' | 'remove' | 'reset';
+
+export class DraftStorageError extends Error {
+  readonly operation: DraftStorageOperation;
+
+  constructor(operation: DraftStorageOperation, message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = 'DraftStorageError';
+    this.operation = operation;
+  }
 }
 
 function clonePost(post: AdminPostDraft): AdminPostDraft {
@@ -50,14 +62,16 @@ export class LocalStorageDraftStore implements DraftStore {
     return mergeDrafts(this.initial, this.readLocal());
   }
 
-  save(post: AdminPostDraft): void {
-    const posts = this.readLocal().filter(item => item.id !== post.id);
+  save(post: AdminPostDraft): true {
+    const posts = this.readLocalForMutation('save').filter(item => item.id !== post.id);
     posts.push(clonePost(post));
-    this.write(posts);
+    this.write(posts, 'save');
+    return true;
   }
 
-  remove(id: string): void {
-    this.write(this.readLocal().filter(post => post.id !== id));
+  remove(id: string): true {
+    this.write(this.readLocalForMutation('remove').filter(post => post.id !== id), 'remove');
+    return true;
   }
 
   hasLocal(post: AdminPostDraft | string): boolean {
@@ -67,12 +81,19 @@ export class LocalStorageDraftStore implements DraftStore {
       || Boolean(publishedPath && item.publishedPath === publishedPath));
   }
 
-  reset(): void {
-    if (!this.storage) return;
+  reset(): true {
+    if (!this.storage) throw unavailableStorageError('reset');
     try {
       this.storage.removeItem(ADMIN_DRAFTS_STORAGE_KEY);
       this.storage.removeItem(LEGACY_ADMIN_DRAFTS_STORAGE_KEY);
-    } catch {}
+      if (this.storage.getItem(ADMIN_DRAFTS_STORAGE_KEY) !== null
+        || this.storage.getItem(LEGACY_ADMIN_DRAFTS_STORAGE_KEY) !== null) {
+        throw new Error('存储未确认删除');
+      }
+      return true;
+    } catch (cause) {
+      throw new DraftStorageError('reset', '无法清除本地草稿存储', { cause });
+    }
   }
 
   private readLocal(): AdminPostDraft[] {
@@ -86,7 +107,24 @@ export class LocalStorageDraftStore implements DraftStore {
     }
   }
 
-  private migrateLegacy(): void {
+  private readLocalForMutation(operation: DraftStorageOperation): AdminPostDraft[] {
+    if (!this.storage) throw unavailableStorageError(operation);
+    try {
+      this.migrateLegacy(true);
+      const raw = this.storage.getItem(ADMIN_DRAFTS_STORAGE_KEY);
+      if (raw === null) return [];
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        throw new TypeError('草稿存储内容不是数组');
+      }
+      return parsed.filter(isAdminPostDraft).map(clonePost);
+    } catch (cause) {
+      if (cause instanceof DraftStorageError) throw cause;
+      throw new DraftStorageError(operation, '无法读取现有本地草稿，已取消写入以避免覆盖数据', { cause });
+    }
+  }
+
+  private migrateLegacy(throwOnFailure = false): void {
     if (!this.storage) return;
     try {
       if (this.storage.getItem(ADMIN_DRAFTS_STORAGE_KEY) !== null) return;
@@ -94,15 +132,35 @@ export class LocalStorageDraftStore implements DraftStore {
       if (raw === null) return;
       const parsed = JSON.parse(raw);
       const migrated = migrateLegacyDrafts(this.initial, Array.isArray(parsed) ? parsed : []);
-      this.storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, JSON.stringify(migrated));
+      const serialized = JSON.stringify(migrated);
+      this.storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, serialized);
+      if (this.storage.getItem(ADMIN_DRAFTS_STORAGE_KEY) !== serialized) {
+        throw new Error('迁移写入后校验失败');
+      }
       this.storage.removeItem(LEGACY_ADMIN_DRAFTS_STORAGE_KEY);
-    } catch {}
+    } catch (cause) {
+      if (throwOnFailure) {
+        throw new DraftStorageError('save', '无法迁移旧版草稿，已取消写入以避免覆盖数据', { cause });
+      }
+    }
   }
 
-  private write(posts: AdminPostDraft[]): void {
-    if (!this.storage) return;
-    try { this.storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, JSON.stringify(posts)); } catch {}
+  private write(posts: AdminPostDraft[], operation: 'save' | 'remove'): void {
+    if (!this.storage) throw unavailableStorageError(operation);
+    try {
+      const serialized = JSON.stringify(posts);
+      this.storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, serialized);
+      if (this.storage.getItem(ADMIN_DRAFTS_STORAGE_KEY) !== serialized) {
+        throw new Error('存储写入后校验失败');
+      }
+    } catch (cause) {
+      throw new DraftStorageError(operation, '无法写入本地草稿存储', { cause });
+    }
   }
+}
+
+function unavailableStorageError(operation: DraftStorageOperation): DraftStorageError {
+  return new DraftStorageError(operation, '当前浏览器不提供可用的本地草稿存储');
 }
 
 export function mergeDrafts(initial: AdminPostDraft[], local: AdminPostDraft[]): AdminPostDraft[] {

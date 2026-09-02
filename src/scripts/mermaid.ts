@@ -3,6 +3,7 @@ if (!(window as any).__mermaidLoaded) {
   (window as any).__mermaidLoaded = true;
 
 const MERMAID_CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+const MERMAID_TIMEOUT_MS = 10_000;
 
 function readCSS(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -43,8 +44,7 @@ function getMermaidConfig() {
   };
 }
 
-let mermaidLoaded = false;
-let mermaidLoading = false;
+let mermaidPromise: Promise<boolean> | null = null;
 let renderCounter = 0;
 let renderGen = 0;
 
@@ -53,24 +53,56 @@ function hasDiagrams(): boolean {
 }
 
 async function loadMermaid(): Promise<boolean> {
-  if (mermaidLoaded) return true;
-  if (mermaidLoading) return false;
-  mermaidLoading = true;
-  try {
-    await new Promise<void>((resolve, reject) => {
-      const script = document.createElement('script');
+  if ((window as any).mermaid) return true;
+  if (mermaidPromise) return mermaidPromise;
+  mermaidPromise = new Promise<boolean>((resolve, reject) => {
+    let existing = document.querySelector<HTMLScriptElement>(`script[src="${MERMAID_CDN}"]`);
+    if (existing && (existing.dataset.loadState === 'failed' || existing.dataset.loadState === 'loaded')) {
+      existing.remove();
+      existing = null;
+    }
+    const script = existing ?? document.createElement('script');
+    script.dataset.loadState = 'loading';
+    let settled = false;
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      script.removeEventListener('load', finish);
+      script.removeEventListener('error', fail);
+    };
+    const rejectAndDiscard = (error: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      script.dataset.loadState = 'failed';
+      script.remove();
+      reject(error);
+    };
+    const finish = () => {
+      if (settled) return;
+      if (!(window as any).mermaid) {
+        rejectAndDiscard(new Error('Mermaid API missing'));
+        return;
+      }
+      settled = true;
+      cleanup();
+      script.dataset.loadState = 'loaded';
+      resolve(true);
+    };
+    const fail = () => rejectAndDiscard(new Error('Mermaid CDN load failed'));
+    const timeout = window.setTimeout(() => rejectAndDiscard(new Error('Mermaid load timeout')), MERMAID_TIMEOUT_MS);
+    script.addEventListener('load', finish, { once: true });
+    script.addEventListener('error', fail, { once: true });
+    if (!existing) {
       script.src = MERMAID_CDN;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Mermaid CDN load failed'));
+      script.async = true;
       document.head.appendChild(script);
-    });
-    mermaidLoaded = true;
-    return true;
-  } catch (err) {
-    console.error('Failed to load Mermaid:', err);
-    mermaidLoading = false;
+    }
+  }).catch((error) => {
+    mermaidPromise = null;
+    console.error('Failed to load Mermaid:', error);
     return false;
-  }
+  });
+  return mermaidPromise;
 }
 
 // 等待主题 CSS 加载完毕（CSS 变量有值才算就绪）
@@ -140,7 +172,7 @@ async function render() {
 let observer: MutationObserver | null = null;
 
 function watchTheme() {
-  if (observer) return;
+  observer?.disconnect();
   observer = new MutationObserver(() => {
     const diagrams = document.querySelectorAll<HTMLElement>('pre.mermaid');
     for (const el of diagrams) {
@@ -154,14 +186,21 @@ function watchTheme() {
   });
 }
 
-// 仅在页面存在 Mermaid 图表时初始化，避免无意义的 Observer 和监听器
-if (hasDiagrams()) {
-  render();
-  watchTheme();
-
-  document.addEventListener('astro:page-load', () => {
-    render();
-  });
+function cleanupMermaidPage() {
+  renderGen += 1;
+  observer?.disconnect();
+  observer = null;
 }
+
+function initMermaidPage() {
+  cleanupMermaidPage();
+  if (!hasDiagrams()) return;
+  void render();
+  watchTheme();
+}
+
+document.addEventListener('astro:page-load', initMermaidPage);
+document.addEventListener('astro:before-swap', cleanupMermaidPage);
+initMermaidPage();
 
 }

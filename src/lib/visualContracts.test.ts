@@ -73,8 +73,14 @@ test('TOC、搜索与 Spoiler 使用新的交互契约', () => {
   assert.match(toc, /headingAbsBottoms/);
 
   const search = readSource('scripts/search.ts');
+  const searchModal = readSource('components/blog/SearchModal.astro');
   assert.match(search, /openModal\('keyboard'\)/);
   assert.match(search, /openModal\('pointer'\)/);
+  assert.match(searchModal, /role="combobox"/);
+  assert.match(searchModal, /aria-controls="search-results"/);
+  assert.match(searchModal, /aria-expanded="false"/);
+  assert.match(search, /aria-activedescendant/);
+  assert.match(search, /id="search-result-\$\{i\}"/);
 
   const spoiler = readSource('components/widgets/Spoiler.astro');
   assert.match(spoiler, /<button class="spoiler-overlay"/);
@@ -174,7 +180,7 @@ test('主题按钮直接切换并提供双向可降级圆形过渡', () => {
   const search = readSource('scripts/search.ts');
 
   assert.doesNotMatch(tools, /theme-dropdown|aria-haspopup|role="menu"/);
-  assert.doesNotMatch(search, /theme-dropdown|aria-expanded/);
+  assert.doesNotMatch(search, /theme-dropdown/);
   assert.match(tools, /theme-icon-sun/);
   assert.match(tools, /theme-icon-moon/);
   assert.match(tools, /theme-icon-sun icon/);
@@ -299,4 +305,14 @@ test('Worker 状态服务由 Pages 构建变量注入且写入开关独立', () 
   assert.match(constants, /import\.meta\.env\.PUBLIC_CLOUD_PUBLISH_ENABLED\s*===\s*'true'/);
   assert.match(workflow, /PUBLIC_ADMIN_SYNC_API_URL:\s*https:\/\/blog-test2-admin-api\.2799587522\.workers\.dev/);
   assert.match(workflow, /PUBLIC_CLOUD_PUBLISH_ENABLED:\s*'false'/);
+});
+
+test('首页维护记录有固定上限并提供完整归档页', () => {
+  const home = readSource('pages/index.astro');
+  const archive = readSource('pages/maintenance.astro');
+
+  assert.match(home, /maintenanceEntries\.slice\(0, 5\)/);
+  assert.match(home, /withBase\('\/maintenance\/'\)/);
+  assert.match(archive, /parseMaintenance\(maintenanceSource\)/);
+  assert.match(archive, /entries\.map/);
 });

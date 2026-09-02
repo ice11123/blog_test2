@@ -3,7 +3,9 @@ const PLOTLY_TIMEOUT_MS = 10_000;
 
 type PlotlyApi = {
   newPlot: (element: HTMLElement, data: unknown[], layout: unknown, config: unknown) => Promise<unknown>;
+  relayout?: (element: HTMLElement, update: Record<string, unknown>) => Promise<unknown>;
   purge?: (element: HTMLElement) => void;
+  Plots?: { resize: (element: HTMLElement) => void };
 };
 
 type PlotConfig = {
@@ -48,19 +50,41 @@ function loadPlotly(): Promise<PlotlyApi> {
   if (plotlyPromise) return plotlyPromise;
 
   plotlyPromise = new Promise<PlotlyApi>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(`script[src="${PLOTLY_CDN}"]`);
+    let existing = document.querySelector<HTMLScriptElement>(`script[src="${PLOTLY_CDN}"]`);
+    if (existing && (existing.dataset.loadState === 'failed' || existing.dataset.loadState === 'loaded')) {
+      existing.remove();
+      existing = null;
+    }
     const script = existing ?? document.createElement('script');
-    const timeout = window.setTimeout(() => reject(new Error('Plotly load timeout')), PLOTLY_TIMEOUT_MS);
+    script.dataset.loadState = 'loading';
+    let settled = false;
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      script.removeEventListener('load', finish);
+      script.removeEventListener('error', fail);
+    };
+    const rejectAndDiscard = (error: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      script.dataset.loadState = 'failed';
+      script.remove();
+      reject(error);
+    };
     const finish = () => {
-      window.clearTimeout(timeout);
+      if (settled) return;
       const api = readPlotly();
-      if (api) resolve(api);
-      else reject(new Error('Plotly API missing'));
+      if (!api) {
+        rejectAndDiscard(new Error('Plotly API missing'));
+        return;
+      }
+      settled = true;
+      cleanup();
+      script.dataset.loadState = 'loaded';
+      resolve(api);
     };
-    const fail = () => {
-      window.clearTimeout(timeout);
-      reject(new Error('Plotly CDN load failed'));
-    };
+    const fail = () => rejectAndDiscard(new Error('Plotly CDN load failed'));
+    const timeout = window.setTimeout(() => rejectAndDiscard(new Error('Plotly load timeout')), PLOTLY_TIMEOUT_MS);
     script.addEventListener('load', finish, { once: true });
     script.addEventListener('error', fail, { once: true });
     if (!existing) {
@@ -101,7 +125,7 @@ async function drawPlot(element: HTMLElement, signal: AbortSignal) {
       paper_bgcolor: plotBg,
       plot_bgcolor: plotBg,
     };
-    const displayConfig = { displayModeBar: false, displaylogo: false };
+    const displayConfig = { displayModeBar: false, displaylogo: false, responsive: true };
 
     if (config.type === 'surface') {
       const { uStart, uEnd, vStart, vEnd, xSurface, ySurface, zSurface } = config;
@@ -133,6 +157,29 @@ async function drawPlot(element: HTMLElement, signal: AbortSignal) {
   }
 }
 
+function plotTheme() {
+  const rootStyles = getComputedStyle(document.documentElement);
+  return {
+    plotBg: rootStyles.getPropertyValue('--plot-bg').trim() || '#121417',
+    axisColor: rootStyles.getPropertyValue('--plot-axis-color').trim() || '#ffffff',
+  };
+}
+
+function updatePlotTheme(element: HTMLElement) {
+  if (element.dataset.plotState !== 'loaded') return;
+  const Plotly = readPlotly();
+  if (!Plotly?.relayout) return;
+  const { plotBg, axisColor } = plotTheme();
+  void Plotly.relayout(element, {
+    paper_bgcolor: plotBg,
+    plot_bgcolor: plotBg,
+    'scene.bgcolor': plotBg,
+    'scene.xaxis.color': axisColor,
+    'scene.yaxis.color': axisColor,
+    'scene.zaxis.color': axisColor,
+  }).catch((error) => console.warn('Plot3D theme update failed:', error));
+}
+
 function initPlot3d() {
   cleanupCurrentPlots?.();
   const roots = Array.from(document.querySelectorAll<HTMLElement>('[data-plot3d]'));
@@ -142,6 +189,21 @@ function initPlot3d() {
   }
 
   const controller = new AbortController();
+  let resizeFrame = 0;
+  const resizeObserver = 'ResizeObserver' in window
+    ? new ResizeObserver((entries) => {
+        window.cancelAnimationFrame(resizeFrame);
+        resizeFrame = window.requestAnimationFrame(() => {
+          const Plotly = readPlotly();
+          for (const entry of entries) {
+            const root = entry.target as HTMLElement;
+            if (root.dataset.plotState === 'loaded') Plotly?.Plots?.resize(root);
+          }
+        });
+      })
+    : undefined;
+  const themeObserver = new MutationObserver(() => roots.forEach(updatePlotTheme));
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   const observer = 'IntersectionObserver' in window
     ? new IntersectionObserver((entries) => {
         for (const entry of entries) {
@@ -153,12 +215,16 @@ function initPlot3d() {
     : undefined;
 
   for (const root of roots) {
+    resizeObserver?.observe(root);
     if (observer) observer.observe(root);
     else void drawPlot(root, controller.signal);
   }
 
   cleanupCurrentPlots = () => {
     observer?.disconnect();
+    resizeObserver?.disconnect();
+    themeObserver.disconnect();
+    window.cancelAnimationFrame(resizeFrame);
     controller.abort();
     const Plotly = readPlotly();
     for (const root of roots) Plotly?.purge?.(root);
