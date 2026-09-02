@@ -116,7 +116,9 @@ test('提交失败时恢复目标文章和暂存区', (t) => {
 
   const hooks = path.join(root, 'test-hooks');
   fs.mkdirSync(hooks);
-  fs.writeFileSync(path.join(hooks, 'pre-commit'), '#!/bin/sh\nexit 1\n');
+  const preCommitHook = path.join(hooks, 'pre-commit');
+  fs.writeFileSync(preCommitHook, '#!/bin/sh\nexit 1\n');
+  fs.chmodSync(preCommitHook, 0o755);
   git(root, ['config', 'core.hooksPath', hooks]);
 
   const result = publish(root, 'export.mdx', ['--overwrite']);
