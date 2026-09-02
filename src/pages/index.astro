@@ -522,7 +522,7 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
 
   .home-content-layout { position: relative; z-index: 4; width: min(1080px, calc(100% - 48px)); margin: 40px auto 0; }
   .home-main-column { min-width: 0; }
-  .home-drawer { position: relative; z-index: 4; min-width: 0; background: var(--canvas); }
+  .home-drawer { position: relative; z-index: 4; display: flow-root; min-width: 0; background: var(--canvas); }
   .section-link:focus-visible, .home-post-link:focus-visible, .info-fold > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
   .recent-section { padding: 0 0 64px; border-bottom: 1px solid var(--border); }

@@ -288,6 +288,7 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.ok(motion.indexOf('const blueprint = cachedMotionBlueprint') < motion.indexOf('setElementUnavailable(drawer, false)'));
   assert.match(motion, /releaseHighResolution\(\)/);
   assert.match(home, /content-visibility:\s*auto/);
+  assert.match(home, /\.home-drawer\s*\{[^}]*display:\s*flow-root/);
 });
 
 test('Worker 状态服务由 Pages 构建变量注入且写入开关独立', () => {
