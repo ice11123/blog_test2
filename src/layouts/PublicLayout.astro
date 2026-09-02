@@ -4,6 +4,7 @@ import HtmlHead from '../components/layout/HtmlHead.astro';
 import Footer from '../components/layout/Footer.astro';
 import Header from '../components/layout/Header.astro';
 import PersistentSidebar from '../components/layout/PersistentSidebar.astro';
+import ArticleTocSidebar from '../components/layout/ArticleTocSidebar.astro';
 import SearchModal from '../components/blog/SearchModal.astro';
 import { getSidebarData } from '../lib/blogData';
 
@@ -36,10 +37,9 @@ const sidebarPosts = await getSidebarData();
   </head>
   <body class="public-shell">
     <Header />
-    <div class="public-layout-frame">
+    <div class:list={['public-layout-frame', { 'has-article-toc': sidebarMode === 'article' }]}>
       <PersistentSidebar
         posts={sidebarPosts}
-        mode={sidebarMode}
         currentSlug={currentSlug}
         currentDir1={currentDir1}
         currentDir2={currentDir2}
@@ -47,6 +47,7 @@ const sidebarPosts = await getSidebarData();
       <main class="public-main">
         <slot />
       </main>
+      {sidebarMode === 'article' && <ArticleTocSidebar />}
     </div>
     <Footer />
     <SearchModal />
@@ -77,8 +78,13 @@ const sidebarPosts = await getSidebarData();
     min-width: 0;
   }
 
+  .public-layout-frame.has-article-toc {
+    grid-template-columns: 248px minmax(0, 1fr) 236px;
+  }
+
   @media (max-width: 1199px) and (min-width: 1000px) {
     .public-layout-frame { grid-template-columns: 220px minmax(0, 1fr); }
+    .public-layout-frame.has-article-toc { grid-template-columns: 220px minmax(0, 1fr) 210px; }
   }
 
   @media (max-width: 999.98px) {

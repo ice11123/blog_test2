@@ -1,14 +1,17 @@
 ---
 import { SITE_AUTHOR, SITE_DESCRIPTION } from '../../consts';
 import type { SidebarPost } from '../../lib/blogData';
-import { computeSidebarStats, getSeriesPosts } from '../../lib/persistentSidebar';
+import {
+  buildArticleDirectory,
+  buildTagDirectory,
+  computeSidebarStats,
+} from '../../lib/persistentSidebar';
 import { blogPostPath, stripBase, withBase } from '../../lib/urls';
 import '../../styles/persistent-sidebar.scss';
 import SocialLinks from '../ui/SocialLinks.astro';
 
 interface Props {
   posts: SidebarPost[];
-  mode?: 'overview' | 'article';
   currentSlug?: string;
   currentDir1?: string;
   currentDir2?: string;
@@ -16,41 +19,53 @@ interface Props {
 
 const {
   posts,
-  mode = 'overview',
   currentSlug = '',
   currentDir1 = '',
   currentDir2 = '',
 } = Astro.props;
 const stats = computeSidebarStats(posts);
+const articleDirectory = buildArticleDirectory(posts);
+const tagDirectory = buildTagDirectory(posts);
 const currentPath = stripBase(Astro.url.pathname);
-const seriesPosts = getSeriesPosts(posts, currentDir1, currentDir2);
-const seriesLabel = currentDir2 || currentDir1 || '当前分类';
 const isHome = currentPath === '/';
-const isBlog = currentPath === '/blog/' || currentPath.startsWith('/blog/category/') || currentPath.startsWith('/blog/tag');
+const isBlog = currentPath === '/blog/' || currentPath.startsWith('/blog/');
 const isFriends = currentPath.startsWith('/friends');
 const isAbout = currentPath.startsWith('/about');
+const initialTab = currentPath.startsWith('/blog/tag') ? 'tags' : isBlog ? 'catalog' : 'profile';
+
+function decodePathPart(value = ''): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+const categoryMatch = currentPath.match(/^\/blog\/category\/([^/]+)(?:\/([^/]+))?/);
+const activeDir1 = currentDir1 || decodePathPart(categoryMatch?.[1]);
+const activeDir2 = currentDir2 || decodePathPart(categoryMatch?.[2]);
+const tagMatch = currentPath.match(/^\/blog\/tag\/([^/]+)/);
+const activeTag = decodePathPart(tagMatch?.[1]);
 ---
 
-<aside class="persistent-sidebar" data-persistent-sidebar data-mode={mode} aria-label="站点侧栏">
+<aside class="persistent-sidebar" data-persistent-sidebar data-default-tab={initialTab} aria-label="站点侧栏">
   <div class="persistent-sidebar-scroll">
-    {mode === 'article' && (
-      <div class="sidebar-segments" role="tablist" aria-label="侧栏内容">
-        <button id="sidebar-tab-overview" type="button" role="tab" data-sidebar-tab="overview" aria-label="站点概览" aria-selected="false" aria-controls="sidebar-panel-overview" tabindex="-1">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 1 1 16 0 8 8 0 0 1-16 0Z M12 13l4-4 M7.5 8.5l1 1 M16.5 17.5l-1-1" /></svg>
-          <span>站点概览</span>
-        </button>
-        <button id="sidebar-tab-toc" type="button" role="tab" data-sidebar-tab="toc" aria-label="文章目录" aria-selected="true" aria-controls="sidebar-panel-toc" tabindex="0">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11 M9 12h11 M9 18h11 M4 6h.01 M4 12h.01 M4 18h.01" /></svg>
-          <span>文章目录</span>
-        </button>
-        <button id="sidebar-tab-series" type="button" role="tab" data-sidebar-tab="series" aria-label="系列文章" aria-selected="false" aria-controls="sidebar-panel-series" tabindex="-1">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6z M9 8h6 M9 12h6 M9 16h4" /></svg>
-          <span>系列文章</span>
-        </button>
-      </div>
-    )}
+    <div class="sidebar-segments" role="tablist" aria-label="侧栏内容">
+      <button id="sidebar-tab-profile" type="button" role="tab" data-sidebar-tab="profile" aria-label="个人" aria-selected={initialTab === 'profile' ? 'true' : 'false'} aria-controls="sidebar-panel-profile" tabindex={initialTab === 'profile' ? 0 : -1}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z M4.5 21a7.5 7.5 0 0 1 15 0" /></svg>
+        <span>个人</span>
+      </button>
+      <button id="sidebar-tab-catalog" type="button" role="tab" data-sidebar-tab="catalog" aria-label="目录" aria-selected={initialTab === 'catalog' ? 'true' : 'false'} aria-controls="sidebar-panel-catalog" tabindex={initialTab === 'catalog' ? 0 : -1}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11 M9 12h11 M9 18h11 M4 6h.01 M4 12h.01 M4 18h.01" /></svg>
+        <span>目录</span>
+      </button>
+      <button id="sidebar-tab-tags" type="button" role="tab" data-sidebar-tab="tags" aria-label="标签目录" aria-selected={initialTab === 'tags' ? 'true' : 'false'} aria-controls="sidebar-panel-tags" tabindex={initialTab === 'tags' ? 0 : -1}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13 11 22l-9-9V4h9l9 9Z M7 8h.01" /></svg>
+        <span>标签目录</span>
+      </button>
+    </div>
 
-    <section id="sidebar-panel-overview" class="sidebar-panel-content overview-panel" role={mode === 'article' ? 'tabpanel' : undefined} aria-labelledby={mode === 'article' ? 'sidebar-tab-overview' : undefined} aria-label={mode === 'overview' ? '站点概览' : undefined} hidden={mode === 'article'}>
+    <section id="sidebar-panel-profile" class="sidebar-panel-content profile-panel" role="tabpanel" aria-labelledby="sidebar-tab-profile" hidden={initialTab !== 'profile'}>
       <div class="sidebar-profile">
         <a class="profile-avatar" href={withBase('/')} aria-label={`${SITE_AUTHOR} 的博客首页`}>
           <img src={withBase('/avatar.jpg')} alt={`${SITE_AUTHOR}的头像`} width="120" height="120" loading="lazy" decoding="async" />
@@ -70,16 +85,9 @@ const isAbout = currentPath.startsWith('/about');
         <a class:list={['sidebar-nav-link', { active: isHome }]} href={withBase('/')} aria-current={isHome ? 'page' : undefined}>
           <span class="nav-marker" aria-hidden="true"></span><span>首页</span>
         </a>
-        <details class="sidebar-nav-group" open={isBlog || mode === 'article'}>
-          <summary class:list={{ active: isBlog || mode === 'article' }}>
-            <span class="nav-marker" aria-hidden="true"></span><span>文章</span>
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
-          </summary>
-          <div class="sidebar-subnav">
-            <a class:list={{ active: currentPath === '/blog/' }} href={withBase('/blog/')}>全部文章</a>
-            <a class:list={{ active: currentPath.startsWith('/blog/tags') }} href={withBase('/blog/tags/')}>标签索引</a>
-          </div>
-        </details>
+        <a class:list={['sidebar-nav-link', { active: isBlog }]} href={withBase('/blog/')} aria-current={currentPath === '/blog/' ? 'page' : undefined}>
+          <span class="nav-marker" aria-hidden="true"></span><span>文章</span>
+        </a>
         <a class:list={['sidebar-nav-link', { active: isFriends }]} href={withBase('/friends/')} aria-current={isFriends ? 'page' : undefined}>
           <span class="nav-marker" aria-hidden="true"></span><span>友链</span>
         </a>
@@ -89,29 +97,57 @@ const isAbout = currentPath.startsWith('/about');
       </nav>
     </section>
 
-    {mode === 'article' && (
-      <>
-        <section id="sidebar-panel-toc" class="sidebar-panel-content toc-area" role="tabpanel" aria-labelledby="sidebar-tab-toc">
-          <div class="position-indicator" aria-hidden="true"></div>
-          <p class="panel-kicker">ON THIS PAGE</p>
-          <ul id="toc-list"></ul>
-        </section>
-        <section id="sidebar-panel-series" class="sidebar-panel-content series-panel" role="tabpanel" aria-labelledby="sidebar-tab-series" hidden>
-          <p class="panel-kicker">{seriesLabel}</p>
-          {seriesPosts.length > 0 ? (
-            <ol class="series-list">
-              {seriesPosts.map((post) => (
-                <li class:list={{ current: post.slug === currentSlug }}>
-                  <a href={blogPostPath(post.slug)} aria-current={post.slug === currentSlug ? 'page' : undefined}>{post.title}</a>
-                </li>
+    <section id="sidebar-panel-catalog" class="sidebar-panel-content catalog-panel" role="tabpanel" aria-labelledby="sidebar-tab-catalog" hidden={initialTab !== 'catalog'}>
+      <div class="sidebar-panel-heading">
+        <div><p>LIBRARY</p><h2>文章目录</h2></div>
+        <span>{stats.totalArticles}</span>
+      </div>
+      <a class:list={['directory-all-link', { current: currentPath === '/blog/' }]} href={withBase('/blog/')} aria-current={currentPath === '/blog/' ? 'page' : undefined}>
+        <span>全部文章</span><small>{stats.totalArticles}</small>
+      </a>
+      <nav class="article-directory" aria-label="全站文章目录">
+        {articleDirectory.map((section) => (
+          <details class="directory-group" open={section.name === activeDir1}>
+            <summary>
+              <span>{section.name}</span><small>{section.total}</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
+            </summary>
+            <div class="directory-group-body">
+              {section.directPosts.map((post) => (
+                <a class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} aria-current={post.slug === currentSlug ? 'page' : undefined}>{post.title}</a>
               ))}
-            </ol>
-          ) : (
-            <p class="sidebar-empty">当前文章没有可归组的分类系列。</p>
-          )}
-        </section>
-      </>
-    )}
+              {section.subdirectories.map((subdirectory) => (
+                <details class="directory-subgroup" open={section.name === activeDir1 && subdirectory.name === activeDir2}>
+                  <summary><span>{subdirectory.name}</span><small>{subdirectory.posts.length}</small></summary>
+                  <div>
+                    {subdirectory.posts.map((post) => (
+                      <a class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} aria-current={post.slug === currentSlug ? 'page' : undefined}>{post.title}</a>
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </details>
+        ))}
+      </nav>
+    </section>
+
+    <section id="sidebar-panel-tags" class="sidebar-panel-content tags-panel" role="tabpanel" aria-labelledby="sidebar-tab-tags" hidden={initialTab !== 'tags'}>
+      <div class="sidebar-panel-heading">
+        <div><p>TOPICS</p><h2>标签目录</h2></div>
+        <span>{stats.totalTags}</span>
+      </div>
+      <a class:list={['directory-all-link', { current: currentPath.startsWith('/blog/tags') }]} href={withBase('/blog/tags/')} aria-current={currentPath.startsWith('/blog/tags') ? 'page' : undefined}>
+        <span>全部标签</span><small>{stats.totalTags}</small>
+      </a>
+      <nav class="tag-directory" aria-label="标签目录">
+        {tagDirectory.map((tag) => (
+          <a class:list={{ current: tag.name === activeTag }} href={withBase(`/blog/tag/${encodeURIComponent(tag.name)}/`)} aria-current={tag.name === activeTag ? 'page' : undefined}>
+            <span>{tag.name}</span><small>{tag.count}</small>
+          </a>
+        ))}
+      </nav>
+    </section>
   </div>
 </aside>
 

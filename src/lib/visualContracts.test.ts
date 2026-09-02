@@ -87,22 +87,29 @@ test('TOC、搜索与 Spoiler 使用新的交互契约', () => {
   assert.match(spoiler, /dataset\.revealed\s*=\s*'true'/);
 });
 
-test('文章页侧栏三个内容槽支持点击、键盘和 ARIA 切换', () => {
+test('左侧栏固定为个人、目录、标签目录，文章 TOC 独立位于右栏', () => {
   const sidebar = readSource('components/layout/PersistentSidebar.astro');
+  const articleToc = readSource('components/layout/ArticleTocSidebar.astro');
+  const layout = readSource('layouts/PublicLayout.astro');
   const interaction = readSource('scripts/persistent-sidebar.ts');
-  const postLayout = readSource('layouts/BlogPost.astro');
 
   assert.match(sidebar, /role="tablist"/);
-  assert.match(sidebar, /data-sidebar-tab="overview"/);
-  assert.match(sidebar, /data-sidebar-tab="toc"/);
-  assert.match(sidebar, /data-sidebar-tab="series"/);
-  assert.match(sidebar, /aria-label="站点概览"/);
-  assert.match(sidebar, /id="toc-list"/);
+  assert.match(sidebar, /data-sidebar-tab="profile"/);
+  assert.match(sidebar, /data-sidebar-tab="catalog"/);
+  assert.match(sidebar, /data-sidebar-tab="tags"/);
+  assert.match(sidebar, /aria-label="个人"/);
+  assert.match(sidebar, /aria-label="全站文章目录"/);
+  assert.match(sidebar, /aria-label="标签目录"/);
+  assert.doesNotMatch(sidebar, /id="toc-list"|data-sidebar-tab="toc"|data-sidebar-tab="series"/);
   assert.match(sidebar, /aria-current=\{post\.slug === currentSlug/);
+  assert.match(articleToc, /class="article-toc-sidebar"/);
+  assert.match(articleToc, /aria-label="当前文章目录"/);
+  assert.match(articleToc, /id="toc-list"/);
+  assert.match(layout, /sidebarMode === 'article' && <ArticleTocSidebar \/>/);
+  assert.match(layout, /grid-template-columns:\s*248px minmax\(0,\s*1fr\) 236px/);
   assert.match(interaction, /ArrowLeft/);
   assert.match(interaction, /ArrowRight/);
   assert.match(interaction, /aria-selected/);
-  assert.doesNotMatch(postLayout, /SidebarLeft|SidebarRight|sidebar-gutter|three-col-layout/);
 });
 
 test('统一侧栏在桌面常驻并在小屏让位给正文', () => {
@@ -170,7 +177,8 @@ test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
   assert.doesNotMatch(home, /cover-letter|cover-grid|--cover-hue|home-intro/);
 
   assert.match(sidebar, /aria-current=\{isHome \? 'page'/);
-  assert.match(sidebar, /全部文章[\s\S]*标签索引/);
+  assert.match(sidebar, /data-sidebar-tab="profile"[\s\S]*data-sidebar-tab="catalog"[\s\S]*data-sidebar-tab="tags"/);
+  assert.match(sidebar, /全部文章[\s\S]*全部标签/);
 });
 
 test('主题按钮直接切换并提供双向可降级圆形过渡', () => {
