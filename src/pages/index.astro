@@ -554,7 +554,11 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .home-empty strong { color: var(--text-primary); font-size: 20px; }
   .home-empty p { margin: 8px 0 16px; font-size: 16px; }
 
-  .home-info-strip { padding: 64px 0 0; }
+  .home-info-strip {
+    padding: 64px 0 0;
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 960px;
+  }
   .info-strip-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
   .info-strip-heading > p { max-width: 520px; margin: 0; color: var(--text-secondary); font-size: 14px; text-align: right; }
   .info-strip-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid var(--border); }
@@ -587,7 +591,11 @@ const maintenanceEntries = await parseMaintenance(maintenanceSource);
   .info-fold > summary strong { color: var(--text-primary); font-size: 16px; }
   .info-fold > summary small { color: var(--text-secondary); font-size: 14px; }
   .maintenance-list { max-height: 360px; overflow-y: auto; padding: 0 0 24px 48px; }
-  .maintenance-entry { border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent); }
+  .maintenance-entry {
+    border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 52px;
+  }
   .maintenance-entry > summary { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 16px; padding: 14px 0; cursor: pointer; list-style: none; }
   .maintenance-entry time { color: var(--accent); font-size: 12px; }
   .maintenance-entry > summary span { color: var(--text-primary); font-size: 14px; font-weight: 650; }

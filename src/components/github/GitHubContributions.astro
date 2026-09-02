@@ -267,6 +267,9 @@ import { GITHUB_USERNAME } from '../../consts';
 
 <script>
   // @ts-nocheck -- 这是独立运行的浏览器端统计脚本，包含完备的失败降级。
+  import { fetchPublicData } from '../../lib/publicDataFetch';
+  import { readTimedCache, writeTimedCache } from '../../lib/timedCache';
+
   (function() {
     var WEEKS = 53;
     var DAYS = 7;
@@ -275,6 +278,9 @@ import { GITHUB_USERNAME } from '../../consts';
     var MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
     var GAP_MOBILE = 2;
     var CELL_SIZE_MOBILE = 10;
+    var CACHE_PREFIX = 'blog-test2-github-contributions-v1:';
+    var CACHE_VERSION = 1;
+    var CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
     function pad(n) { return String(n).padStart(2, '0'); }
     function fmt(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -391,9 +397,29 @@ import { GITHUB_USERNAME } from '../../consts';
       }
     }
 
+    function applyContributionMap(wrapper, dataMap) {
+      var cells = wrapper.querySelectorAll('.gh-cell[data-date]');
+      for (var i = 0; i < cells.length; i++) {
+        var cell = cells[i];
+        var date = cell.getAttribute('data-date');
+        var info = dataMap[date];
+        if (info) {
+          cell.dataset.count = info.count;
+          if (info.level > 0) cell.className = 'gh-cell level-' + info.level;
+        }
+      }
+    }
+
     async function colorize(username, wrapper, signal) {
       try {
-        var res = await fetch('https://github-contributions-api.deno.dev/' + username + '.json', { signal: signal });
+        var cached = readTimedCache(localStorage, CACHE_PREFIX + username, CACHE_VERSION);
+        if (cached && typeof cached === 'object') {
+          applyContributionMap(wrapper, cached);
+          wrapper.classList.remove('is-loading');
+          return true;
+        }
+
+        var res = await fetchPublicData('https://github-contributions-api.deno.dev/' + username + '.json', { signal: signal }, 5);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         var json = await res.json();
         var weeksData = json.contributions;
@@ -407,18 +433,8 @@ import { GITHUB_USERNAME } from '../../consts';
           }
         }
 
-        var cells = wrapper.querySelectorAll('.gh-cell[data-date]');
-        for (var i = 0; i < cells.length; i++) {
-          var cell = cells[i];
-          var date = cell.getAttribute('data-date');
-          var info = dataMap[date];
-          if (info) {
-            cell.dataset.count = info.count;
-            if (info.level > 0) {
-              cell.className = 'gh-cell level-' + info.level;
-            }
-          }
-        }
+        applyContributionMap(wrapper, dataMap);
+        writeTimedCache(localStorage, CACHE_PREFIX + username, CACHE_VERSION, CACHE_TTL_MS, dataMap);
 
         wrapper.classList.remove('is-loading');
         return true;

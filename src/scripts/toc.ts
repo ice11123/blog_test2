@@ -7,6 +7,7 @@ if (!(window as any).__tocLoaded) {
 const headingElements: { element: HTMLElement; tocItem: HTMLLIElement }[] = [];
 const tocItemElements: HTMLLIElement[] = [];
 const headingAbsTops: number[] = []; // 文档绝对偏移，buildToc 时缓存
+const headingAbsBottoms: number[] = [];
 
 let ticking = false;
 let prevActiveIndex = -1;
@@ -20,36 +21,71 @@ let animStartBottom = 0;
 let animTargetTop = 0;
 let animTargetBottom = 0;
 const V_PAD = 4;
+let headingResizeObserver: ResizeObserver | null = null;
+let headingGeometryFrame: number | null = null;
 
 document.addEventListener('astro:page-load', initToc);
+document.addEventListener('astro:before-swap', teardownToc);
 
 function initToc() {
-  buildToc();
+  teardownToc();
+  if (!buildToc()) return;
   setupScrollSpy();
 }
 
-function buildToc() {
-  const tocList = document.getElementById('toc-list');
-  if (!tocList) return;
-
-  tocList.innerHTML = '';
+function teardownToc() {
+  if (scrollSpyHandler) window.removeEventListener('scroll', scrollSpyHandler);
+  scrollSpyHandler = null;
+  headingResizeObserver?.disconnect();
+  headingResizeObserver = null;
+  if (headingGeometryFrame !== null) cancelAnimationFrame(headingGeometryFrame);
+  headingGeometryFrame = null;
+  stopAnim();
   headingElements.length = 0;
   tocItemElements.length = 0;
   headingAbsTops.length = 0;
+  headingAbsBottoms.length = 0;
+  ticking = false;
+  prevActiveIndex = -1;
+  programmaticScrolling = false;
+}
+
+function cacheHeadingGeometry() {
+  headingAbsTops.length = 0;
+  headingAbsBottoms.length = 0;
+  for (const { element } of headingElements) {
+    const rect = element.getBoundingClientRect();
+    const top = rect.top + window.scrollY;
+    headingAbsTops.push(top);
+    headingAbsBottoms.push(top + rect.height);
+  }
+}
+
+function scheduleHeadingGeometry() {
+  if (headingGeometryFrame !== null) return;
+  headingGeometryFrame = requestAnimationFrame(() => {
+    headingGeometryFrame = null;
+    cacheHeadingGeometry();
+    updateActive();
+  });
+}
+
+function buildToc(): boolean {
+  const tocList = document.getElementById('toc-list');
+  if (!tocList) return false;
+
+  tocList.innerHTML = '';
 
   const headings = document.querySelectorAll('.prose > h2, .prose > h3, .prose h2.mk-title, .prose h3.mk-title');
   if (headings.length === 0) {
     tocList.innerHTML = '<li class="toc-empty">本部分无目录</li>';
-    return;
+    return false;
   }
 
   const occupiedIds = new Set(Array.from(headings, heading => (heading as HTMLElement).id).filter(Boolean));
   headings.forEach((heading, index) => {
     const el = heading as HTMLElement;
     ensureHeadingId(el, index, occupiedIds);
-
-    // 缓存文档绝对偏移
-    headingAbsTops.push(el.getBoundingClientRect().top + window.scrollY);
 
     const li = document.createElement('li');
     if (heading.tagName === 'H2') li.classList.add('toc-level-h2');
@@ -114,7 +150,16 @@ function buildToc() {
 
   if (headingElements.length === 0) {
     tocList.innerHTML = '<li class="toc-empty">本部分无目录</li>';
+    return false;
   }
+
+  cacheHeadingGeometry();
+  const prose = document.querySelector<HTMLElement>('.prose');
+  if (prose) {
+    headingResizeObserver = new ResizeObserver(scheduleHeadingGeometry);
+    headingResizeObserver.observe(prose);
+  }
+  return true;
 }
 
 // 使用缓存的绝对偏移模拟指定 scrollY 处的可见范围
@@ -125,7 +170,7 @@ function computeRangeAt(scrollY: number): { firstIdx: number; lastIdx: number } 
 
   for (let i = 0; i < headingAbsTops.length; i++) {
     const top = headingAbsTops[i];
-    const bottom = top + headingElements[i].element.offsetHeight;
+    const bottom = headingAbsBottoms[i];
     if (top < scrollY + viewportHeight && bottom >= scrollY) {
       if (firstIdx === -1) firstIdx = i;
       lastIdx = i;
@@ -258,28 +303,15 @@ function setupScrollSpy() {
   updateActive();
 }
 
-function updateRightIndicator(headingRects?: DOMRect[]) {
+function updateRightIndicator(firstVisibleIdx?: number, lastVisibleIdx?: number) {
   const container = document.querySelector('.toc-area');
   const indicator = document.querySelector<HTMLElement>('.toc-area .position-indicator');
   if (!container || !indicator) return;
 
-  if (!headingRects) {
-    headingRects = [];
-    for (let i = 0; i < headingElements.length; i++) {
-      headingRects.push(headingElements[i].element.getBoundingClientRect());
-    }
-  }
-
-  const viewportHeight = window.innerHeight;
-  let firstVisibleIdx = -1;
-  let lastVisibleIdx = -1;
-
-  for (let i = 0; i < headingRects.length; i++) {
-    const rect = headingRects[i];
-    if (rect.top < viewportHeight && rect.bottom >= 0) {
-      if (firstVisibleIdx === -1) firstVisibleIdx = i;
-      lastVisibleIdx = i;
-    }
+  if (firstVisibleIdx === undefined || lastVisibleIdx === undefined) {
+    const range = computeRangeAt(window.scrollY);
+    firstVisibleIdx = range.firstIdx;
+    lastVisibleIdx = range.lastIdx;
   }
 
   if (firstVisibleIdx === -1) {
@@ -315,17 +347,12 @@ function updateActive() {
     return;
   }
 
-  const headingRects: DOMRect[] = [];
-  for (let i = 0; i < headingElements.length; i++) {
-    headingRects.push(headingElements[i].element.getBoundingClientRect());
-  }
-
   let bestMatchIndex = -1;
   const scrollY = window.scrollY;
   const offset = 20;
 
-  for (let i = headingRects.length - 1; i >= 0; i--) {
-    if (scrollY + offset >= headingRects[i].top + scrollY) {
+  for (let i = headingAbsTops.length - 1; i >= 0; i--) {
+    if (scrollY + offset >= headingAbsTops[i]) {
       bestMatchIndex = i;
       break;
     }
@@ -341,7 +368,8 @@ function updateActive() {
     }
   }
 
-  updateRightIndicator(headingRects);
+  const range = computeRangeAt(scrollY);
+  updateRightIndicator(range.firstIdx, range.lastIdx);
   ticking = false;
 }
 

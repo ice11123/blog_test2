@@ -5,6 +5,7 @@ import {
   waitForStatusResult,
   type StatusRequestResult,
 } from '../lib/publicStatusRequest';
+import { fetchPriorityPublicData } from '../lib/publicDataFetch';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 const WORKER_TIMEOUT_MS = 4_500;
@@ -59,11 +60,13 @@ function initPublicStatus(): void {
         attempts: 1,
         timeoutMs: REQUEST_TIMEOUT_MS,
         signal: controller.signal,
+        fetchImpl: fetchPriorityPublicData,
       }),
       requestStatusJson(`${GITHUB_API}/repos/${REPOSITORY}/actions/workflows/deploy.yml/runs?branch=${BRANCH}&per_page=1`, {
         attempts: 1,
         timeoutMs: REQUEST_TIMEOUT_MS,
         signal: controller.signal,
+        fetchImpl: fetchPriorityPublicData,
       }),
     ]);
 

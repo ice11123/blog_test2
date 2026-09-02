@@ -1,24 +1,18 @@
 ---
 interface Props {
-  type?: "line" | "surface";
-
-  // 曲线方程 (t 为变量)
+  type?: 'line' | 'surface';
   xEquation?: string;
   yEquation?: string;
   zEquation?: string;
-
-  // 曲面方程 (u, v 为变量)
   xSurface?: string;
   ySurface?: string;
   zSurface?: string;
-
   uStart?: number;
   uEnd?: number;
   vStart?: number;
   vEnd?: number;
   tStart?: number;
   tEnd?: number;
-
   points?: number;
   title?: string;
   color?: string;
@@ -27,46 +21,34 @@ interface Props {
 }
 
 const {
-  type = "line",
-  xEquation = "Math.cos(t)",
-  yEquation = "Math.sin(t)",
-  zEquation = "t",
-  xSurface = "u * Math.cos(v)",
-  ySurface = "u * Math.sin(v)",
-  zSurface = "v",
-  uStart = 0,
-  uEnd = 2,
-  vStart = 0,
-  vEnd = 2 * Math.PI,
-  tStart = 0,
-  tEnd = 4 * Math.PI,
-  points = 150,
-  color = "#1f77b4",
-  width = 600,
-  height = 400,
+  type = 'line', xEquation = 'Math.cos(t)', yEquation = 'Math.sin(t)', zEquation = 't',
+  xSurface = 'u * Math.cos(v)', ySurface = 'u * Math.sin(v)', zSurface = 'v',
+  uStart = 0, uEnd = 2, vStart = 0, vEnd = 2 * Math.PI,
+  tStart = 0, tEnd = 4 * Math.PI, points = 150, color = '#1f77b4',
+  width = 600, height = 400,
 } = Astro.props;
 
-const plotId = "plot-" + Math.random().toString(36).slice(2);
+const config = {
+  type, xEquation, yEquation, zEquation, xSurface, ySurface, zSurface,
+  uStart, uEnd, vStart, vEnd, tStart, tEnd, points, color,
+};
 ---
 
-<!-- 1. 提前加载 Plotly，只加载一次，不阻塞渲染 -->
-<script is:inline src="https://cdn.plot.ly/plotly-3.7.0.min.js" async></script>
+<div
+  class="plot-container"
+  data-plot3d
+  data-plot-config={JSON.stringify(config)}
+  aria-label="三维交互图形"
+  style={{
+    width: '100%', maxWidth: `${width}px`, height: `${height}px`,
+    margin: '1rem 0', border: '1px solid var(--plot-border)',
+  }}
+></div>
 
-<div id={plotId} class="plot-container" style={{
-  width: '100%',
-  maxWidth: `${width}px`,
-  height: `${height}px`,
-  margin: '1rem 0',
-  border: '1px solid var(--plot-border)',
-}}></div>
 <style>
   @media (max-width: 640px) {
-    .plot-container {
-      height: auto !important;
-      aspect-ratio: 3/4;
-    }
+    .plot-container { height: auto !important; aspect-ratio: 3/4; }
   }
-
   .plot-container.plot-load-error {
     display: grid;
     place-items: center;
@@ -78,102 +60,4 @@ const plotId = "plot-" + Math.random().toString(36).slice(2);
   }
 </style>
 
-<script is:inline define:vars={{
-  plotId,
-  type,
-  xEquation,
-  yEquation,
-  zEquation,
-  xSurface,
-  ySurface,
-  zSurface,
-  uStart,
-  uEnd,
-  vStart,
-  vEnd,
-  tStart,
-  tEnd,
-  points,
-  color
-}}>
-  // @ts-nocheck -- 方程来自受信任的本地 MDX 内容，运行时异常会被组件捕获。
-  // 2. 封装绘图逻辑，等待 Plotly 加载完成
-  async function drawPlot() {
-    const el = document.getElementById(plotId);
-    if (!el) return;
-    el.dataset.plotState = 'loading';
-
-    try {
-      const deadline = Date.now() + 10_000;
-      while (!window.Plotly) {
-        if (Date.now() >= deadline) throw new Error('Plotly load timeout');
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
-      const config = {
-        displayModeBar: false,
-        displaylogo: false,
-      };
-
-      const rootStyles = getComputedStyle(document.documentElement);
-      const plotBg = rootStyles.getPropertyValue('--plot-bg').trim() || '#121417';
-      const axisColor = rootStyles.getPropertyValue('--plot-axis-color').trim() || '#ffffff';
-
-      const layout = {
-        showlegend: false,
-        autosize: true,
-        margin: { l: 0, r: 0, t: 0, b: 0 },
-        scene: {
-          xaxis: { visible: true, color: axisColor },
-          yaxis: { visible: true, color: axisColor },
-          zaxis: { visible: true, color: axisColor },
-          bgcolor: plotBg,
-          domain: { x: [0, 1], y: [0, 1] },
-          aspectmode: "data"
-        },
-        paper_bgcolor: plotBg,
-        plot_bgcolor: plotBg
-      };
-
-      if (type === "line") {
-        const dt = (tEnd - tStart) / points;
-        const t = Array.from({ length: points }, (_, i) => tStart + i * dt);
-        const x = t.map(t => eval(xEquation));
-        const y = t.map(t => eval(yEquation));
-        const z = t.map(t => eval(zEquation));
-
-        await Plotly.newPlot(el, [{
-          type: "scatter3d", mode: "lines", x, y, z,
-          line: { width: 4, color,}
-        }], layout, config);
-      }
-
-      if (type === "surface") {
-        const du = (uEnd - uStart) / points;
-        const dv = (vEnd - vStart) / points;
-        const u = Array.from({ length: points }, (_, i) => uStart + i * du);
-        const v = Array.from({ length: points }, (_, i) => vStart + i * dv);
-
-        const x = u.map(u => v.map(v => eval(xSurface)));
-        const y = u.map(u => v.map(v => eval(ySurface)));
-        const z = u.map(u => v.map(v => eval(zSurface)));
-
-        await Plotly.newPlot(el, [{
-          type: "surface", x, y, z,
-          colorscale: "Viridis",
-          showscale: false
-        }], layout, config);
-      }
-      el.dataset.plotState = 'loaded';
-    } catch (error) {
-      console.warn('Plot3D render failed:', error);
-      el.dataset.plotState = 'error';
-      el.classList.add('plot-load-error');
-      el.setAttribute('role', 'status');
-      el.textContent = '三维图形暂时无法加载，请稍后刷新重试。';
-    }
-  }
-
-  // 3. 立即执行，不等待 DOMContentLoaded（更快）
-  drawPlot();
-</script>
+<script src="../../scripts/plot3d.ts"></script>

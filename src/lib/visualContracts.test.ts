@@ -68,6 +68,9 @@ test('TOC、搜索与 Spoiler 使用新的交互契约', () => {
   const toc = readSource('scripts/toc.ts');
   assert.doesNotMatch(toc, /\.style\.height/);
   assert.match(toc, /scaleY\(\$\{length\}\)/);
+  assert.match(toc, /astro:before-swap', teardownToc/);
+  assert.match(toc, /headingResizeObserver/);
+  assert.match(toc, /headingAbsBottoms/);
 
   const search = readSource('scripts/search.ts');
   assert.match(search, /openModal\('keyboard'\)/);
@@ -208,6 +211,7 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   const home = readSource('pages/index.astro');
   const motion = readSource('scripts/home-hero-motion.ts');
   const gesture = readSource('lib/homeCoverGesture.ts');
+  const geometry = readSource('lib/homeCoverMotionGeometry.ts');
 
   assert.match(home, /data-home-cover-toggle/);
   assert.match(home, /data-home-cover-gesture/);
@@ -251,7 +255,8 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(motion, /cubicBezierCoordinate\(parameter, 0\.72, 1\)/);
   assert.match(motion, /DRAWER_EASING\s*=\s*'cubic-bezier\(0\.32, 0\.72, 0, 1\)'/);
   assert.match(motion, /settleAnimations\[0\]/);
-  assert.doesNotMatch(motion, /requestAnimationFrame/);
+  assert.match(motion, /scheduleLayoutUpdate/);
+  assert.doesNotMatch(motion, /function tick|requestAnimationFrame\(tick\)/);
   assert.match(motion, /setPointerCapture/);
   assert.match(motion, /releasePointerCapture/);
   assert.match(motion, /trackedPenPointers\.size\s*>\s*1/);
@@ -262,7 +267,7 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(motion, /pageScrollY:\s*window\.scrollY/);
   assert.doesNotMatch(motion, /isPointInside/);
   assert.match(motion, /clipPath:\s*`inset\(/);
-  assert.match(motion, /drawerDistance\s*=\s*Math\.max\(stageRect\.bottom\s*-\s*sourceRect\.bottom/);
+  assert.match(geometry, /drawerDistance:\s*Math\.max\(input\.stageRect\.bottom\s*-\s*input\.sourceRect\.bottom/);
   assert.match(motion, /createProgressAnimation\(drawer/);
   assert.match(motion, /createProgressAnimation\(fullImage/);
   assert.doesNotMatch(motion, /createProgressAnimation\(source/);
@@ -280,6 +285,9 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.doesNotMatch(motion, /createProgressAnimation\(sidebar/);
   assert.doesNotMatch(motion, /setElementUnavailable\(sidebar/);
   assert.match(motion, /stageLeft\s*=\s*sidebarIsVisible[\s\S]*sidebar\.getBoundingClientRect\(\)\.right\s*:\s*0/);
+  assert.ok(motion.indexOf('const blueprint = cachedMotionBlueprint') < motion.indexOf('setElementUnavailable(drawer, false)'));
+  assert.match(motion, /releaseHighResolution\(\)/);
+  assert.match(home, /content-visibility:\s*auto/);
 });
 
 test('Worker 状态服务由 Pages 构建变量注入且写入开关独立', () => {

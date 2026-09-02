@@ -32,7 +32,7 @@ const validateUrl = (url: string): string => {
 const safeUrl = initialUrl ? validateUrl(initialUrl) : 'https://example.com';
 ---
 
-<div class="mini-browser" style={`width: ${width}; height: ${height};`}>
+<div class="mini-browser" data-mini-browser style={`width: ${width}; height: ${height};`}>
   <div class="browser-chrome">
     <div class="browser-controls">
       <div class="control-btn close"></div>
@@ -43,17 +43,20 @@ const safeUrl = initialUrl ? validateUrl(initialUrl) : 'https://example.com';
       <input
         type="text"
         id="browser-url-input"
+        data-mini-browser-url
         class="url-input"
         value={safeUrl}
         placeholder="输入网址 (例如: https://example.com)"
       />
-      <button class="go-btn" id="go-btn">前往</button>
+      <button class="go-btn" id="go-btn" data-mini-browser-go>前往</button>
     </div>
   </div>
   <div class="browser-content">
     <iframe
       id="browser-frame"
+      data-mini-browser-frame
       src={safeUrl}
+      loading="lazy"
       sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
       class="browser-frame"
     ></iframe>
@@ -197,13 +200,17 @@ const safeUrl = initialUrl ? validateUrl(initialUrl) : 'https://example.com';
 
 <script>
   // @ts-nocheck -- 授权源码中的 iframe 小组件使用运行时 DOM 检查。
-  document.addEventListener('DOMContentLoaded', () => {
-    const urlInput = document.getElementById('browser-url-input');
-    const goBtn = document.getElementById('go-btn');
-    const iframe = document.getElementById('browser-frame');
+  function initMiniBrowsers() {
+    document.querySelectorAll('[data-mini-browser]').forEach((root) => {
+      if (root.dataset.bound === 'true') return;
+      const urlInput = root.querySelector('[data-mini-browser-url]');
+      const goBtn = root.querySelector('[data-mini-browser-go]');
+      const iframe = root.querySelector('[data-mini-browser-frame]');
+      if (!(urlInput instanceof HTMLInputElement) || !(goBtn instanceof HTMLButtonElement) || !(iframe instanceof HTMLIFrameElement)) return;
+      root.dataset.bound = 'true';
 
-    // 获取当前页面URL用于验证
-    const currentUrl = new URL(window.location.href);
+      // 获取当前页面URL用于验证
+      const currentUrl = new URL(window.location.href);
     const currentOrigin = currentUrl.origin;
     const currentPathname = currentUrl.pathname;
 
@@ -243,7 +250,7 @@ const safeUrl = initialUrl ? validateUrl(initialUrl) : 'https://example.com';
     goBtn.addEventListener('click', navigateToUrl);
 
     // 支持回车键
-    urlInput.addEventListener('keypress', (e) => {
+    urlInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         navigateToUrl();
       }
@@ -265,5 +272,9 @@ const safeUrl = initialUrl ? validateUrl(initialUrl) : 'https://example.com';
     iframe.addEventListener('error', () => {
       alert('页面加载失败，请检查URL是否正确');
     });
-  });
+    });
+  }
+
+  initMiniBrowsers();
+  document.addEventListener('astro:page-load', initMiniBrowsers);
 </script>

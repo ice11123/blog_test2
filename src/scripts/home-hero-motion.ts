@@ -6,6 +6,10 @@ import {
   resolveHomeCoverSettleDuration,
   resolveHomeCoverTakeover,
 } from '../lib/homeCoverGesture';
+import {
+  computeHomeCoverMotionGeometry,
+  type HomeCoverMotionGeometry,
+} from '../lib/homeCoverMotionGeometry';
 
 const COVER_SELECTOR = '[data-home-cover]';
 const SOURCE_SELECTOR = '.home-cover';
@@ -67,6 +71,11 @@ type HomeCoverState = 'collapsed' | 'dragging' | 'settling' | 'expanded';
 type MotionTrack = {
   element: HTMLElement | SVGElement;
   frameAt: (progress: number) => Keyframe;
+};
+type MotionBlueprint = {
+  geometry: HomeCoverMotionGeometry;
+  imageWidth: number;
+  imageHeight: number;
 };
 
 let cleanupCurrentHero: (() => void) | undefined;
@@ -130,6 +139,9 @@ function initHomeHeroMotion() {
   let wheelBoundaryTimer: number | undefined;
   let wheelRequiresFreshInput = false;
   let wheelTravelDistance = 280;
+  let cachedMotionBlueprint: MotionBlueprint | undefined;
+  let layoutUpdateFrame: number | undefined;
+  let geometryMeasureFrame: number | undefined;
 
   const documentElement = document.documentElement;
   const previousOverscrollBehavior = documentElement.style.overscrollBehaviorY;
@@ -159,6 +171,29 @@ function initHomeHeroMotion() {
     const stageHeight = Math.max(window.innerHeight - measuredHeaderHeight, 1);
     gestureTravelDistance = Math.min(Math.max(stageHeight * 0.3, 160), 280);
     wheelTravelDistance = Math.min(Math.max(stageHeight * 0.45, 240), 420);
+    cachedMotionBlueprint = undefined;
+  };
+
+  const measureMotionBlueprint = (): MotionBlueprint => {
+    const sourceRect = source.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+    const imageWidth = Math.max(heroImage.naturalWidth || fullImage.naturalWidth || Number(fullImage.width), 1);
+    const imageHeight = Math.max(heroImage.naturalHeight || fullImage.naturalHeight || Number(fullImage.height), 1);
+    const [objectPositionX, objectPositionY] = parseObjectPosition(getComputedStyle(heroImage).objectPosition);
+    return {
+      imageWidth,
+      imageHeight,
+      geometry: computeHomeCoverMotionGeometry({
+        sourceRect,
+        stageRect,
+        imageWidth,
+        imageHeight,
+        objectPositionX,
+        objectPositionY,
+        headerHeight: measuredHeaderHeight,
+        toggleHeight: toggle.offsetHeight,
+      }),
+    };
   };
 
   const updateToggle = (expanded: boolean) => {
@@ -179,6 +214,15 @@ function initHomeHeroMotion() {
     if (!pendingHighResolutionSource || state !== 'expanded') return;
     fullImage.removeAttribute('srcset');
     fullImage.src = pendingHighResolutionSource;
+    pendingHighResolutionSource = '';
+  };
+
+  const cancelHighResolutionRequest = () => {
+    if (highResolutionLoader) {
+      highResolutionLoader.removeAttribute('srcset');
+      highResolutionLoader.removeAttribute('src');
+    }
+    highResolutionLoader = undefined;
     pendingHighResolutionSource = '';
   };
 
@@ -207,13 +251,18 @@ function initHomeHeroMotion() {
     fullImage.src = src;
   };
 
+  const releaseHighResolution = () => {
+    cancelHighResolutionRequest();
+    highResolutionRequested = false;
+    reuseDecodedHero();
+  };
+
   const syncHeroTheme = () => {
     const theme = documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
     if (theme === activeHeroTheme) return;
     activeHeroTheme = theme;
+    cancelHighResolutionRequest();
     highResolutionRequested = false;
-    highResolutionLoader = undefined;
-    pendingHighResolutionSource = '';
 
     const sourceSrcset = heroSource.getAttribute(`data-${theme}-srcset`);
     const sourceType = heroSource.getAttribute(`data-${theme}-type`);
@@ -232,10 +281,13 @@ function initHomeHeroMotion() {
     fullImage.src = lqip;
     fullImage.dataset.fullSrc = fullSrc;
     fullImage.dataset.fullSrcset = fullSrcset;
+    cachedMotionBlueprint = undefined;
     if (requestedTarget === 1) requestHighResolution();
   };
 
   const handleHeroLoad = () => {
+    cachedMotionBlueprint = undefined;
+    scheduleGeometryMeasurement();
     if (!highResolutionRequested) reuseDecodedHero();
   };
 
@@ -264,50 +316,27 @@ function initHomeHeroMotion() {
     dragAnimations.push(animation);
   };
 
-  const createTimelines = () => {
+  const createTimelines = (blueprint: MotionBlueprint) => {
     clearAnimations();
     motionTracks.splice(0);
-    updateLayoutGeometry();
-    const sourceRect = source.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect();
-    const stageWidth = Math.max(stageRect.width, 1);
-    const stageHeight = Math.max(stageRect.height, 1);
-    const imageWidth = Math.max(heroImage.naturalWidth || fullImage.naturalWidth || Number(fullImage.width), 1);
-    const imageHeight = Math.max(heroImage.naturalHeight || fullImage.naturalHeight || Number(fullImage.height), 1);
-    const [positionX, positionY] = parseObjectPosition(getComputedStyle(heroImage).objectPosition);
+    const { geometry, imageWidth, imageHeight } = blueprint;
 
     fullImage.style.width = `${imageWidth}px`;
     fullImage.style.height = `${imageHeight}px`;
 
-    const coverScale = Math.max(sourceRect.width / imageWidth, sourceRect.height / imageHeight);
-    const coverX = sourceRect.left - stageRect.left + (sourceRect.width - imageWidth * coverScale) * positionX;
-    const coverY = sourceRect.top - stageRect.top + (sourceRect.height - imageHeight * coverScale) * positionY;
-    const containScale = Math.min(stageWidth / imageWidth, stageHeight / imageHeight);
-    const containX = (stageWidth - imageWidth * containScale) / 2;
-    const containY = (stageHeight - imageHeight * containScale) / 2;
-
-    const clipTop = Math.max(sourceRect.top - stageRect.top, 0);
-    const clipRight = Math.max(stageRect.right - sourceRect.right, 0);
-    const clipBottom = Math.max(stageRect.bottom - sourceRect.bottom, 0);
-    const clipLeft = Math.max(sourceRect.left - stageRect.left, 0);
     createProgressAnimation(stage, (value) => ({
-      clipPath: `inset(${interpolate(clipTop, 0, value)}px ${interpolate(clipRight, 0, value)}px ${interpolate(clipBottom, 0, value)}px ${interpolate(clipLeft, 0, value)}px)`,
+      clipPath: `inset(${interpolate(geometry.clipTop, 0, value)}px ${interpolate(geometry.clipRight, 0, value)}px ${interpolate(geometry.clipBottom, 0, value)}px ${interpolate(geometry.clipLeft, 0, value)}px)`,
     }), 'clip-path');
     createProgressAnimation(fullImage, (value) => ({
-      transform: `translate3d(${interpolate(coverX, containX, value)}px, ${interpolate(coverY, containY, value)}px, 0) scale(${interpolate(coverScale, containScale, value)})`,
+      transform: `translate3d(${interpolate(geometry.coverX, geometry.containX, value)}px, ${interpolate(geometry.coverY, geometry.containY, value)}px, 0) scale(${interpolate(geometry.coverScale, geometry.containScale, value)})`,
     }));
 
-    const drawerDistance = Math.max(stageRect.bottom - sourceRect.bottom, 0);
     createProgressAnimation(drawer, (value) => ({
-      transform: `translate3d(0, ${drawerDistance * value}px, 0)`,
+      transform: `translate3d(0, ${geometry.drawerDistance * value}px, 0)`,
     }));
 
-    const targetHandleX = stageRect.left + stageWidth / 2;
-    const targetHandleY = measuredHeaderHeight + 16 + toggle.offsetHeight / 2;
-    const handleX = sourceRect.left + sourceRect.width / 2 - targetHandleX;
-    const handleY = sourceRect.top + 16 + toggle.offsetHeight / 2 - targetHandleY;
     createProgressAnimation(toggle, (value) => ({
-      transform: `translate3d(${handleX * (1 - value)}px, ${handleY * (1 - value)}px, 0) translateX(-50%)`,
+      transform: `translate3d(${geometry.handleX * (1 - value)}px, ${geometry.handleY * (1 - value)}px, 0) translateX(-50%)`,
     }));
     const icon = toggle.querySelector<SVGElement>('svg');
     if (icon) createProgressAnimation(icon, (value) => ({ transform: `rotate(${180 * value}deg)` }));
@@ -338,13 +367,38 @@ function initHomeHeroMotion() {
     }
   };
 
+  const scheduleGeometryMeasurement = () => {
+    if (geometryMeasureFrame !== undefined) window.cancelAnimationFrame(geometryMeasureFrame);
+    geometryMeasureFrame = window.requestAnimationFrame(() => {
+      geometryMeasureFrame = undefined;
+      cachedMotionBlueprint = measureMotionBlueprint();
+      if (state !== 'expanded') return;
+      createTimelines(cachedMotionBlueprint);
+      applyProgress(1);
+      commitProgress(1);
+      clearAnimations();
+    });
+  };
+
+  const scheduleLayoutUpdate = () => {
+    if (layoutUpdateFrame !== undefined) return;
+    layoutUpdateFrame = window.requestAnimationFrame(() => {
+      layoutUpdateFrame = undefined;
+      updateLayoutGeometry();
+      scheduleGeometryMeasurement();
+    });
+  };
+
   const beginMotion = () => {
+    // 先读取并缓存几何，再写入 inert、dataset 与 will-change，避免输入首帧强制同步布局。
+    const blueprint = cachedMotionBlueprint ?? measureMotionBlueprint();
+    cachedMotionBlueprint = blueprint;
     setElementUnavailable(drawer, false);
     setElementUnavailable(footer, false);
     source.removeAttribute('aria-hidden');
     documentElement.dataset.homeCoverMotionActive = 'true';
     shell.dataset.motionActive = 'true';
-    createTimelines();
+    createTimelines(blueprint);
     applyProgress(progress);
   };
 
@@ -383,6 +437,7 @@ function initHomeHeroMotion() {
         setElementUnavailable(footer, true);
       }
       clearAnimations();
+      if (target === 0) releaseHighResolution();
     };
     if (dragAnimations.length === 0 && settleAnimations.length === 0) finalizeStableState();
     else stableCleanupTimer = window.setTimeout(finalizeStableState, 48);
@@ -662,16 +717,9 @@ function initHomeHeroMotion() {
     updateWaves();
   };
   const handleVisibility = () => updateWaves();
-  const handleResize = () => {
-    updateLayoutGeometry();
-    if (state !== 'expanded') return;
-    createTimelines();
-    applyProgress(1);
-    commitProgress(1);
-    clearAnimations();
-  };
+  const handleResize = () => scheduleLayoutUpdate();
 
-  const layoutObserver = new ResizeObserver(updateLayoutGeometry);
+  const layoutObserver = new ResizeObserver(scheduleLayoutUpdate);
   layoutObserver.observe(header);
   if (sidebar) layoutObserver.observe(sidebar);
   const coverObserver = new IntersectionObserver(([entry]) => {
@@ -683,6 +731,7 @@ function initHomeHeroMotion() {
   themeObserver.observe(documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   updateLayoutGeometry();
+  scheduleGeometryMeasurement();
   settleStable(0);
   heroImage.addEventListener('load', handleHeroLoad);
   syncHeroTheme();
@@ -704,11 +753,16 @@ function initHomeHeroMotion() {
 
   cleanupCurrentHero = () => {
     settleSequence += 1;
-    highResolutionLoader = undefined;
+    cancelHighResolutionRequest();
     layoutObserver.disconnect();
     coverObserver.disconnect();
     themeObserver.disconnect();
     clearAnimations();
+    if (layoutUpdateFrame !== undefined) window.cancelAnimationFrame(layoutUpdateFrame);
+    if (geometryMeasureFrame !== undefined) window.cancelAnimationFrame(geometryMeasureFrame);
+    layoutUpdateFrame = undefined;
+    geometryMeasureFrame = undefined;
+    cachedMotionBlueprint = undefined;
     resetWheelGesture();
     if (wheelBoundaryTimer !== undefined) window.clearTimeout(wheelBoundaryTimer);
     wheelBoundaryTimer = undefined;
