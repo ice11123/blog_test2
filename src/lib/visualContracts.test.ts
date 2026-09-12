@@ -142,6 +142,7 @@ test('非首屏样式、搜索引擎与移动端侧栏按需加载', () => {
   assert.match(sidebarScript, /matchMedia\(['"]\(min-width:\s*1000px\)['"]\)/);
   assert.match(sidebarScript, /if \(!desktopSidebarQuery\.matches\) return/);
   assert.match(publicStatus, /import ['"]\.\.\/\.\.\/styles\/system-status\.scss['"]/);
+  assert.match(adminPage, /import ['"]\.\.\/\.\.\/styles\/system-status\.scss['"]/);
   assert.match(publicContentLayout, /import blogPostCss from ['"]\.\.\/styles\/blog-post\.scss\?url['"]/);
   assert.match(publicContentLayout, /<link slot="head" rel="stylesheet" href=\{blogPostCss\}/);
   assert.match(blogPostLayout, /import katexCss from ['"]katex\/dist\/katex\.min\.css\?url['"]/);

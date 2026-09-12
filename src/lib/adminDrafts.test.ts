@@ -121,6 +121,25 @@ test('导出 Markdown 时 frontmatter 与正文之间保留空行', () => {
   assert.match(draftToMarkdown(post('draft/local', '导出文章', false)), /---\n\n# 导出文章\n$/);
 });
 
+test('文章作者、GitHub 源地址与编辑日期经过草稿恢复和导出后保留', () => {
+  const storage = new MemoryStorage();
+  const draft = {
+    ...post('draft/metadata', '文章信息', false),
+    author: '离子怪',
+    sourceUrl: 'https://github.com/ice11123/blog_test2',
+    updatedDate: '2026-09-12',
+    localEditedAt: '2026-09-12T02:00:00Z',
+  };
+  new LocalStorageDraftStore([], storage).save(draft);
+  const restored = new LocalStorageDraftStore([], storage).list()[0];
+  assert.equal(restored.author, draft.author);
+  assert.equal(restored.sourceUrl, draft.sourceUrl);
+  const markdown = draftToMarkdown(restored);
+  assert.match(markdown, /\nauthor: "离子怪"\n/);
+  assert.match(markdown, /\nsourceUrl: "https:\/\/github.com\/ice11123\/blog_test2"\n/);
+  assert.match(markdown, /\nupdatedDate: 2026-09-12\n/);
+});
+
 test('草稿写入失败时抛出可识别错误且不会伪造持久化结果', () => {
   const storage = new FailingStorage();
   const store = new LocalStorageDraftStore([post('a', '仓库版本')], storage);

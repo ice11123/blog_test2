@@ -26,11 +26,13 @@ function initPersistentSidebars() {
     root.dataset.sidebarBound = 'true';
 
     root.addEventListener('click', (event) => {
+      if (event.detail > 0) root.dataset.keyboardNav = 'false';
       const button = (event.target as Element).closest<HTMLButtonElement>(TAB_SELECTOR);
       if (button && root.contains(button)) activateTab(root, button);
     });
 
     root.addEventListener('keydown', (event) => {
+      root.dataset.keyboardNav = 'true';
       const current = (event.target as Element).closest<HTMLButtonElement>(TAB_SELECTOR);
       if (!current || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
 

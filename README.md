@@ -25,11 +25,16 @@ pnpm run preview
 title: '文章标题'
 description: '文章摘要'
 pubDate: '2026-08-11'
+updatedDate: '2026-09-12'
+author: '离子怪'
+sourceUrl: 'https://github.com/ice11123/blog_test2'
 tags: ['标签']
 ---
 
 正文内容
 ```
+
+文章顶部的信息栏统一展示 GitHub 源地址、作者、最近编辑日期、分类与标签。`sourceUrl` 填文章对应的 GitHub 仓库或源文件 HTTPS 链接，未填写时指向本站仓库；`author` 默认采用站点作者。`updatedDate` 应填写实际修改日期，省略时展示发布日期。管理台会在编辑后更新日期，并在保存、恢复与导出时保留作者和源地址。
 
 ## DIY 入口
 

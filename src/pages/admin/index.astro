@@ -7,6 +7,7 @@ import katexCss from 'katex/dist/katex.min.css?url';
 import { ADMIN_SYNC_API_URL, CLOUD_PUBLISH_ENABLED, SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import type { AdminPostDraft } from '../../lib/adminDrafts';
 import { resolveDirs } from '../../lib/utils';
+import '../../styles/system-status.scss';
 
 const posts = await getCollection('blog');
 const initialDrafts: AdminPostDraft[] = posts.map((post) => {
@@ -19,6 +20,8 @@ const initialDrafts: AdminPostDraft[] = posts.map((post) => {
     description: post.data.description,
     pubDate: post.data.pubDate.toISOString().slice(0, 10),
     updatedDate: post.data.updatedDate?.toISOString().slice(0, 10),
+    author: post.data.author,
+    sourceUrl: post.data.sourceUrl,
     dir1: dirs.dir1,
     dir2: dirs.dir2,
     tags: post.data.tags ?? [],
@@ -113,7 +116,7 @@ const systemCards = [
               <button type="button" data-new>新建文章</button>
               <button type="button" data-reset>恢复仓库内容</button>
               <button type="button" data-export>导出当前文件</button>
-              <button type="button" class="sync-button" data-cloud-publish disabled title="blog_test2 视觉实验版暂不接入云端发布">发布到正式网站（暂未启用）</button>
+              <button type="button" class="sync-button" data-cloud-publish disabled={!CLOUD_PUBLISH_ENABLED} title={CLOUD_PUBLISH_ENABLED ? '通过 GitHub 授权提交到 blog_test2' : '发布授权尚未配置完成，可先保存或导出草稿'}>{CLOUD_PUBLISH_ENABLED ? '发布到正式网站' : '发布到正式网站（待配置授权）'}</button>
             </div>
           </div>
 
@@ -144,6 +147,8 @@ const systemCards = [
                 <div class="form-grid">
                   <label>标题<input name="title" required /></label>
                   <label>发布日期<input name="pubDate" type="date" required /></label>
+                  <label>作者<input name="author" placeholder="默认：离子怪" /></label>
+                  <label>GitHub 源地址<input name="sourceUrl" type="url" pattern="https://github\.com/.*" placeholder="https://github.com/…" /></label>
                   <label class="wide">描述<textarea name="description" rows="2" required></textarea></label>
                   <label>一级目录<input name="dir1" placeholder="例如：数学" /></label>
                   <label>二级目录<input name="dir2" placeholder="可选" /></label>
@@ -157,7 +162,7 @@ const systemCards = [
                   <button type="button" data-delete>删除当前文章</button>
                   <span class="edited-at" data-edited-at>尚未修改</span>
                 </div>
-                <p class="sync-hint">当前为视觉实验版，仅支持本地草稿与导出；云端发布已禁用，不会请求 OAuth、Worker 或 GitHub 写接口。</p>
+                <p class="sync-hint">{CLOUD_PUBLISH_ENABLED ? '发布需要 GitHub 管理员授权；确认后提交到 blog_test2，随后自动更新正式网站。' : '发布授权尚未启用；可保存本地草稿和导出文件。服务状态检测为只读，不会修改仓库。'}</p>
               </form>
             </section>
 

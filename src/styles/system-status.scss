@@ -59,6 +59,7 @@
   }
 
   .system-card {
+    box-sizing: border-box;
     --state-color: var(--alert-warning);
     --state-bg: var(--alert-warning-bg);
     min-width: 0;
@@ -89,13 +90,13 @@
 
   .system-card header strong {
     min-width: 0;
-    overflow: hidden;
     font-size: 0.78rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .system-card header [data-card-state] {
+    flex-shrink: 0;
     margin-left: auto;
     color: var(--state-color);
     font-size: 0.68rem;
@@ -116,21 +117,19 @@
 
   .system-card p {
     margin: 0.42rem 0 0.15rem;
-    overflow: hidden;
     font-size: 0.8rem;
     font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .system-card small {
     display: block;
     min-height: 1.15em;
-    overflow: hidden;
     color: var(--foreground-dark);
     font-size: 0.68rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .system-card a {

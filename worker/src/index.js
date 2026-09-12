@@ -435,13 +435,15 @@ function validatePost(post) {
     const max = key === 'body' ? 200_000 : 2_000;
     if (typeof post[key] !== 'string' || !post[key].trim() || post[key].length > max) throw new HttpError(400, `字段无效：${key}`);
   }
-  for (const key of ['dir1', 'dir2', 'updatedDate', 'id', 'publishedPath']) {
+  for (const key of ['dir1', 'dir2', 'updatedDate', 'id', 'publishedPath', 'author', 'sourceUrl']) {
     if (post[key] !== undefined && typeof post[key] !== 'string') throw new HttpError(400, `字段无效：${key}`);
   }
   for (const key of ['pubDate', 'updatedDate']) {
     if (post[key] !== undefined && !isIsoDate(post[key])) throw new HttpError(400, `日期无效：${key}`);
   }
   if (!['md', 'mdx'].includes(post.format)) throw new HttpError(400, '文章格式无效');
+  if (post.author !== undefined && (!post.author.trim() || post.author.length > 200)) throw new HttpError(400, '作者无效');
+  if (post.sourceUrl !== undefined && (!URL.canParse(post.sourceUrl) || !post.sourceUrl.startsWith('https://github.com/') || post.sourceUrl.length > 2_000)) throw new HttpError(400, 'GitHub 源地址无效');
   if (post.id?.length > 500 || post.dir1?.length > 200 || post.dir2?.length > 200 || post.publishedPath?.length > 500) throw new HttpError(400, '目录或路径过长');
   if (post.tags !== undefined && (!Array.isArray(post.tags) || post.tags.some((x) => typeof x !== 'string' || !x.trim() || x.length > 100) || post.tags.length > 50)) throw new HttpError(400, '标签数据无效');
   const tags = post.tags ?? [];
@@ -449,7 +451,11 @@ function validatePost(post) {
 }
 
 function draftMarkdown(post) {
-  return `---\ntitle: ${JSON.stringify(post.title)}\ndescription: ${JSON.stringify(post.description)}\npubDate: ${post.pubDate}\n${post.updatedDate ? `updatedDate: ${post.updatedDate}\n` : ''}${post.dir1 ? `dir1: ${JSON.stringify(post.dir1)}\n` : ''}${post.dir2 ? `dir2: ${JSON.stringify(post.dir2)}\n` : ''}tags: [${post.tags.map((x) => JSON.stringify(x)).join(', ')}]\n---\n\n${post.body.trim()}\n`;
+  const metadata = ['updatedDate', 'author', 'sourceUrl', 'dir1', 'dir2']
+    .filter((key) => post[key]?.trim())
+    .map((key) => `${key}: ${key === 'updatedDate' ? post[key] : JSON.stringify(post[key].trim())}\n`)
+    .join('');
+  return `---\ntitle: ${JSON.stringify(post.title)}\ndescription: ${JSON.stringify(post.description)}\npubDate: ${post.pubDate}\n${metadata}tags: [${post.tags.map((x) => JSON.stringify(x)).join(', ')}]\n---\n\n${post.body.trim()}\n`;
 }
 
 function safeSegment(value) {
@@ -575,4 +581,4 @@ function toBase64(value) { const bytes = new TextEncoder().encode(value); let bi
 function bytesToBase64Url(bytes) { let binary = ''; for (const byte of bytes) binary += String.fromCharCode(byte); return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
 function base64UrlToBytes(value) { const normalized = value.replace(/-/g, '+').replace(/_/g, '/'); const binary = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')); return Uint8Array.from(binary, (char) => char.charCodeAt(0)); }
 
-export { adminReturnUrl, decryptSecret, encryptSecret, isAllowedOrigin, readJsonBody, safePublishedPath, validatePost };
+export { adminReturnUrl, decryptSecret, draftMarkdown, encryptSecret, isAllowedOrigin, readJsonBody, safePublishedPath, validatePost };

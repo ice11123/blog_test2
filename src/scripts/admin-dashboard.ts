@@ -275,7 +275,7 @@ function loadForm() {
   if (!form) return;
   clearTimeout(previewTimer);
   hasUnsavedChanges = false;
-  ['id', 'title', 'description', 'pubDate', 'dir1', 'dir2', 'body', 'format'].forEach((name) => {
+  ['id', 'title', 'description', 'pubDate', 'author', 'sourceUrl', 'dir1', 'dir2', 'body', 'format'].forEach((name) => {
     const input = field(name);
     if (input) input.value = post?.[name] || '';
   });
@@ -325,6 +325,9 @@ function collect() {
     title: field('title')?.value || '',
     description: field('description')?.value || '',
     pubDate: field('pubDate')?.value || '',
+    updatedDate: editedAt ? editedAt.slice(0, 10) : current()?.updatedDate,
+    author: field('author')?.value.trim() || undefined,
+    sourceUrl: field('sourceUrl')?.value.trim() || undefined,
     dir1: field('dir1')?.value || '',
     dir2: field('dir2')?.value || '',
     tags: (field('tags')?.value || '').split(',').map((tag) => tag.trim()).filter(Boolean),
@@ -625,6 +628,7 @@ function bindEvents() {
   });
   listen(app.querySelector('[data-export]'), 'click', () => {
     if (!current()) return;
+    if (!form.reportValidity()) return;
     const post = collect();
     const blob = new Blob([draftToMarkdown(post)], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -652,6 +656,7 @@ function bindEvents() {
     if (!CLOUD_PUBLISH_ENABLED) { setStatus('视觉实验版已禁用云端发布，仅支持本地草稿与导出'); return; }
     const api = endpoint();
     if (!api) { setStatus('尚未配置云端 API'); return; }
+    if (!form.reportValidity()) return;
     const post = collect();
     if (!post.title.trim() || !post.pubDate) { setStatus('请先填写标题和发布日期'); return; }
     if (!confirm('确认通过云端提交当前文章并触发正式网站部署吗？')) return;

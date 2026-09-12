@@ -3,18 +3,19 @@ title: "MATLAB / Simulink MCP + Skills：安装、更新与禁用指南"
 description: "核对 2026 年 9 月官方版本，纠正旧安装提示词，区分 MCP、skills、MATLAB Add-On 与会话启用。"
 pubDate: "2026-09-12"
 updatedDate: "2026-09-12"
+author: "离子怪"
+sourceUrl: "https://github.com/ice11123/matlab-simulink-agent-install-guide"
 dir1: "AI/Agent协作与开发"
 dir2: ""
 tags: ["MATLAB", "Simulink", "MCP", "Skills", "Codex"]
 ---
 
-作者：离子怪 · 本文与提示词采用 MIT 许可证。
+本文与提示词采用 MIT 许可证。
 
 让 Agent 能操作 MATLAB，需要同时处理 MCP、skills 和 MATLAB 会话。三个环节的更新速度与启用方式不同，旧提示词容易把“下载完成”误当成“已经可以运行”。这份文档以固定官方版本核验安装流程，并提供默认不启用的更新模式。
 
 完整开源项目：[MATLAB / Simulink MCP + Skills 安装指南](https://github.com/ice11123/matlab-simulink-agent-install-guide)。文末包含可复制执行提示词。
 
-> 作者：离子怪
 > 文档许可证：MIT；第三方软件遵循各自许可证
 > 最后核验：2026-09-12
 > 默认模式：只更新文件，保持未启用

@@ -3,12 +3,14 @@ title: "Codex 任务 Provider 自动修复指令：切换 API 或账号后恢复
 description: "从只读诊断、锁检查与备份开始，解释 Codex 旧任务 Provider 修复流程、事务校验及适用边界。"
 pubDate: "2026-09-12"
 updatedDate: "2026-09-12"
+author: "离子怪"
+sourceUrl: "https://github.com/ice11123/codex-old-conversation-fix-after-api-account-switch"
 dir1: "AI/Agent协作与开发"
 dir2: ""
 tags: ["Codex", "Provider", "Agent", "故障排查"]
 ---
 
-作者：离子怪 · 本文与提示词采用 MIT 许可证。
+本文与提示词采用 MIT 许可证。
 
 切换 API、账号或中转服务后，旧任务可能仍引用已经消失的 Provider。遇到 `Model provider '<PROVIDER_ID>' not found`，应先确认缺失配置，而不是删除对话或更改项目代码。
 
@@ -17,9 +19,6 @@ tags: ["Codex", "Provider", "Agent", "故障排查"]
 本文依据该仓库中文指令整理为博客版；补充了 Provider 与计费的区别、提交事务前检查行数，以及跨文件恢复边界。这里没有执行任何真实任务迁移，也不声称验证过所有当前 Codex 版本。原始文件可从仓库下载，文中的指令只在用户明确指定待修复任务后执行。
 
 更温和的排查方向是先检查能否恢复旧自定义 Provider 的有效配置：如果旧服务仍可用，这可能避免改动任务内部数据。额度、API 余额、模型权限或网络故障不能通过元数据迁移解决。
-
-> 作者：离子怪
-> 项目：`codex-old-conversation-fix-after-api-account-switch`
 
 ## 重要声明
 

@@ -97,8 +97,9 @@ function mountEditor(t, empty = false) {
     id, title: `title-${id}`, description: '', pubDate: '2026-09-08',
     dir1: '', dir2: '', tags: [], body: `original ${id}`, format: 'md',
   }));
-  const fields = Object.fromEntries(['id', 'title', 'description', 'pubDate', 'dir1', 'dir2', 'tags', 'body', 'format'].map((key) => [key, new ElementStub()]));
+  const fields = Object.fromEntries(['id', 'title', 'description', 'pubDate', 'author', 'sourceUrl', 'dir1', 'dir2', 'tags', 'body', 'format'].map((key) => [key, new ElementStub()]));
   const form = new ElementStub();
+  form.reportValidity = () => true;
   form.querySelector = (selector) => fields[selector.match(/name="([^"]+)"/)?.[1]] || null;
   const tree = new ElementStub();
   let articleButtons = [];
@@ -207,11 +208,23 @@ test('导出文件名、扩展名和正文采用同一份最新表单快照', as
   editor.fields.title.value = '新标题';
   editor.fields.format.value = 'mdx';
   editor.fields.body.value = '# 新正文';
+  editor.fields.author.value = '离子怪';
+  editor.fields.sourceUrl.value = 'https://github.com/ice11123/blog_test2';
   editor.form.fire('input');
   editor.controls.export.fire('click');
   const output = editor.download();
   assert.equal(output.name, '新标题.mdx');
   assert.match(await output.blob.text(), /title: "新标题"[\s\S]*# 新正文/);
+  assert.match(await output.blob.text(), /author: "离子怪"/);
+  assert.match(await output.blob.text(), /sourceUrl: "https:\/\/github.com\/ice11123\/blog_test2"/);
+  assert.match(await output.blob.text(), new RegExp(`updatedDate: ${new Date().toISOString().slice(0, 10)}`));
+});
+
+test('表单校验失败时不导出无效文章', (t) => {
+  const editor = mountEditor(t);
+  editor.form.reportValidity = () => false;
+  editor.controls.export.fire('click');
+  assert.equal(editor.download().blob, undefined);
 });
 
 test('预览只移除文档开头元数据，不吞掉正文代码和分隔线', () => {

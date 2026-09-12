@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import worker, { adminReturnUrl, decryptSecret, encryptSecret, isAllowedOrigin, safePublishedPath, validatePost } from '../src/index.js';
+import worker, { adminReturnUrl, decryptSecret, draftMarkdown, encryptSecret, isAllowedOrigin, safePublishedPath, validatePost } from '../src/index.js';
 
 const env = {
   ALLOWED_ORIGIN: 'https://ice11123.github.io',
@@ -86,6 +86,17 @@ test('public status 无需管理员 Cookie 且返回脱敏仓库和部署状态'
     assert.equal(body.deployment.status, 'success');
     assert.doesNotMatch(JSON.stringify(body), /token|secret|csrf|login/i);
   } finally { globalThis.fetch = originalFetch; }
+});
+
+test('云端文章序列化保留作者、源地址和编辑日期并拒绝无效元数据', () => {
+  const input = { title: '文章', description: '描述', pubDate: '2026-09-12', body: '# 正文', format: 'md', author: '离子怪', sourceUrl: 'https://github.com/ice11123/blog_test2', updatedDate: '2026-09-12' };
+  const markdown = draftMarkdown(validatePost(input));
+  assert.match(markdown, /\nauthor: "离子怪"\n/);
+  assert.match(markdown, /\nsourceUrl: "https:\/\/github.com\/ice11123\/blog_test2"\n/);
+  assert.match(markdown, /\nupdatedDate: 2026-09-12\n/);
+  assert.throws(() => validatePost({ ...input, sourceUrl: 'https://github.com.evil.example/repo' }), /源地址无效/);
+  assert.throws(() => validatePost({ ...input, author: ' ' }), /作者无效/);
+  assert.throws(() => validatePost({ ...input, sourceUrl: 123 }), /字段无效/);
 });
 
 test('public status 无法读取部署记录时标记 unavailable 而非部署失败', async () => {

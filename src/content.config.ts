@@ -16,6 +16,8 @@ const blog = defineCollection({
 			// Transform string to Date object
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
+			author: z.string().trim().min(1).optional(),
+			sourceUrl: z.url().refine((value) => value.startsWith('https://github.com/'), '源地址须为 GitHub HTTPS 链接').optional(),
 			heroImage: z.optional(image()),
 
 			dir1: z.string().optional(), // 一级目录

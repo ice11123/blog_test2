@@ -61,7 +61,7 @@ const activeTag = decodePathPart(tagMatch?.[1]);
       </button>
       <button id="sidebar-tab-tags" type="button" role="tab" data-sidebar-tab="tags" aria-label="标签目录" aria-selected={initialTab === 'tags' ? 'true' : 'false'} aria-controls="sidebar-panel-tags" tabindex={initialTab === 'tags' ? 0 : -1}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13 11 22l-9-9V4h9l9 9Z M7 8h.01" /></svg>
-        <span>标签目录</span>
+        <span>标签</span>
       </button>
     </div>
 
@@ -99,7 +99,7 @@ const activeTag = decodePathPart(tagMatch?.[1]);
 
     <section id="sidebar-panel-catalog" class="sidebar-panel-content catalog-panel" role="tabpanel" aria-labelledby="sidebar-tab-catalog" hidden={initialTab !== 'catalog'}>
       <div class="sidebar-panel-heading">
-        <div><p>LIBRARY</p><h2>文章目录</h2></div>
+        <div><p>按分类浏览</p><h2>文章目录</h2></div>
         <span>{stats.totalArticles}</span>
       </div>
       <a class:list={['directory-all-link', { current: currentPath === '/blog/' }]} href={withBase('/blog/')} aria-current={currentPath === '/blog/' ? 'page' : undefined}>
@@ -107,21 +107,26 @@ const activeTag = decodePathPart(tagMatch?.[1]);
       </a>
       <nav class="article-directory" aria-label="全站文章目录">
         {articleDirectory.map((section) => (
-          <details class="directory-group" open={section.name === activeDir1}>
+          <details class:list={['directory-group', { 'contains-current': section.name === activeDir1 }]} open={section.name === activeDir1}>
             <summary>
-              <span>{section.name}</span><small>{section.total}</small>
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
+              <svg class="directory-folder" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 5.5h5l1.5 2h8.5v8h-15z M2.5 7.5v-3h5l1.5 2h8.5v1" /></svg>
+              <span class="directory-name">{section.name}</span><small>{section.total}</small>
+              <svg class="directory-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m8 6 4 4-4 4" /></svg>
             </summary>
             <div class="directory-group-body">
               {section.directPosts.map((post) => (
-                <a class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} aria-current={post.slug === currentSlug ? 'page' : undefined}>{post.title}</a>
+                <a class="directory-article" class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} title={post.title} aria-current={post.slug === currentSlug ? 'page' : undefined}>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h6l4 4v11H5z M11 2.5v4h4 M8 10h4 M8 13h4" /></svg><span class="directory-article-title">{post.title}</span>
+                </a>
               ))}
               {section.subdirectories.map((subdirectory) => (
                 <details class="directory-subgroup" open={section.name === activeDir1 && subdirectory.name === activeDir2}>
-                  <summary><span>{subdirectory.name}</span><small>{subdirectory.posts.length}</small></summary>
+                  <summary><svg class="directory-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m8 6 4 4-4 4" /></svg><span>{subdirectory.name}</span><small>{subdirectory.posts.length}</small></summary>
                   <div>
                     {subdirectory.posts.map((post) => (
-                      <a class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} aria-current={post.slug === currentSlug ? 'page' : undefined}>{post.title}</a>
+                      <a class="directory-article" class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} title={post.title} aria-current={post.slug === currentSlug ? 'page' : undefined}>
+                        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h6l4 4v11H5z M11 2.5v4h4 M8 10h4 M8 13h4" /></svg><span class="directory-article-title">{post.title}</span>
+                      </a>
                     ))}
                   </div>
                 </details>
@@ -134,7 +139,7 @@ const activeTag = decodePathPart(tagMatch?.[1]);
 
     <section id="sidebar-panel-tags" class="sidebar-panel-content tags-panel" role="tabpanel" aria-labelledby="sidebar-tab-tags" hidden={initialTab !== 'tags'}>
       <div class="sidebar-panel-heading">
-        <div><p>TOPICS</p><h2>标签目录</h2></div>
+        <div><p>发现感兴趣的主题</p><h2>标签目录</h2></div>
         <span>{stats.totalTags}</span>
       </div>
       <a class:list={['directory-all-link', { current: currentPath.startsWith('/blog/tags') }]} href={withBase('/blog/tags/')} aria-current={currentPath.startsWith('/blog/tags') ? 'page' : undefined}>

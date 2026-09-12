@@ -4,6 +4,8 @@ export interface AdminPostDraft {
   description: string;
   pubDate: string;
   updatedDate?: string;
+  author?: string;
+  sourceUrl?: string;
   dir1: string;
   dir2: string;
   tags: string[];
@@ -212,6 +214,8 @@ function isAdminPostDraft(value: unknown): value is AdminPostDraft {
     && typeof post.title === 'string'
     && typeof post.description === 'string'
     && typeof post.pubDate === 'string'
+    && (post.author === undefined || typeof post.author === 'string')
+    && (post.sourceUrl === undefined || typeof post.sourceUrl === 'string')
     && typeof post.dir1 === 'string'
     && typeof post.dir2 === 'string'
     && Array.isArray(post.tags)
@@ -234,6 +238,8 @@ export function draftToMarkdown(post: AdminPostDraft): string {
     `description: ${yamlQuote(post.description)}`,
     `pubDate: ${post.pubDate || new Date().toISOString().slice(0, 10)}`,
     ...(post.updatedDate ? [`updatedDate: ${post.updatedDate}`] : []),
+    ...(post.author?.trim() ? [`author: ${yamlQuote(post.author.trim())}`] : []),
+    ...(post.sourceUrl?.trim() ? [`sourceUrl: ${yamlQuote(post.sourceUrl.trim())}`] : []),
     ...(post.dir1 ? [`dir1: ${yamlQuote(post.dir1)}`] : []),
     ...(post.dir2 ? [`dir2: ${yamlQuote(post.dir2)}`] : []),
     `tags: [${post.tags.map(yamlQuote).join(', ')}]`,
