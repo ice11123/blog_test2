@@ -29,10 +29,9 @@ function escapeHtml(value = ''): string {
 
 function stripDocumentSyntax(source: string): string {
   return source
-    .replace(/^---\s*[\s\S]*?\n---\s*/m, '')
-    // MDX imports are conventionally at the document start. Restrict removal
-    // to that prefix so `export` inside fenced code remains visible.
-    .replace(/^(?:\s*(?:import|export)[^\n]*\n)+/m, '');
+    .replace(/^---\s*[\s\S]*?\n---\s*/, '')
+    // 只移除文档前缀，正文代码块中的 import/export 必须原样保留。
+    .replace(/^(?:\s*(?:import|export)\b[^\n]*\n)+\s*/, '');
 }
 
 function preserveBlankLines(source: string, tokens: Map<string, string>): string {

@@ -5,6 +5,7 @@ import {
   resolveHomeCoverRelease,
   resolveHomeCoverSettleDuration,
   resolveHomeCoverTakeover,
+  shouldIgnoreHomeCoverGesture,
 } from '../lib/homeCoverGesture';
 import {
   computeHomeCoverMotionGeometry,
@@ -562,6 +563,7 @@ function initHomeHeroMotion() {
   };
 
   const handleTouchStart = (event: TouchEvent) => {
+    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     if (event.touches.length !== 1 || activeTouchId !== null) {
       gestureCancelled = true;
       return;
@@ -594,6 +596,7 @@ function initHomeHeroMotion() {
   };
 
   const handlePenDown = (event: PointerEvent) => {
+    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     if (event.pointerType !== 'pen' || activePenId !== null || event.clientY < measuredHeaderHeight) return;
     const currentProgress = sampleProgress();
     if (currentProgress <= 0 && window.scrollY > 1) return;
@@ -660,6 +663,7 @@ function initHomeHeroMotion() {
   };
 
   const handleWheel = (event: WheelEvent) => {
+    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     if (!desktopWheel.matches || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
 

@@ -129,18 +129,18 @@ async function drawPlot(element: HTMLElement, signal: AbortSignal) {
 
     if (config.type === 'surface') {
       const { uStart, uEnd, vStart, vEnd, xSurface, ySurface, zSurface } = config;
-      const du = (uEnd - uStart) / points;
-      const dv = (vEnd - vStart) / points;
-      const uValues = Array.from({ length: points }, (_, index) => uStart + index * du);
-      const vValues = Array.from({ length: points }, (_, index) => vStart + index * dv);
+      const du = (uEnd - uStart) / (points - 1);
+      const dv = (vEnd - vStart) / (points - 1);
+      const uValues = Array.from({ length: points }, (_, index) => index === points - 1 ? uEnd : uStart + index * du);
+      const vValues = Array.from({ length: points }, (_, index) => index === points - 1 ? vEnd : vStart + index * dv);
       const x = uValues.map((u) => vValues.map((v) => evaluateSurface(xSurface, u, v)));
       const y = uValues.map((u) => vValues.map((v) => evaluateSurface(ySurface, u, v)));
       const z = uValues.map((u) => vValues.map((v) => evaluateSurface(zSurface, u, v)));
       await Plotly.newPlot(element, [{ type: 'surface', x, y, z, colorscale: 'Viridis', showscale: false }], layout, displayConfig);
     } else {
       const { tStart, tEnd, xEquation, yEquation, zEquation, color } = config;
-      const dt = (tEnd - tStart) / points;
-      const tValues = Array.from({ length: points }, (_, index) => tStart + index * dt);
+      const dt = (tEnd - tStart) / (points - 1);
+      const tValues = Array.from({ length: points }, (_, index) => index === points - 1 ? tEnd : tStart + index * dt);
       const x = tValues.map((t) => evaluateLine(xEquation, t));
       const y = tValues.map((t) => evaluateLine(yEquation, t));
       const z = tValues.map((t) => evaluateLine(zEquation, t));

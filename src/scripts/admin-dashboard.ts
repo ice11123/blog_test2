@@ -32,6 +32,7 @@ let drafts = [];
 let selectedId = '';
 let previewTimer;
 let editedAt = '';
+let hasUnsavedChanges = false;
 let csrfToken = '';
 let treeState = readTreeState();
 let disposed = false;
@@ -271,16 +272,22 @@ function updateDeleteButton(post) {
 
 function loadForm() {
   const post = current();
-  if (!post || !form) return;
+  if (!form) return;
+  clearTimeout(previewTimer);
+  hasUnsavedChanges = false;
   ['id', 'title', 'description', 'pubDate', 'dir1', 'dir2', 'body', 'format'].forEach((name) => {
     const input = field(name);
-    if (input) input.value = post[name] || '';
+    if (input) input.value = post?.[name] || '';
   });
   const tags = field('tags');
-  if (tags) tags.value = post.tags.join(', ');
-  editedAt = post.localEditedAt || '';
+  if (tags) tags.value = post?.tags.join(', ') || '';
+  editedAt = post?.localEditedAt || '';
   const edited = app.querySelector('[data-edited-at]');
   if (edited) edited.textContent = formatEditedAt(editedAt);
+  if (!post) {
+    if (preview) preview.innerHTML = '';
+    return;
+  }
   updateIdentity(post);
   updateDeleteButton(post);
   updatePreview();
@@ -302,6 +309,7 @@ function updatePreview() {
 }
 
 function queuePreviewUpdate() {
+  hasUnsavedChanges = true;
   editedAt = new Date().toISOString();
   const edited = app.querySelector('[data-edited-at]');
   if (edited) edited.textContent = formatEditedAt(editedAt);
@@ -406,7 +414,9 @@ function renderTree() {
     renderTree();
   }));
   tree.querySelectorAll('[data-post-id]').forEach((button) => listen(button, 'click', () => {
-    selectedId = button.getAttribute('data-post-id') || '';
+    const nextId = button.getAttribute('data-post-id') || '';
+    if (nextId === selectedId || !preserveUnsavedChanges()) return;
+    selectedId = nextId;
     loadForm();
     renderTree();
     closeDrawer();
@@ -416,6 +426,7 @@ function renderTree() {
 }
 
 function save() {
+  if (!current()) return false;
   const post = collect();
   try {
     saveDraft(post);
@@ -425,9 +436,15 @@ function save() {
     loadForm();
     setStatus('已保存到本浏览器');
     void checkBasicStatus();
+    return true;
   } catch (error) {
     setStorageFailureStatus('保存草稿', error);
+    return false;
   }
+}
+
+function preserveUnsavedChanges() {
+  return !hasUnsavedChanges || save();
 }
 
 function authHeaders() {
@@ -551,6 +568,14 @@ function closeDrawer() {
 function bindEvents() {
   listen(form, 'submit', (event) => { event.preventDefault(); save(); });
   listen(form, 'input', queuePreviewUpdate);
+  listen(document, 'astro:before-preparation', (event) => {
+    if (!preserveUnsavedChanges()) event.preventDefault();
+  });
+  listen(window, 'beforeunload', (event) => {
+    if (!hasUnsavedChanges) return;
+    event.preventDefault();
+    event.returnValue = '';
+  });
   listen(app.querySelector('[data-search]'), 'input', (event) => {
     treeState.query = event.target.value;
     saveTreeState();
@@ -571,6 +596,7 @@ function bindEvents() {
   listen(document, 'keydown', (event) => { if (event.key === 'Escape') closeDrawer(); });
   listen(app.querySelector('[data-status-refresh]'), 'click', () => { void refreshSystemStatus(); });
   listen(app.querySelector('[data-new]'), 'click', () => {
+    if (!preserveUnsavedChanges()) return;
     const post = { id: slugifyAdminId('未命名文章'), title: '未命名文章', description: '', pubDate: new Date().toISOString().slice(0, 10), dir1: '', dir2: '', tags: [], body: '# 新文章\n\n在这里开始写作。', format: 'mdx' };
     try {
       saveDraft(post);
@@ -598,9 +624,9 @@ function bindEvents() {
     }
   });
   listen(app.querySelector('[data-export]'), 'click', () => {
-    const post = current();
-    if (!post) return;
-    const blob = new Blob([draftToMarkdown(collect())], { type: 'text/markdown;charset=utf-8' });
+    if (!current()) return;
+    const post = collect();
+    const blob = new Blob([draftToMarkdown(post)], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

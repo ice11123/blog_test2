@@ -168,3 +168,30 @@ test('清空草稿失败时不会报告成功', () => {
     (error) => error instanceof DraftStorageError && error.operation === 'reset',
   );
 });
+
+test('部分损坏的草稿数组阻止保存和删除，保留全部原始数据', () => {
+  for (const operation of ['save', 'remove'] as const) {
+    const storage = new MemoryStorage();
+    const raw = JSON.stringify([post('a', '正常草稿'), { ...post('b', '可恢复正文'), tags: null }]);
+    storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, raw);
+    const store = new LocalStorageDraftStore([], storage);
+    assert.throws(
+      () => operation === 'save' ? store.save(post('a', '新修改')) : store.remove('a'),
+      (error) => error instanceof DraftStorageError && error.operation === operation,
+    );
+    assert.equal(storage.getItem(ADMIN_DRAFTS_STORAGE_KEY), raw);
+  }
+});
+
+test('异常旧版草稿不得迁移为空数组或删除原始数据', () => {
+  for (const legacy of [{ drafts: [post('a', '待恢复')] }, [post('a', '正常'), { body: '待恢复正文' }]]) {
+    const storage = new MemoryStorage();
+    const raw = JSON.stringify(legacy);
+    storage.setItem(LEGACY_ADMIN_DRAFTS_STORAGE_KEY, raw);
+    const store = new LocalStorageDraftStore([], storage);
+    store.list();
+    assert.equal(storage.getItem(LEGACY_ADMIN_DRAFTS_STORAGE_KEY), raw);
+    assert.equal(storage.getItem(ADMIN_DRAFTS_STORAGE_KEY), null);
+    assert.throws(() => store.save(post('b', '新草稿')), DraftStorageError);
+  }
+});

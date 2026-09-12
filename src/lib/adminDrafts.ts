@@ -114,10 +114,10 @@ export class LocalStorageDraftStore implements DraftStore {
       const raw = this.storage.getItem(ADMIN_DRAFTS_STORAGE_KEY);
       if (raw === null) return [];
       const parsed: unknown = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        throw new TypeError('草稿存储内容不是数组');
+      if (!Array.isArray(parsed) || !parsed.every(isAdminPostDraft)) {
+        throw new TypeError('草稿存储包含无法识别的数据');
       }
-      return parsed.filter(isAdminPostDraft).map(clonePost);
+      return parsed.map(clonePost);
     } catch (cause) {
       if (cause instanceof DraftStorageError) throw cause;
       throw new DraftStorageError(operation, '无法读取现有本地草稿，已取消写入以避免覆盖数据', { cause });
@@ -131,7 +131,10 @@ export class LocalStorageDraftStore implements DraftStore {
       const raw = this.storage.getItem(LEGACY_ADMIN_DRAFTS_STORAGE_KEY);
       if (raw === null) return;
       const parsed = JSON.parse(raw);
-      const migrated = migrateLegacyDrafts(this.initial, Array.isArray(parsed) ? parsed : []);
+      if (!Array.isArray(parsed) || !parsed.every(isAdminPostDraft)) {
+        throw new TypeError('旧版草稿包含无法识别的数据');
+      }
+      const migrated = migrateLegacyDrafts(this.initial, parsed);
       const serialized = JSON.stringify(migrated);
       this.storage.setItem(ADMIN_DRAFTS_STORAGE_KEY, serialized);
       if (this.storage.getItem(ADMIN_DRAFTS_STORAGE_KEY) !== serialized) {

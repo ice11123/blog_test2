@@ -55,6 +55,21 @@ test('暂存区非空时在写入文章前停止', (t) => {
   assert.equal(fs.existsSync(path.join(root, 'src', 'content', 'blog', 'export.mdx')), false);
 });
 
+test('默认发布执行检查和构建，支持 Windows 的 pnpm.cmd', { timeout: 30_000 }, (t) => {
+  const root = createRepository();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({
+    private: true,
+    scripts: { check: 'node -e "console.log(\'CHECK_EXECUTED\')"', build: 'node -e "console.log(\'BUILD_EXECUTED\')"' },
+  }));
+  fs.writeFileSync(path.join(root, 'export.mdx'), article('默认发布测试'));
+  const result = runPublish(root, 'export.mdx', ['--no-push']);
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+  assert.match(result.stdout, /CHECK_EXECUTED/);
+  assert.match(result.stdout, /BUILD_EXECUTED/);
+  assert.match(git(root, ['show', '--format=%s', '--no-patch', 'HEAD']), /更新文章：默认发布测试/);
+});
+
 test('同名目标默认拒绝覆盖', (t) => {
   const root = createRepository();
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));

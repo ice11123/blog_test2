@@ -200,6 +200,20 @@ test('api/status 将进行中的部署归类为 pending', async () => {
   } finally { globalThis.fetch = originalFetch; }
 });
 
+test('取消、跳过或未确认结论不会被报告为部署失败', async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    for (const conclusion of ['cancelled', 'skipped', 'neutral', null, 'failure', 'timed_out', 'success']) {
+      globalThis.fetch = async (url) => String(url).includes('/git/ref/heads/main')
+        ? Response.json({ object: { sha: 'head' } })
+        : Response.json({ workflow_runs: [{ status: 'completed', conclusion }] });
+      const response = await worker.fetch(new Request('https://worker.test/api/public-status', { headers: { Origin: env.ALLOWED_ORIGIN } }), env);
+      const expected = conclusion === 'success' ? 'success' : ['failure', 'timed_out'].includes(conclusion) ? 'failure' : 'unavailable';
+      assert.equal((await response.json()).deployment.status, expected, String(conclusion));
+    }
+  } finally { globalThis.fetch = originalFetch; }
+});
+
 test('api/status 无法读取部署记录时标记 unavailable 而非部署失败', async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url) => {

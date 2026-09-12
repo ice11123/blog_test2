@@ -8,6 +8,17 @@ export const HOME_COVER_SETTLE_MAX_MS = 240;
 export const HOME_COVER_WHEEL_LINE_HEIGHT = 16;
 export const HOME_COVER_PAGE_TOP_TOLERANCE = 1;
 
+/** 弹窗、编辑控件和独立滚动区优先处理自己的手势，不触发背景壁纸。 */
+export function shouldIgnoreHomeCoverGesture(target: EventTarget | null): boolean {
+  if (document.querySelector('dialog[open]')) return true;
+  if (!(target instanceof Element)) return false;
+  if (target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="dialog"], [data-plot3d]')) return true;
+  for (let element: Element | null = target; element && element !== document.body && element !== document.documentElement; element = element.parentElement) {
+    if (element.scrollHeight > element.clientHeight + 1 && /^(auto|scroll)$/.test(getComputedStyle(element).overflowY)) return true;
+  }
+  return false;
+}
+
 export type HomeCoverSwipeAction = 'expand' | 'collapse';
 export type HomeCoverGestureDirection = 'horizontal' | 'vertical' | null;
 

@@ -1,3 +1,5 @@
+import { PublicDataRequestError } from './publicDataFetch.ts';
+
 export interface StatusRequestOptions {
   attempts?: number;
   timeoutMs?: number;
@@ -90,14 +92,20 @@ export async function requestStatusJson(url: string, options: StatusRequestOptio
         cache: 'no-store',
         signal: options.signal ? AbortSignal.any([options.signal, timeoutSignal]) : timeoutSignal,
       });
-      const body = await response.json().catch(() => ({}));
+      const body = await response.json().catch((error: unknown) => {
+        // 上游 HTML 错误页仍保留 HTTP 状态；取消与正文超时必须进入重试边界。
+        if (!response.ok && error instanceof SyntaxError) return {};
+        throw error;
+      });
       if (response.ok || body?.stale === true) return { kind: 'ok', status: response.status, body, attempts: attempt };
 
       lastHttp = { kind: 'http-error', status: response.status, body, attempts: attempt };
       if (response.status < 500 || attempt === attempts) return lastHttp;
     } catch (error) {
       const name = error instanceof Error ? error.name : '';
-      lastNetworkReason = options.signal?.aborted ? 'network' : name === 'TimeoutError' || name === 'AbortError' ? 'timeout' : 'network';
+      const timedOut = name === 'TimeoutError' || name === 'AbortError'
+        || (error instanceof PublicDataRequestError && error.kind === 'timeout');
+      lastNetworkReason = options.signal?.aborted ? 'network' : timedOut ? 'timeout' : 'network';
       if (options.signal?.aborted) return { kind: 'network-error', reason: lastNetworkReason, attempts: attempt };
       if (attempt === attempts) return { kind: 'network-error', reason: lastNetworkReason, attempts: attempt };
     }

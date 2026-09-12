@@ -74,7 +74,7 @@ try {
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, rendered, 'utf8');
   console.log(`已写入 ${repoRel}`);
-  if (!noBuild) { run('pnpm', ['run', 'check']); run('pnpm', ['run', 'build']); }
+  if (!noBuild) { runPnpmScript('check'); runPnpmScript('build'); }
   run('git', ['add', '--', repoRel]);
   const status = execFileSync('git', ['status', '--short', '--', repoRel], { cwd: root, encoding: 'utf8' }).trim();
   if (!status) { console.log('没有检测到变化。'); process.exit(0); }
@@ -100,6 +100,15 @@ function parseValue(raw) {
   return raw;
 }
 function run(command, commandArgs) { console.log(`> ${command} ${commandArgs.join(' ')}`); execFileSync(command, commandArgs, { cwd: root, stdio: 'inherit' }); }
+function runPnpmScript(script) {
+  if (!['check', 'build'].includes(script)) throw new Error('不支持的构建脚本');
+  // Windows 的 pnpm.cmd 需要命令解释器；只允许固定脚本名进入 shell，Git 参数仍直接传递。
+  if (process.platform === 'win32') {
+    run(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', `pnpm run ${script}`]);
+  } else {
+    run('pnpm', ['run', script]);
+  }
+}
 function read(command, commandArgs) {
   try {
     return execFileSync(command, commandArgs, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();

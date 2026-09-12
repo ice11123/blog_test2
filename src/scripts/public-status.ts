@@ -6,6 +6,7 @@ import {
   type StatusRequestResult,
 } from '../lib/publicStatusRequest';
 import { fetchPriorityPublicData } from '../lib/publicDataFetch';
+import { normalizeDeploymentStatus } from '../lib/deploymentStatus.js';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 const WORKER_TIMEOUT_MS = 4_500;
@@ -98,7 +99,7 @@ function initPublicStatus(): void {
       const sha = typeof refResult.body?.object?.sha === 'string' ? refResult.body.object.sha : '';
       if (sha) {
         repositoryConfirmed = true;
-        setCard('repository', 'waiting', REPOSITORY, `${BRANCH} · ${sha.slice(0, 7)} · GitHub 直连降级`, `https://github.com/${REPOSITORY}/commit/${sha}`);
+        setCard('repository', 'ok', REPOSITORY, `${BRANCH} · ${sha.slice(0, 7)} · GitHub 直连`, `https://github.com/${REPOSITORY}/commit/${sha}`);
       } else {
         renderGitHubFailure('repository', refResult);
       }
@@ -114,10 +115,11 @@ function initPublicStatus(): void {
         setCard('deployment', 'waiting', '暂无部署记录', 'GitHub 直连降级');
       } else {
         deploymentConfirmed = true;
-        const status = run.status !== 'completed' ? 'pending' : run.conclusion === 'success' ? 'success' : 'failure';
-        if (status === 'success') setCard('deployment', 'waiting', '最近部署成功', `${formatTime(run.updated_at)} · GitHub 直连降级`, run.html_url || '');
+        const status = normalizeDeploymentStatus(run.status, run.conclusion);
+        if (status === 'success') setCard('deployment', 'ok', '最近部署成功', `${formatTime(run.updated_at)} · GitHub 直连`, run.html_url || '');
         else if (status === 'pending') setCard('deployment', 'waiting', '正在构建或排队', `${formatTime(run.updated_at)} · GitHub 直连降级`, run.html_url || '');
-        else setCard('deployment', 'error', '最近部署失败', formatTime(run.updated_at), run.html_url || '');
+        else if (status === 'failure') setCard('deployment', 'error', '最近部署失败', formatTime(run.updated_at), run.html_url || '');
+        else setCard('deployment', 'waiting', '部署状态暂未确认', `最近流程已取消、跳过或未返回明确结论 · ${formatTime(run.updated_at)}`, run.html_url || '');
       }
     } else {
       renderGitHubFailure('deployment', runsResult);

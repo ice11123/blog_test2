@@ -1,3 +1,5 @@
+import { normalizeDeploymentStatus } from '../../src/lib/deploymentStatus.js';
+
 const API = 'https://api.github.com';
 const SESSION_TTL = 60 * 60 * 24 * 7;
 const SESSION_PREFIX = 'session:v3:';
@@ -551,10 +553,6 @@ function cookie(name, value, maxAge, options = {}) {
 }
 
 function clearCookie(name) { return `${name}=; Max-Age=0; Path=/; SameSite=Lax; Secure; HttpOnly`; }
-function normalizeDeploymentStatus(status, conclusion) {
-  if (status !== 'completed') return 'pending';
-  return conclusion === 'success' ? 'success' : 'failure';
-}
 function oauthError(message, status) { const response = new Response(message, { status, headers: { 'Cache-Control': 'no-store' } }); response.headers.append('Set-Cookie', clearCookie('oauth_state')); return response; }
 function adminReturnUrl(env) { return new URL(DEFAULT_ADMIN_PATH, env.ALLOWED_ORIGIN).href; }
 function isAllowedOrigin(request, env) { return request.headers.get('Origin') === env.ALLOWED_ORIGIN; }

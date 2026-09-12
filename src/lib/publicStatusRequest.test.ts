@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { PublicDataRequestError } from './publicDataFetch.ts';
 import {
   classifyGitHubStatusFailure,
   requestStatusJson,
@@ -109,6 +110,38 @@ test('Worker 状态请求过慢时提前触发 GitHub 降级', async () => {
     kind: 'resolved',
     result: immediate,
   });
+});
+
+test('响应正文超时必须重试，不能将空对象报告为成功', async () => {
+  let calls = 0;
+  const result = await requestStatusJson('https://worker.test/health', {
+    attempts: 2,
+    retryDelaysMs: [0],
+    fetchImpl: async () => {
+      calls += 1;
+      const response = Response.json({ ok: true });
+      if (calls === 1) response.json = async () => { throw new DOMException('body timeout', 'TimeoutError'); };
+      return response;
+    },
+  });
+  assert.equal(calls, 2);
+  assert.deepEqual(result, { kind: 'ok', status: 200, body: { ok: true }, attempts: 2 });
+});
+
+test('公共数据适配器的超时类型不会丢失', async () => {
+  const result = await requestStatusJson('https://worker.test/health', {
+    attempts: 1,
+    fetchImpl: async () => { throw new PublicDataRequestError('timeout', '公开数据请求超时'); },
+  });
+  assert.deepEqual(result, { kind: 'network-error', reason: 'timeout', attempts: 1 });
+});
+
+test('非 JSON 错误页保留 HTTP 错误而不是伪装成功', async () => {
+  const result = await requestStatusJson('https://worker.test/health', {
+    attempts: 1,
+    fetchImpl: async () => new Response('<html>unavailable</html>', { status: 503 }),
+  });
+  assert.deepEqual(result, { kind: 'http-error', status: 503, body: {}, attempts: 1 });
 });
 
 test('GitHub 限流、网络不可达与上游故障不会被误判为仓库故障', () => {
