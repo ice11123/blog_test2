@@ -296,7 +296,7 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(motion, /requestHighResolution\(\)/);
   assert.match(motion, /IntersectionObserver/);
   assert.doesNotMatch(motion, /startViewTransition/);
-  assert.doesNotMatch(motion, /addEventListener\('scroll'/);
+  assert.match(motion, /addEventListener\('scroll', syncWheelListener, \{ passive: true \}\)/);
   assert.doesNotMatch(motion, /aria-modal|event\.key\s*===\s*'Tab'/);
   assert.match(motion, /prefers-reduced-motion:\s*reduce/);
   assert.match(motion, /event\.detail\s*===\s*0\s*\?\s*0/);

@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import * as draftModule from '../src/lib/adminDrafts.ts';
 import * as gestureModule from '../src/lib/homeCoverGesture.ts';
+import * as geometryModule from '../src/lib/homeCoverMotionGeometry.ts';
 import * as statusModule from '../src/lib/publicStatusRequest.ts';
 import { normalizeDeploymentStatus } from '../src/lib/deploymentStatus.js';
 
@@ -51,6 +52,118 @@ class ElementStub {
   getAttribute(_name) { return null; }
   removeAttribute() {}
 }
+
+function mountHeroRuntime() {
+  const frames = new Map();
+  let frameId = 0;
+  let writes = 0;
+  let guardCalls = 0;
+  const nodes = new Map();
+  const makeNode = () => {
+    const element = new ElementStub();
+    element.style = { setProperty() {}, removeProperty() {} };
+    element.getBoundingClientRect = () => ({ top: 80, bottom: 680, left: 0, right: 1200, width: 1200, height: 600 });
+    element.naturalWidth = 1920;
+    element.naturalHeight = 1080;
+    element.offsetHeight = 44;
+    element.animate = () => {
+      let time = 0;
+      return { get currentTime() { return time; }, set currentTime(value) { time = value; writes++; },
+        pause() {}, cancel() {}, finished: new Promise(() => {}) };
+    };
+    element.removeEventListener = (type, callback) => {
+      element.handlers.set(type, (element.handlers.get(type) || []).filter(entry => entry.callback !== callback));
+    };
+    return element;
+  };
+  for (const selector of ['[data-home-cover]', '.home-cover', '[data-home-hero-photo]', '[data-home-hero-source]', '[data-home-cover-stage]', '[data-home-hero-full]', '[data-home-cover-toggle]', '[data-home-lower-motion]', '[data-home-cover-status]', '#site-header', 'svg']) nodes.set(selector, makeNode());
+  nodes.get('[data-home-cover]').querySelector = selector => nodes.get(selector) || null;
+  nodes.get('[data-home-cover-toggle]').querySelector = selector => nodes.get(selector) || null;
+  const document = makeNode();
+  document.documentElement = makeNode();
+  document.querySelector = selector => nodes.get(selector) || null;
+  document.contains = () => true;
+  const media = Object.assign(makeNode(), { matches: false });
+  const desktop = Object.assign(makeNode(), { matches: true });
+  const window = Object.assign(makeNode(), {
+    innerHeight: 900, innerWidth: 1200, scrollY: 0,
+    matchMedia: query => query.includes('hover') ? desktop : media,
+    requestAnimationFrame(callback) { frames.set(++frameId, callback); return frameId; },
+    cancelAnimationFrame(id) { frames.delete(id); }, setTimeout() { return 1; }, clearTimeout() {},
+  });
+  class Observer { observe() {} disconnect() {} }
+  loadRuntime('../src/scripts/home-hero-motion.ts', {
+    document, window, performance: { now: () => 100 },
+    getComputedStyle: () => ({ display: 'block', objectPosition: '50% 50%' }),
+    ResizeObserver: Observer, IntersectionObserver: Observer, MutationObserver: Observer,
+  }, {
+    '../lib/homeCoverGesture': { ...gestureModule, shouldIgnoreHomeCoverGesture() { guardCalls++; return false; } },
+    '../lib/homeCoverMotionGeometry': geometryModule,
+  });
+  const flush = () => { const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback(16)); };
+  flush();
+  writes = 0;
+  return { document, window, nodes, frames, flush, writes: () => writes, guards: () => guardCalls,
+    wheel(deltaY) { return document.fire('wheel', { deltaY, deltaX: 0, deltaMode: 0 }); } };
+}
+
+test('普通向下浏览不执行壁纸祖先元素布局检查', () => {
+  const hero = mountHeroRuntime();
+  for (let i = 0; i < 40; i++) hero.wheel(2);
+  assert.equal(hero.guards(), 0);
+  assert.equal(hero.writes(), 0);
+});
+
+test('同帧滚轮突发只提交一次最新动画进度，下一帧可反向', () => {
+  const hero = mountHeroRuntime();
+  for (let i = 0; i < 40; i++) hero.wheel(-2);
+  hero.flush();
+  assert.ok(hero.writes() <= 10, `同帧产生了 ${hero.writes()} 次动画写入`);
+  const previous = hero.writes();
+  for (let i = 0; i < 10; i++) hero.wheel(2);
+  hero.flush();
+  assert.equal(hero.writes() - previous, 5);
+});
+
+test('离开首页取消尚未提交的手势帧并移除监听', () => {
+  const hero = mountHeroRuntime();
+  hero.wheel(-10);
+  const previous = hero.writes();
+  hero.document.fire('astro:before-swap');
+  hero.flush();
+  assert.equal(hero.writes(), previous);
+  assert.equal(hero.document.handlers.get('wheel')?.length, 0);
+});
+
+test('阅读正文时释放阻塞式滚轮监听，回到顶部恢复接管', () => {
+  const hero = mountHeroRuntime();
+  assert.equal(hero.document.handlers.get('wheel').length, 2);
+  hero.window.scrollY = 500;
+  hero.window.fire('scroll');
+  assert.equal(hero.document.handlers.get('wheel').length, 1);
+  hero.wheel(120);
+  assert.equal(hero.guards(), 0);
+  hero.window.scrollY = 0;
+  hero.window.fire('scroll');
+  assert.equal(hero.document.handlers.get('wheel').length, 2);
+  hero.wheel(-20);
+  hero.flush();
+  assert.ok(hero.writes() > 0);
+});
+
+test('触摸移动监听只在顶部单指会话挂载并在结束后释放', () => {
+  const hero = mountHeroRuntime();
+  const touch = { identifier: 1, clientX: 50, clientY: 650 };
+  assert.equal(hero.document.handlers.get('touchmove')?.length ?? 0, 0);
+  hero.window.scrollY = 300;
+  hero.document.fire('touchstart', { touches: [touch] });
+  assert.equal(hero.document.handlers.get('touchmove')?.length ?? 0, 0);
+  hero.window.scrollY = 0;
+  hero.document.fire('touchstart', { touches: [touch] });
+  assert.equal(hero.document.handlers.get('touchmove').length, 1);
+  hero.document.fire('touchend', { changedTouches: { length: 1, item: () => touch } });
+  assert.equal(hero.document.handlers.get('touchmove').length, 0);
+});
 
 test('首页 GitHub 直连成功时显示正常，而不是等待', async () => {
   const cards = Object.fromEntries(['frontend', 'worker', 'repository', 'deployment'].map((name) => {
@@ -282,7 +395,7 @@ test('首页滚轮、触摸和笔手势不接管搜索弹窗、输入框或独�
     target.closest = () => kind === 'input' ? target : null;
     target.scrollHeight = kind === 'scroll' ? 400 : 100;
     target.clientHeight = 100;
-    const document = { querySelector: () => kind === 'dialog' ? {} : null, body: {}, documentElement: {} };
+    const document = { querySelector: () => kind === 'dialog' ? {} : null, body: {}, documentElement: {}, addEventListener() {} };
     const helper = loadRuntime('../src/lib/homeCoverGesture.ts', {
       document, Element: ElementStub, getComputedStyle: () => ({ overflowY: 'auto' }),
     });
@@ -295,8 +408,8 @@ test('首页滚轮、触摸和笔手势不接管搜索弹窗、输入框或独�
         wheelRequiresFreshInput: false, wheelStartTime: 0, lastWheelTime: 0,
         wheelIntentDistance: 0, wheelStartProgress: 0, wheelTravelDistance: 360,
         wheelResetTimer: undefined, WHEEL_GESTURE_IDLE_MS: 120, state: '', shell: { dataset: {} },
-        requestHighResolution() {}, interruptMotion() {}, updateWaves() {}, applyProgress() {}, finishWheelGesture() {},
-        activeTouchId: null, activePenId: null, measuredHeaderHeight: 80, trackedPenPointers: new Set(),
+        requestHighResolution() {}, interruptMotion() {}, updateWaves() {}, queueProgress() {}, finishWheelGesture() {},
+        activeTouchId: null, activePenId: null, measuredHeaderHeight: 80, trackedPenPointers: new Set(), handleTouchMove() {},
         documentElement: { setPointerCapture() {} }, beginGesture() { handled = true; },
       });
       const { outputText } = ts.transpileModule(`globalThis.handler = ${initializer}`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } });

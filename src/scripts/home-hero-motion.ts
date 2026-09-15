@@ -143,6 +143,8 @@ function initHomeHeroMotion() {
   let cachedMotionBlueprint: MotionBlueprint | undefined;
   let layoutUpdateFrame: number | undefined;
   let geometryMeasureFrame: number | undefined;
+  let progressFrame: number | undefined;
+  let wheelListening = false;
 
   const documentElement = document.documentElement;
   const previousOverscrollBehavior = documentElement.style.overscrollBehaviorY;
@@ -293,6 +295,7 @@ function initHomeHeroMotion() {
   };
 
   const clearAnimations = () => {
+    cancelProgressFrame();
     if (stableCleanupTimer !== undefined) window.clearTimeout(stableCleanupTimer);
     stableCleanupTimer = undefined;
     for (const animation of dragAnimations.splice(0)) animation.cancel();
@@ -348,7 +351,23 @@ function initHomeHeroMotion() {
     for (const animation of dragAnimations) animation.currentTime = progress * TIMELINE_DURATION;
   };
 
+  const cancelProgressFrame = () => {
+    if (progressFrame !== undefined) window.cancelAnimationFrame(progressFrame);
+    progressFrame = undefined;
+  };
+
+  // 输入可以高于屏幕刷新率；保留最新进度，每个显示帧只写一次动画。
+  const queueProgress = (nextProgress: number) => {
+    progress = Math.min(Math.max(nextProgress, 0), 1);
+    if (progressFrame !== undefined) return;
+    progressFrame = window.requestAnimationFrame(() => {
+      progressFrame = undefined;
+      applyProgress(progress);
+    });
+  };
+
   const sampleProgress = () => {
+    if (progressFrame !== undefined) return progress;
     const settlingTime = settleAnimations[0]?.currentTime;
     if (typeof settlingTime === 'number' && settleDuration > 0) {
       const linearProgress = Math.min(Math.max(settlingTime / settleDuration, 0), 1);
@@ -404,6 +423,7 @@ function initHomeHeroMotion() {
   };
 
   const settleStable = (target: 0 | 1) => {
+    cancelProgressFrame();
     const stableSequence = ++settleSequence;
     progress = target;
     requestedTarget = target;
@@ -428,6 +448,7 @@ function initHomeHeroMotion() {
       if (status) status.textContent = '全图壁纸已收回';
     }
     updateWaves();
+    syncWheelListener();
 
     const finalizeStableState = () => {
       stableCleanupTimer = undefined;
@@ -446,6 +467,7 @@ function initHomeHeroMotion() {
 
   const settleTo = (target: 0 | 1, durationMs = resolveHomeCoverSettleDuration(progress, target, reduceMotion.matches)) => {
     const currentProgress = sampleProgress();
+    cancelProgressFrame();
     requestedTarget = target;
     const duration = reduceMotion.matches ? 0 : durationMs;
     if (duration === 0 || currentProgress === target) {
@@ -525,10 +547,12 @@ function initHomeHeroMotion() {
       gestureStartProgress = progress;
       gestureEngaged = true;
     }
-    state = 'dragging';
-    shell.dataset.state = state;
-    updateWaves();
-    applyProgress(resolveHomeCoverProgress({
+    if (state !== 'dragging') {
+      state = 'dragging';
+      shell.dataset.state = state;
+      updateWaves();
+    }
+    queueProgress(resolveHomeCoverProgress({
       startProgress: gestureStartProgress,
       intentDelta: intentDistance,
       travelDistance: gestureTravelDistance,
@@ -563,7 +587,6 @@ function initHomeHeroMotion() {
   };
 
   const handleTouchStart = (event: TouchEvent) => {
-    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     if (event.touches.length !== 1 || activeTouchId !== null) {
       gestureCancelled = true;
       return;
@@ -572,8 +595,10 @@ function initHomeHeroMotion() {
     if (!touch || touch.clientY < measuredHeaderHeight) return;
     const currentProgress = sampleProgress();
     if (currentProgress <= 0 && window.scrollY > 1) return;
+    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     activeTouchId = touch.identifier;
     beginGesture(touch.clientX, touch.clientY);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
   };
 
   const handleTouchMove = (event: TouchEvent) => {
@@ -592,14 +617,15 @@ function initHomeHeroMotion() {
     const touch = findTouch(event.changedTouches, activeTouchId);
     if (!touch) return;
     activeTouchId = null;
+    document.removeEventListener('touchmove', handleTouchMove);
     finishGesture(touch.clientX, touch.clientY, event.type === 'touchcancel');
   };
 
   const handlePenDown = (event: PointerEvent) => {
-    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     if (event.pointerType !== 'pen' || activePenId !== null || event.clientY < measuredHeaderHeight) return;
     const currentProgress = sampleProgress();
     if (currentProgress <= 0 && window.scrollY > 1) return;
+    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     trackedPenPointers.add(event.pointerId);
     if (trackedPenPointers.size > 1) gestureCancelled = true;
     activePenId = event.pointerId;
@@ -663,7 +689,6 @@ function initHomeHeroMotion() {
   };
 
   const handleWheel = (event: WheelEvent) => {
-    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     if (!desktopWheel.matches || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
 
@@ -685,6 +710,7 @@ function initHomeHeroMotion() {
       return;
     }
 
+    if (shouldIgnoreHomeCoverGesture(event.target)) return;
     event.preventDefault();
     const now = performance.now();
     if (wheelStartTime === 0 || now - lastWheelTime > WHEEL_GESTURE_IDLE_MS) {
@@ -696,16 +722,33 @@ function initHomeHeroMotion() {
     }
     lastWheelTime = now;
     wheelIntentDistance += intentDelta;
-    state = 'dragging';
-    shell.dataset.state = state;
-    updateWaves();
-    applyProgress(resolveHomeCoverProgress({
+    if (state !== 'dragging') {
+      state = 'dragging';
+      shell.dataset.state = state;
+      updateWaves();
+    }
+    queueProgress(resolveHomeCoverProgress({
       startProgress: wheelStartProgress,
       intentDelta: wheelIntentDistance,
       travelDistance: wheelTravelDistance,
     }));
     if (wheelResetTimer !== undefined) window.clearTimeout(wheelResetTimer);
     wheelResetTimer = window.setTimeout(finishWheelGesture, WHEEL_GESTURE_IDLE_MS);
+  };
+
+  // 阅读正文时释放阻塞式滚轮监听，让浏览器直接滚动。
+  const syncWheelListener = () => {
+    const needed = desktopWheel.matches && (state !== 'collapsed' || window.scrollY <= 1);
+    if (needed === wheelListening) return;
+    wheelListening = needed;
+    if (needed) document.addEventListener('wheel', handleWheel, { passive: false });
+    else document.removeEventListener('wheel', handleWheel);
+  };
+
+  const observeNativeWheel = (event: WheelEvent) => {
+    if (!wheelListening && desktopWheel.matches && event.deltaY < 0 && !event.ctrlKey && !event.metaKey) {
+      holdWheelAtPageBoundary();
+    }
   };
 
   const handleKeydown = (event: KeyboardEvent) => {
@@ -742,7 +785,6 @@ function initHomeHeroMotion() {
   if (heroImage.complete) handleHeroLoad();
   toggle.addEventListener('click', handleToggle);
   document.addEventListener('touchstart', handleTouchStart, { passive: true });
-  document.addEventListener('touchmove', handleTouchMove, { passive: false });
   document.addEventListener('touchend', handleTouchEnd);
   document.addEventListener('touchcancel', handleTouchEnd);
   document.addEventListener('pointerdown', handlePenDown);
@@ -750,7 +792,9 @@ function initHomeHeroMotion() {
   document.addEventListener('pointerup', handlePenFinish);
   document.addEventListener('pointercancel', handlePenFinish);
   document.addEventListener('keydown', handleKeydown);
-  document.addEventListener('wheel', handleWheel, { passive: false });
+  document.addEventListener('wheel', observeNativeWheel, { passive: true });
+  window.addEventListener('scroll', syncWheelListener, { passive: true });
+  desktopWheel.addEventListener('change', syncWheelListener);
   document.addEventListener('visibilitychange', handleVisibility);
   window.addEventListener('resize', handleResize, { passive: true });
   reduceMotion.addEventListener('change', handleMotionPreference);
@@ -800,6 +844,9 @@ function initHomeHeroMotion() {
     document.removeEventListener('pointercancel', handlePenFinish);
     document.removeEventListener('keydown', handleKeydown);
     document.removeEventListener('wheel', handleWheel);
+    document.removeEventListener('wheel', observeNativeWheel);
+    window.removeEventListener('scroll', syncWheelListener);
+    desktopWheel.removeEventListener('change', syncWheelListener);
     document.removeEventListener('visibilitychange', handleVisibility);
     window.removeEventListener('resize', handleResize);
     reduceMotion.removeEventListener('change', handleMotionPreference);
@@ -808,3 +855,7 @@ function initHomeHeroMotion() {
 
 initHomeHeroMotion();
 document.addEventListener('astro:page-load', initHomeHeroMotion);
+document.addEventListener('astro:before-swap', () => {
+  cleanupCurrentHero?.();
+  cleanupCurrentHero = undefined;
+});
