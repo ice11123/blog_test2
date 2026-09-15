@@ -1,6 +1,17 @@
 ---
 import Layout from '../layouts/PublicContentLayout.astro';
+import FriendLinks from '../components/widgets/FriendLinks.astro';
 import { SITE_START_DATE } from '../consts';
+
+const friends = [
+  {
+    name: 'GUET 428 实验室',
+    label: '实验室站点',
+    description: '桂林电子科技大学 428 强弱电综合实验室的文章与项目资料站。',
+    url: 'https://ice11123.github.io/GUET_428/',
+    image: 'https://ice11123.github.io/GUET_428/favicon.svg',
+  },
+];
 ---
 
 <Layout
@@ -8,5 +19,35 @@ import { SITE_START_DATE } from '../consts';
   description="友情链接"
   pubDate={SITE_START_DATE}
 >
-  <p>暂时还没有添加友情链接。以后可以在这个页面维护自己的友链列表。</p>
+  <p class="friends-lead">一些值得继续探索的站点。它们与本站保持互链，也承载着不同方向的内容与实践。</p>
+  <FriendLinks links={friends} />
+  <aside class="friends-note" aria-label="友链说明">
+    <span aria-hidden="true">✦</span>
+    <p><strong>互链说明</strong>：友链用于连接长期维护、内容明确的站点；卡片会在新标签页中打开。</p>
+  </aside>
 </Layout>
+
+<style>
+  .friends-lead {
+    max-width: 42rem;
+    color: var(--text-secondary, var(--foreground-dark));
+    font-size: 0.96rem;
+  }
+
+  .friends-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 1.75rem;
+    padding: 14px 16px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl, 12px);
+    background: var(--surface-subtle, var(--muted));
+    color: var(--text-secondary, var(--foreground-dark));
+    font-size: 0.78rem;
+  }
+
+  .friends-note span { color: var(--accent); }
+  .friends-note p { margin: 0; }
+  .friends-note strong { color: var(--text-primary, var(--foreground)); }
+</style>
