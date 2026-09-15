@@ -14,7 +14,7 @@ interface Props {
 const { links } = Astro.props;
 ---
 
-<div class="friend-links">
+<div class="friend-links" data-count={links.length}>
   {links.map((link) => (
     <a
       href={link.url}
@@ -49,6 +49,10 @@ const { links } = Astro.props;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
     gap: 14px;
     margin: 1.75rem 0;
+  }
+
+  .friend-links[data-count='1'] {
+    grid-template-columns: minmax(0, 720px);
   }
 
   .friend-card {

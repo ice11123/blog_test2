@@ -12,10 +12,22 @@ type Props = Pick<BlogData, 'title' | 'description' | 'pubDate'> & {
   dir2?: string;
   tags?: string[];
   hidePageHeader?: boolean;
+  showDate?: boolean;
   heading?: string;
 };
 
-const { title, description, pubDate, updatedDate, dir1, dir2, tags = [], hidePageHeader = false, heading = title } = Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  dir1,
+  dir2,
+  tags = [],
+  hidePageHeader = false,
+  showDate = true,
+  heading = title,
+} = Astro.props;
 ---
 
 <PublicLayout title={title} description={description}>
@@ -24,10 +36,10 @@ const { title, description, pubDate, updatedDate, dir1, dir2, tags = [], hidePag
   <article class="public-content-page">
     <div class="prose">
       {!hidePageHeader && <div class="title">
-        <div class="date">
+        {showDate && <div class="date">
           <FormattedDate date={pubDate} />
           {updatedDate && <div class="last-updated-on">Last updated on <FormattedDate date={updatedDate} /></div>}
-        </div>
+        </div>}
         <h1>{heading}</h1>
         {(dir1 || tags.length > 0) && (
           <div class="post-meta">

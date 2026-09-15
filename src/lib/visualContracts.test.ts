@@ -164,17 +164,22 @@ test('顶部栏背景全宽且导航内容保持居中约束', () => {
   assert.doesNotMatch(header, /header\s*\{[^}]*width:\s*min\(1200px/);
   assert.doesNotMatch(globalStyles, /scrollbar-gutter:\s*stable both-edges/);
   assert.doesNotMatch(header, /@media\s*\(max-width:\s*999px\)[\s\S]*header\s*\{[\s\S]*backdrop-filter:\s*none/);
+  assert.match(header, /class="mobile-social-menu"/);
+  assert.match(header, /@media \(max-width: 360px\)[\s\S]*#header-social \{ display: none; \}[\s\S]*\.mobile-social-menu \{ display: block; \}/);
 });
 
 test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
   const home = readSource('pages/index.astro');
+  const recentPosts = readSource('components/home/RecentPosts.astro');
   const layout = readSource('layouts/PublicLayout.astro');
   const sidebar = readSource('components/layout/PersistentSidebar.astro');
 
   assert.doesNotMatch(home, /HomeSidebar/);
   assert.match(layout, /<PersistentSidebar/);
   assert.match(layout, /grid-template-columns:\s*248px minmax\(0,\s*1fr\)/);
-  assert.match(home, /class="document-preview"/);
+  assert.match(home, /<RecentPosts posts=\{recentPosts\}/);
+  assert.match(recentPosts, /class="home-post-sequence"/);
+  assert.doesNotMatch(recentPosts, /class="document-sheet"/);
   assert.doesNotMatch(home, /cover-letter|cover-grid|--cover-hue|home-intro/);
 
   assert.match(sidebar, /aria-current=\{isHome \? 'page'/);
@@ -320,8 +325,25 @@ test('首页维护记录有固定上限并提供完整归档页', () => {
   const home = readSource('pages/index.astro');
   const archive = readSource('pages/maintenance.astro');
 
-  assert.match(home, /maintenanceEntries\.slice\(0, 5\)/);
+  assert.match(home, /maintenanceEntries\.slice\(0, 3\)/);
   assert.match(home, /withBase\('\/maintenance\/'\)/);
   assert.match(archive, /parseMaintenance\(maintenanceSource\)/);
   assert.match(archive, /entries\.map/);
+});
+
+test('静态公共页不伪装成文章日期且单友链保持适宜宽度', () => {
+  const layout = readSource('layouts/PublicContentLayout.astro');
+  const about = readSource('pages/about.astro');
+  const friends = readSource('pages/friends.astro');
+  const friendLinks = readSource('components/widgets/FriendLinks.astro');
+
+  assert.match(layout, /showDate\?: boolean/);
+  assert.match(layout, /showDate = true/);
+  assert.match(layout, /\{showDate && <div class="date">/);
+  assert.match(about, /showDate=\{false\}/);
+  assert.match(friends, /showDate=\{false\}/);
+  assert.match(friends, /withBase\('\/friends\/guet-428\.svg'\)/);
+  assert.doesNotMatch(friends, /GUET_428\/favicon\.svg/);
+  assert.match(friendLinks, /data-count=\{links\.length\}/);
+  assert.match(friendLinks, /\.friend-links\[data-count='1'\][\s\S]*grid-template-columns:\s*minmax\(0, 720px\)/);
 });
