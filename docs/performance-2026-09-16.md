@@ -32,7 +32,7 @@
 
 后续测量发现，壁纸展开仍通过全屏 `clip-path` 每帧改变裁切边界，并在首次输入时同时启动高清图请求。实现改为两个互逆的合成层：外层舞台以 `translate3d + scale3d` 连续扩展边界，内层视口执行逆变换保持图片坐标系稳定，图片本身继续在封面 `cover` 与全图 `contain` 取景间插值。拖动时间线在稳定态保留并复用，`will-change` 只在交互期间启用；高清资源在展开稳定后才请求和解码。
 
-1440×900 的 Edge 153 轻量采样各运行三轮。CPU×4 下展开／收回 p95 均为 5.7ms，最大帧为 27.9–33.3ms；连续反向滚轮 p95 为 5.6–5.7ms，最大帧为 22.3ms；所有轮次 Long Task 为 0。未限速桌面除首轮浏览器唤醒出现一次 55.5ms 间隔外，其余展开／收回最大 5.8–11ms，连续反向最大 5.8ms。记录见 `artifacts/performance/motion-refactor-final/home-motion-summary.json`（本地验收产物，不纳入 Git）。
+1440×900 的 Edge 153 轻量采样各运行三轮。CPU×4 下展开／收回 p95 均为 5.7ms，最大帧为 27.8–38.9ms；连续反向滚轮 p95 为 5.6–5.7ms，最大帧为 22.2–27.7ms；所有轮次 Long Task 为 0。未限速桌面除首轮浏览器唤醒出现一次 66.7ms 间隔外，其余展开／收回最大 5.9–11.2ms，连续反向最大 5.8ms。见[三轮性能采样](../artifacts/performance/motion-refactor-final/home-motion-summary.json)与[桌面／移动交互验收](../artifacts/performance/motion-refactor-review/verification.json)。
 
 曾尝试把壁纸与波浪从根主题快照中分离；中间帧检查发现这会让主题图片先于圆形边界切换，并且 CPU×4 三轮最大帧 83.3–99.9ms，反而高于完整根快照的 66.6–72.2ms。因此撤销该实验，保留视觉正确且测量更快的完整圆形主题过渡。
 

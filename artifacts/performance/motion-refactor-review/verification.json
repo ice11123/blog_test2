@@ -1,0 +1,24 @@
+{
+  "url": "http://127.0.0.1:4329/blog_test2/",
+  "browser": "153.0.4234.32",
+  "results": [
+    {
+      "width": 1440,
+      "gestures": true,
+      "reverseClicks": 10,
+      "theme": true,
+      "reducedMotion": true,
+      "routeCleanup": true,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "gestures": true,
+      "reverseClicks": 10,
+      "theme": true,
+      "reducedMotion": true,
+      "routeCleanup": true,
+      "errors": []
+    }
+  ]
+}
