@@ -91,9 +91,9 @@ function buildToc(): boolean {
     if (heading.tagName === 'H2') li.classList.add('toc-level-h2');
     if (heading.tagName === 'H3') li.classList.add('toc-level-h3');
 
-    const div = document.createElement('div');
-    div.style.cursor = 'pointer';
-    div.onclick = () => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.onclick = () => {
       const targetIdx = headingElements.findIndex(h => h.tocItem === li);
       if (targetIdx < 0) return;
 
@@ -140,8 +140,8 @@ function buildToc(): boolean {
         }
       }, 120);
     };
-    div.textContent = heading.textContent?.trim() || '';
-    li.appendChild(div);
+    button.textContent = heading.textContent?.trim() || '';
+    li.appendChild(button);
     tocList.appendChild(li);
 
     headingElements.push({ element: el, tocItem: li });

@@ -48,7 +48,7 @@ const tagMatch = currentPath.match(/^\/blog\/tag\/([^/]+)/);
 const activeTag = decodePathPart(tagMatch?.[1]);
 ---
 
-<aside class="persistent-sidebar" data-persistent-sidebar data-default-tab={initialTab} aria-label="站点侧栏">
+<aside id="persistent-site-sidebar" class="persistent-sidebar" data-persistent-sidebar data-default-tab={initialTab} aria-label="站点侧栏">
   <div class="persistent-sidebar-scroll">
     <div class="sidebar-segments" role="tablist" aria-label="侧栏内容">
       <button id="sidebar-tab-profile" type="button" role="tab" data-sidebar-tab="profile" aria-label="个人" aria-selected={initialTab === 'profile' ? 'true' : 'false'} aria-controls="sidebar-panel-profile" tabindex={initialTab === 'profile' ? 0 : -1}>

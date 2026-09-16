@@ -61,25 +61,31 @@
 
   #toc-list li { width: 100%; margin: 3px 0; }
 
-  #toc-list li div {
+  #toc-list li button {
     display: block;
     width: 100%;
     box-sizing: border-box;
     padding: 8px 10px;
     color: inherit;
+    background: transparent;
+    border: 0;
     border-radius: 8px;
+    font: inherit;
+    text-align: left;
     line-height: 1.45;
     overflow-wrap: anywhere;
+    cursor: pointer;
     transition: color 150ms ease, background-color 150ms ease;
   }
 
-  #toc-list li.toc-level-h2 div { font-weight: 700; }
-  #toc-list li.toc-level-h3 div { padding-left: 22px; }
-  #toc-list li.active div { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  #toc-list li.toc-level-h2 button { font-weight: 700; }
+  #toc-list li.toc-level-h3 button { padding-left: 22px; }
+  #toc-list li.active button { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  #toc-list li button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
   #toc-list .toc-empty { padding: 12px 10px; color: var(--text-secondary); line-height: 1.6; }
 
   @media (hover: hover) and (pointer: fine) {
-    #toc-list li div:hover {
+    #toc-list li button:hover {
       color: var(--accent);
       background: color-mix(in srgb, var(--accent) 7%, transparent);
     }
@@ -91,12 +97,8 @@
     .toc-area .position-indicator { left: 8px; }
   }
 
-  @media (max-width: 999.98px) {
-    .article-toc-sidebar { display: none; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .toc-area .position-indicator,
-    #toc-list li div { transition: none; }
+    #toc-list li button { transition: none; }
   }
 }

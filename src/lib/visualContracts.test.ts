@@ -119,16 +119,32 @@ test('左侧栏固定为个人、目录、标签目录，文章 TOC 独立位于
   assert.match(interaction, /aria-selected/);
 });
 
-test('统一侧栏在桌面常驻并在小屏让位给正文', () => {
+test('统一侧栏在桌面常驻并在移动端复用为边缘抽屉', () => {
   const styles = readSource('styles/persistent-sidebar.scss');
+  const mobileStyles = readSource('styles/mobile-sidebars.scss');
+  const mobileControls = readSource('components/layout/MobileSidebarControls.astro');
+  const mobileScript = readSource('scripts/mobile-sidebars.ts');
   assert.match(styles, /position:\s*sticky/);
   assert.match(styles, /top:\s*81px/);
   assert.match(styles, /height:\s*calc\(100dvh\s*-\s*81px\)/);
-  assert.match(styles, /max-width:\s*999\.98px[\s\S]*\.persistent-sidebar\s*\{\s*display:\s*none/);
+  assert.doesNotMatch(styles, /max-width:\s*999\.98px[\s\S]*\.persistent-sidebar\s*\{\s*display:\s*none/);
+  assert.match(mobileControls, /data-mobile-sidebar-toggle="left"/);
+  assert.match(mobileControls, /data-mobile-sidebar-toggle="right"/);
+  assert.match(mobileControls, /aria-controls="persistent-site-sidebar"/);
+  assert.match(mobileControls, /aria-controls="article-toc-sidebar"/);
+  assert.match(mobileStyles, /\.persistent-sidebar,[\s\S]*\.article-toc-sidebar\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(mobileStyles, /transform:\s*translate3d\(-100%,\s*0,\s*0\)/);
+  assert.match(mobileStyles, /transform:\s*translate3d\(100%,\s*0,\s*0\)/);
+  assert.match(mobileStyles, /transition:\s*transform 240ms var\(--ease-drawer\)/);
+  assert.doesNotMatch(mobileStyles, /transition:\s*all/);
+  assert.match(mobileScript, /ResizeObserver\(updateHeaderHeight\)/);
+  assert.match(mobileScript, /leftDrawer\.inert|siteSidebar\.inert/);
+  assert.match(mobileScript, /event\.key === 'Escape'/);
+  assert.match(mobileScript, /astro:before-swap/);
   assert.match(styles, /prefers-reduced-motion:\s*reduce/);
 });
 
-test('非首屏样式、搜索引擎与移动端侧栏按需加载', () => {
+test('非首屏样式与搜索引擎按需加载', () => {
   const globalStyles = readSource('styles/global.scss');
   const htmlHead = readSource('components/layout/HtmlHead.astro');
   const sidebar = readSource('components/layout/PersistentSidebar.astro');
@@ -146,8 +162,8 @@ test('非首屏样式、搜索引擎与移动端侧栏按需加载', () => {
   assert.doesNotMatch(htmlHead, /persistent-sidebar\.scss|blog-post\.scss|system-status\.scss|katex\/dist/);
   assert.match(sidebar, /import ['"]\.\.\/\.\.\/styles\/persistent-sidebar\.scss['"]/);
   assert.match(sidebar, /loading="lazy" decoding="async"/);
-  assert.match(sidebarScript, /matchMedia\(['"]\(min-width:\s*1000px\)['"]\)/);
-  assert.match(sidebarScript, /if \(!desktopSidebarQuery\.matches\) return/);
+  assert.doesNotMatch(sidebarScript, /if \(!desktopSidebarQuery\.matches\) return/);
+  assert.match(sidebarScript, /document\.querySelectorAll<HTMLElement>\('\[data-persistent-sidebar\]'\)/);
   assert.match(publicStatus, /import ['"]\.\.\/\.\.\/styles\/system-status\.scss['"]/);
   assert.match(adminPage, /import ['"]\.\.\/\.\.\/styles\/system-status\.scss['"]/);
   assert.match(publicContentLayout, /import blogPostCss from ['"]\.\.\/styles\/blog-post\.scss\?url['"]/);

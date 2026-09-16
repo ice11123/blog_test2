@@ -138,10 +138,6 @@
     .profile-avatar { width: 104px; height: 104px; }
   }
 
-  @media (max-width: 999.98px) {
-    .persistent-sidebar { display: none; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .sidebar-segments button, .sidebar-nav-link, .directory-all-link, .tag-directory a, .directory-chevron, .directory-group-body a { transition: none; }
     .persistent-sidebar :is(button, a):active { transform: none; }

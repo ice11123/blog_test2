@@ -1,0 +1,33 @@
+{
+  "baseUrl": "http://127.0.0.1:4329/blog_test2/",
+  "browser": "153.0.4234.32",
+  "results": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "homeLeft": true,
+      "articleRight": true,
+      "noOverflow": true,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "homeLeft": true,
+      "articleRight": true,
+      "noOverflow": true,
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "desktopUnchanged": true
+    }
+  ]
+}

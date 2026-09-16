@@ -5,6 +5,7 @@ import Footer from '../components/layout/Footer.astro';
 import Header from '../components/layout/Header.astro';
 import PersistentSidebar from '../components/layout/PersistentSidebar.astro';
 import ArticleTocSidebar from '../components/layout/ArticleTocSidebar.astro';
+import MobileSidebarControls from '../components/layout/MobileSidebarControls.astro';
 import SearchModal from '../components/blog/SearchModal.astro';
 import { getSidebarData } from '../lib/blogData';
 
@@ -49,6 +50,7 @@ const sidebarPosts = await getSidebarData();
       </main>
       {sidebarMode === 'article' && <ArticleTocSidebar />}
     </div>
+    <MobileSidebarControls hasArticleToc={sidebarMode === 'article'} />
     <Footer />
     <SearchModal />
   </body>

@@ -1,0 +1,149 @@
+@layer components {
+  .mobile-sidebar-controls {
+    --mobile-sidebar-width: min(300px, calc(100vw - 44px));
+    display: none;
+  }
+
+  @media (max-width: 999.98px) {
+    .mobile-sidebar-controls { display: contents; }
+
+    .persistent-sidebar,
+    .article-toc-sidebar {
+      position: fixed;
+      z-index: 1102;
+      top: var(--public-header-height, 105px);
+      bottom: auto;
+      display: block;
+      width: var(--mobile-sidebar-width, min(300px, calc(100vw - 44px)));
+      height: calc(100dvh - var(--public-header-height, 105px));
+      min-height: 0;
+      max-height: calc(100dvh - var(--public-header-height, 105px));
+      margin: 0;
+      visibility: hidden;
+      box-shadow: 0 20px 54px color-mix(in srgb, var(--text-primary) 22%, transparent);
+      transition: transform 240ms var(--ease-drawer), visibility 0s 240ms;
+      will-change: transform;
+    }
+
+    .persistent-sidebar {
+      left: 0;
+      border-right: 1px solid var(--border);
+      transform: translate3d(-100%, 0, 0);
+    }
+
+    .article-toc-sidebar {
+      right: 0;
+      border-left: 1px solid var(--border);
+      transform: translate3d(100%, 0, 0);
+    }
+
+    html[data-mobile-sidebar='left'] .persistent-sidebar,
+    html[data-mobile-sidebar='right'] .article-toc-sidebar {
+      visibility: visible;
+      transform: translate3d(0, 0, 0);
+      transition: transform 240ms var(--ease-drawer), visibility 0s;
+    }
+
+    .mobile-sidebar-toggle {
+      position: fixed;
+      z-index: 1103;
+      top: calc(var(--public-header-height, 105px) + (100dvh - var(--public-header-height, 105px)) * .46);
+      display: grid;
+      width: 25px;
+      height: 48px;
+      box-sizing: border-box;
+      place-items: center;
+      padding: 0;
+      color: var(--text-primary);
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      border: 1px solid var(--border);
+      box-shadow: 0 7px 22px color-mix(in srgb, var(--text-primary) 15%, transparent);
+      cursor: pointer;
+      transform: translate3d(0, -50%, 0);
+      transition: transform 240ms var(--ease-drawer), color 150ms ease, background-color 150ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-sidebar-toggle-left {
+      left: 0;
+      border-left: 0;
+      border-radius: 0 11px 11px 0;
+    }
+
+    .mobile-sidebar-toggle-right {
+      right: 0;
+      border-right: 0;
+      border-radius: 11px 0 0 11px;
+    }
+
+    .mobile-sidebar-toggle svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 180ms var(--ease-out);
+    }
+
+    html[data-mobile-sidebar='left'] .mobile-sidebar-toggle-left {
+      transform: translate3d(var(--mobile-sidebar-width, min(300px, calc(100vw - 44px))), -50%, 0);
+    }
+
+    html[data-mobile-sidebar='right'] .mobile-sidebar-toggle-right {
+      transform: translate3d(calc(-1 * var(--mobile-sidebar-width, min(300px, calc(100vw - 44px)))), -50%, 0);
+    }
+
+    html[data-mobile-sidebar='left'] .mobile-sidebar-toggle-left svg,
+    html[data-mobile-sidebar='right'] .mobile-sidebar-toggle-right svg { transform: rotate(180deg); }
+
+    .mobile-sidebar-toggle:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .mobile-sidebar-toggle:active { color: var(--accent); }
+    .mobile-sidebar-toggle:disabled { opacity: .55; cursor: wait; }
+
+    .mobile-sidebar-backdrop {
+      position: fixed;
+      z-index: 1101;
+      inset: var(--public-header-height, 105px) 0 0;
+      display: block;
+      width: auto;
+      height: auto;
+      padding: 0;
+      background: color-mix(in srgb, var(--text-primary) 28%, transparent);
+      border: 0;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 160ms ease, visibility 0s 160ms;
+    }
+
+    html[data-mobile-sidebar] .mobile-sidebar-backdrop {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity 160ms ease, visibility 0s;
+    }
+
+    html[data-mobile-sidebar] { overflow: hidden; }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (max-width: 999.98px) {
+    .mobile-sidebar-toggle:hover {
+      color: var(--accent);
+      background: var(--surface);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) and (max-width: 999.98px) {
+    .persistent-sidebar,
+    .article-toc-sidebar,
+    .mobile-sidebar-toggle,
+    .mobile-sidebar-toggle svg,
+    .mobile-sidebar-backdrop { transition: none; }
+  }
+}

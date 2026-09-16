@@ -1,0 +1,44 @@
+---
+import '../../styles/mobile-sidebars.scss';
+
+interface Props {
+  hasArticleToc?: boolean;
+}
+
+const { hasArticleToc = false } = Astro.props;
+---
+
+<div class="mobile-sidebar-controls" data-mobile-sidebar-controls data-has-article-toc={String(hasArticleToc)}>
+  <button
+    class="mobile-sidebar-toggle mobile-sidebar-toggle-left"
+    type="button"
+    data-mobile-sidebar-toggle="left"
+    aria-controls="persistent-site-sidebar"
+    aria-expanded="false"
+    aria-label="展开站点侧栏"
+    title="展开站点侧栏"
+    disabled
+  >
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 6 6-6 6" /></svg>
+  </button>
+
+  {hasArticleToc && (
+    <button
+      class="mobile-sidebar-toggle mobile-sidebar-toggle-right"
+      type="button"
+      data-mobile-sidebar-toggle="right"
+      aria-controls="article-toc-sidebar"
+      aria-expanded="false"
+      aria-label="展开文章目录"
+      title="展开文章目录"
+      disabled
+    >
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m13 4-6 6 6 6" /></svg>
+    </button>
+  )}
+
+  <button class="mobile-sidebar-backdrop" type="button" data-mobile-sidebar-backdrop aria-label="关闭侧栏" tabindex="-1"></button>
+  <span class="sr-only" role="status" aria-live="polite" data-mobile-sidebar-status></span>
+</div>
+
+<script src="../../scripts/mobile-sidebars"></script>
