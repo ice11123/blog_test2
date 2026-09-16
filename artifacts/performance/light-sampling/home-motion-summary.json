@@ -1,0 +1,168 @@
+{
+  "generatedAt": "2026-09-16T01:10:05.367Z",
+  "url": "http://127.0.0.1:4329/blog_test2/",
+  "browserVersion": "153.0.4234.32",
+  "headless": true,
+  "variant": "baseline",
+  "traceEnabled": false,
+  "gpu": {
+    "devices": [
+      {
+        "vendorId": 4318,
+        "deviceId": 10464,
+        "subSysId": 1011947434,
+        "revision": 161,
+        "vendorString": "",
+        "deviceString": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "driverVendor": "NVIDIA",
+        "driverVersion": "32.0.15.9174"
+      },
+      {
+        "vendorId": 4318,
+        "deviceId": 10464,
+        "subSysId": 1011947434,
+        "revision": 161,
+        "vendorString": "",
+        "deviceString": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "driverVendor": "",
+        "driverVersion": "32.0.15.9174"
+      },
+      {
+        "vendorId": 5140,
+        "deviceId": 140,
+        "subSysId": 0,
+        "revision": 0,
+        "vendorString": "",
+        "deviceString": "Microsoft Basic Render Driver",
+        "driverVendor": "",
+        "driverVersion": "10.0.26100.8875"
+      }
+    ],
+    "featureStatus": {
+      "2d_canvas": "enabled",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "enabled",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "enabled_on",
+      "rasterization": "enabled",
+      "raw_draw": "disabled_off_ok",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "enabled",
+      "video_encode": "enabled",
+      "webgl": "enabled",
+      "webgpu": "enabled",
+      "webnn": "disabled_off"
+    },
+    "driverBugWorkarounds": [
+      "disable_d3d11_vp9_ksvc_decoding",
+      "enable_webgl_timer_query_extensions",
+      "exit_on_context_lost",
+      "unpack_overlapping_rows_separately_unpack_buffer",
+      "disabled_extension_GL_KHR_blend_equation_advanced",
+      "disabled_extension_GL_KHR_blend_equation_advanced_coherent"
+    ]
+  },
+  "profiles": {
+    "desktop": {
+      "settings": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "deviceScaleFactor": 1,
+        "cpuRate": 1
+      },
+      "scenarios": {
+        "pageScroll": [
+          {
+            "raf": {
+              "count": 720,
+              "meanMs": 5.57,
+              "p95Ms": 5.6,
+              "maxMs": 16.7,
+              "over16_7": 1,
+              "over33_3": 0
+            },
+            "longTasks": {
+              "count": 0,
+              "meanMs": 0,
+              "p95Ms": 0,
+              "maxMs": 0,
+              "over16_7": 0,
+              "over33_3": 0
+            },
+            "trace": null,
+            "layers": {
+              "samples": 0,
+              "maxContentLayers": 0,
+              "maxTotalCssPixelArea": 0,
+              "maxSingleCssPixelArea": 0,
+              "maxPaintCount": 0
+            },
+            "tracePath": null
+          }
+        ],
+        "toggleTwice": [
+          {
+            "raf": {
+              "count": 439,
+              "meanMs": 5.59,
+              "p95Ms": 5.6,
+              "maxMs": 22.2,
+              "over16_7": 1,
+              "over33_3": 0
+            },
+            "longTasks": {
+              "count": 0,
+              "meanMs": 0,
+              "p95Ms": 0,
+              "maxMs": 0,
+              "over16_7": 0,
+              "over33_3": 0
+            },
+            "trace": null,
+            "layers": {
+              "samples": 0,
+              "maxContentLayers": 0,
+              "maxTotalCssPixelArea": 0,
+              "maxSingleCssPixelArea": 0,
+              "maxPaintCount": 0
+            },
+            "tracePath": null
+          }
+        ],
+        "reverseWheel": [
+          {
+            "raf": {
+              "count": 226,
+              "meanMs": 5.56,
+              "p95Ms": 5.6,
+              "maxMs": 5.7,
+              "over16_7": 0,
+              "over33_3": 0
+            },
+            "longTasks": {
+              "count": 0,
+              "meanMs": 0,
+              "p95Ms": 0,
+              "maxMs": 0,
+              "over16_7": 0,
+              "over33_3": 0
+            },
+            "trace": null,
+            "layers": {
+              "samples": 0,
+              "maxContentLayers": 0,
+              "maxTotalCssPixelArea": 0,
+              "maxSingleCssPixelArea": 0,
+              "maxPaintCount": 0
+            },
+            "tracePath": null
+          }
+        ]
+      },
+      "skippedScenarios": {}
+    }
+  }
+}

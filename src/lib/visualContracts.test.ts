@@ -42,16 +42,23 @@ test('全局动效令牌与降低动态契约保持稳定', () => {
 
   const home = readSource('pages/index.astro');
   assert.match(home, /\.cover-wave-layer\s*\{\s*animation:\s*none/);
-  assert.equal((home.match(/<svg class="cover-waves"/g) ?? []).length, 1);
-  assert.equal((home.match(/<use class="cover-wave-layer/g) ?? []).length, 3);
-  assert.match(home, /<defs>[\s\S]*id="home-gentle-wave"[\s\S]*<\/defs>/);
-  assert.match(home, /<g class="cover-wave-parallax">[\s\S]*<\/g>/);
-  assert.doesNotMatch(home, /<svg class="cover-wave-layer/);
+  assert.equal((home.match(/<div class="cover-waves"/g) ?? []).length, 1);
+  assert.equal((home.match(/<div class="cover-wave-layer/g) ?? []).length, 3);
+  assert.equal((home.match(/<svg class="cover-wave-shape"/g) ?? []).length, 3);
+  assert.equal((home.match(/<path d=\{homeGentleWavePath\}/g) ?? []).length, 3);
+  assert.match(home, /transform="translate\(0 0\)"/);
+  assert.match(home, /transform="translate\(0 6\)"/);
+  assert.match(home, /transform="translate\(0 12\)"/);
+  assert.doesNotMatch(home, /<use class="cover-wave-layer/);
   assert.doesNotMatch(home, /\.cover-wave-layer\s*\{[\s\S]*contain:\s*paint/);
   assert.match(home, /cover-wave-layer-back[\s\S]*animation-duration:\s*12s/);
   assert.match(home, /cover-wave-layer-middle[\s\S]*animation-duration:\s*7s/);
   assert.match(home, /cover-wave-layer-front[\s\S]*animation-duration:\s*4s/);
-  assert.match(home, /@keyframes cover-wave-drift\s*\{[\s\S]*translate3d\(-96px,[\s\S]*translate3d\(0,/);
+  assert.match(home, /cover-wave-layer-back[\s\S]*animation-delay:\s*-2s/);
+  assert.match(home, /cover-wave-layer-middle[\s\S]*animation-delay:\s*-3s/);
+  assert.match(home, /cover-wave-layer-front[\s\S]*animation-delay:\s*-4s/);
+  assert.match(home, /\.cover-waves\s*\{[\s\S]*overflow:\s*hidden/);
+  assert.match(home, /@keyframes cover-wave-drift\s*\{[\s\S]*translate3d\(-50%,[\s\S]*translate3d\(0,/);
   assert.doesNotMatch(home, /cover-wave-layer[^}]*filter:/);
 });
 

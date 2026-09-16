@@ -52,6 +52,7 @@ const homeHeroDarkFullSrcset = homeHeroDarkFullSources
   .join(', ');
 const homeHeroDarkFallback = homeHeroDarkWebpSources.at(-1)?.src ?? homeHeroDarkLqip.src;
 const homeHeroDarkFullFallback = homeHeroDarkFullSources.at(-1)?.src ?? homeHeroDarkLqip.src;
+const homeGentleWavePath = 'M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z';
 
 const websiteLd = {
   '@context': 'https://schema.org',
@@ -178,19 +179,23 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
     </div>
 
     <div class="home-drawer" data-home-lower-motion>
-      <svg class="cover-waves" viewBox="0 0 192 64" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <path
-            id="home-gentle-wave"
-            d="M-192 36C-176 22-160 22-144 36S-112 50-96 36S-64 22-48 36S-16 50 0 36S32 22 48 36S80 50 96 36S128 22 144 36S176 50 192 36S224 22 240 36S272 50 288 36S320 22 336 36S368 50 384 36V64H-192Z"
-          />
-        </defs>
-        <g class="cover-wave-parallax">
-          <use class="cover-wave-layer cover-wave-layer-back" href="#home-gentle-wave" y="0" />
-          <use class="cover-wave-layer cover-wave-layer-middle" href="#home-gentle-wave" y="6" />
-          <use class="cover-wave-layer cover-wave-layer-front" href="#home-gentle-wave" y="12" />
-        </g>
-      </svg>
+      <div class="cover-waves" aria-hidden="true">
+        <div class="cover-wave-layer cover-wave-layer-back">
+          <svg class="cover-wave-shape" viewBox="0 0 192 64" preserveAspectRatio="none">
+            <path d={homeGentleWavePath} transform="translate(0 0)" />
+          </svg>
+        </div>
+        <div class="cover-wave-layer cover-wave-layer-middle">
+          <svg class="cover-wave-shape" viewBox="0 0 192 64" preserveAspectRatio="none">
+            <path d={homeGentleWavePath} transform="translate(0 6)" />
+          </svg>
+        </div>
+        <div class="cover-wave-layer cover-wave-layer-front">
+          <svg class="cover-wave-shape" viewBox="0 0 192 64" preserveAspectRatio="none">
+            <path d={homeGentleWavePath} transform="translate(0 12)" />
+          </svg>
+        </div>
+      </div>
       <div class="home-content-layout">
       <div class="home-main-column">
     <RecentPosts posts={recentPosts} />
@@ -411,14 +416,22 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
     display: block;
     width: 100%;
     height: clamp(64px, 13dvh, 150px);
+    overflow: hidden;
     pointer-events: none;
   }
   .cover-wave-layer {
-    transform-origin: center;
+    position: absolute;
+    inset: 0;
     animation-name: cover-wave-drift;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
     animation-play-state: paused;
+  }
+  .cover-wave-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
   }
   .cover-wave-layer-back {
     fill: color-mix(in srgb, var(--canvas) 72%, var(--accent) 28%);
@@ -619,7 +632,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
   }
 
   @keyframes cover-wave-drift {
-    from { transform: translate3d(-96px, 0, 0); }
+    from { transform: translate3d(-50%, 0, 0); }
     to { transform: translate3d(0, 0, 0); }
   }
 </style>

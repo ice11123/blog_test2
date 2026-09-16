@@ -1,0 +1,40 @@
+{
+  "clip": {
+    "x": 248,
+    "y": 569.796875,
+    "width": 1192,
+    "height": 117
+  },
+  "comparisons": [
+    {
+      "phaseMs": 1000,
+      "width": 1192,
+      "height": 117,
+      "changedPixels": 5864,
+      "totalPixels": 139464,
+      "changedPercent": 4.2047,
+      "maxChannelDelta": 16,
+      "meanChannelDelta": 0.1129
+    },
+    {
+      "phaseMs": 2333,
+      "width": 1192,
+      "height": 117,
+      "changedPixels": 0,
+      "totalPixels": 139464,
+      "changedPercent": 0,
+      "maxChannelDelta": 0,
+      "meanChannelDelta": 0
+    },
+    {
+      "phaseMs": 3999,
+      "width": 1192,
+      "height": 117,
+      "changedPixels": 0,
+      "totalPixels": 139464,
+      "changedPercent": 0,
+      "maxChannelDelta": 0,
+      "meanChannelDelta": 0
+    }
+  ]
+}
