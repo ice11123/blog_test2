@@ -7,6 +7,8 @@
         "width": 390,
         "height": 844
       },
+      "headerHeight": 100.09375,
+      "compactHeader": true,
       "homeLeft": true,
       "articleRight": true,
       "noOverflow": true,
@@ -17,6 +19,8 @@
         "width": 320,
         "height": 568
       },
+      "headerHeight": 100.09375,
+      "compactHeader": true,
       "homeLeft": true,
       "articleRight": true,
       "noOverflow": true,

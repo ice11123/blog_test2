@@ -188,7 +188,10 @@ test('顶部栏背景全宽且导航内容保持居中约束', () => {
   assert.doesNotMatch(globalStyles, /scrollbar-gutter:\s*stable both-edges/);
   assert.doesNotMatch(header, /@media\s*\(max-width:\s*999px\)[\s\S]*header\s*\{[\s\S]*backdrop-filter:\s*none/);
   assert.match(header, /class="mobile-social-menu"/);
-  assert.match(header, /@media \(max-width: 360px\)[\s\S]*#header-social \{ display: none; \}[\s\S]*\.mobile-social-menu \{ display: block; \}/);
+  assert.match(header, /@media \(max-width: 680px\)[\s\S]*#header-social \{ display: none; \}[\s\S]*\.mobile-social-menu \{[^}]*display: block;[^}]*margin: 0;[^}]*padding: 0;[^}]*border: 0/);
+  assert.match(header, /\.mobile-social-menu\[open\] > summary \{ margin-bottom: 0; \}/);
+  assert.match(header, /\.nav-links \{[^}]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)[^}]*padding: 3px/);
+  assert.match(header, /\.nav-links :global\(a\.active\) \{[^}]*background: var\(--surface\)/);
 });
 
 test('主页复用统一侧栏并移除高饱和巨大字占位', () => {

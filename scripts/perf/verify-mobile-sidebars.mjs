@@ -30,6 +30,21 @@ try {
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('[data-mobile-sidebar-toggle="left"]:not([disabled])');
     await page.locator('[data-home-hero-photo]').evaluate((image) => image.decode());
+    const headerBox = await page.locator('#site-header').boundingBox();
+    const headerDebug = await page.evaluate(() => Object.fromEntries(
+      ['.site-nav', '.nav-brand', '.nav-actions', '.nav-links'].map((selector) => {
+        const element = document.querySelector(selector);
+        const rect = element?.getBoundingClientRect();
+        return [selector, rect ? { width: rect.width, height: rect.height, top: rect.top, bottom: rect.bottom } : null];
+      }),
+    ));
+    assert.ok(headerBox && headerBox.height <= 104, `移动顶栏过高：${headerBox?.height}px，${JSON.stringify(headerDebug)}`);
+    assert.equal(await page.locator('#header-social').isVisible(), false);
+    assert.equal(await page.locator('.mobile-social-menu').isVisible(), true);
+    await page.locator('.mobile-social-menu summary').click();
+    assert.equal(await page.locator('.mobile-social-popover').isVisible(), true);
+    await page.screenshot({ path: join(output, `${viewport.width}-home-header-menu.png`) });
+    await page.locator('.mobile-social-menu summary').click();
     assert.equal(await page.locator('[data-mobile-sidebar-toggle="right"]').count(), 0);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), false);
     assert.equal(await page.locator('[data-persistent-sidebar]').evaluate((node) => node.inert), true);
@@ -92,7 +107,7 @@ try {
     assert.equal(await page.locator('[data-mobile-sidebar-toggle="right"]').getAttribute('aria-expanded'), 'true');
     assert.deepEqual(errors, []);
 
-    report.results.push({ viewport, homeLeft: true, articleRight: true, noOverflow: true, errors });
+    report.results.push({ viewport, headerHeight: headerBox.height, compactHeader: true, homeLeft: true, articleRight: true, noOverflow: true, errors });
     await context.close();
   }
 
@@ -100,6 +115,8 @@ try {
   const page = await context.newPage();
   await page.goto(articleUrl, { waitUntil: 'domcontentloaded' });
   assert.equal(await page.locator('[data-mobile-sidebar-toggle="left"]').isVisible(), false);
+  assert.equal(await page.locator('#header-social').isVisible(), true);
+  assert.equal(await page.locator('.mobile-social-menu').isVisible(), false);
   assert.equal(await page.locator('[data-persistent-sidebar]').evaluate((node) => node.inert), false);
   report.results.push({ viewport: { width: 1440, height: 900 }, desktopUnchanged: true });
   await context.close();
