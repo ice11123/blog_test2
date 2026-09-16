@@ -57,6 +57,7 @@ function mountHeroRuntime() {
   const frames = new Map();
   let frameId = 0;
   let writes = 0;
+  let animationsCreated = 0;
   let guardCalls = 0;
   const nodes = new Map();
   const makeNode = () => {
@@ -67,6 +68,7 @@ function mountHeroRuntime() {
     element.naturalHeight = 1080;
     element.offsetHeight = 44;
     element.animate = () => {
+      animationsCreated++;
       let time = 0;
       return { get currentTime() { return time; }, set currentTime(value) { time = value; writes++; },
         pause() {}, cancel() {}, finished: new Promise(() => {}) };
@@ -76,7 +78,7 @@ function mountHeroRuntime() {
     };
     return element;
   };
-  for (const selector of ['[data-home-cover]', '.home-cover', '[data-home-hero-photo]', '[data-home-hero-source]', '[data-home-cover-stage]', '[data-home-hero-full]', '[data-home-cover-toggle]', '[data-home-lower-motion]', '[data-home-cover-status]', '#site-header', 'svg']) nodes.set(selector, makeNode());
+  for (const selector of ['[data-home-cover]', '.home-cover', '[data-home-hero-photo]', '[data-home-hero-source]', '[data-home-cover-stage]', '[data-home-cover-viewport]', '[data-home-hero-full]', '[data-home-cover-toggle]', '[data-home-lower-motion]', '[data-home-cover-status]', '#site-header', 'svg']) nodes.set(selector, makeNode());
   nodes.get('[data-home-cover]').querySelector = selector => nodes.get(selector) || null;
   nodes.get('[data-home-cover-toggle]').querySelector = selector => nodes.get(selector) || null;
   const document = makeNode();
@@ -103,7 +105,7 @@ function mountHeroRuntime() {
   const flush = () => { const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback(16)); };
   flush();
   writes = 0;
-  return { document, window, nodes, frames, flush, writes: () => writes, guards: () => guardCalls,
+  return { document, window, nodes, frames, flush, writes: () => writes, animationsCreated: () => animationsCreated, guards: () => guardCalls,
     wheel(deltaY) { return document.fire('wheel', { deltaY, deltaX: 0, deltaMode: 0 }); } };
 }
 
@@ -118,11 +120,20 @@ test('同帧滚轮突发只提交一次最新动画进度，下一帧可反向',
   const hero = mountHeroRuntime();
   for (let i = 0; i < 40; i++) hero.wheel(-2);
   hero.flush();
-  assert.ok(hero.writes() <= 10, `同帧产生了 ${hero.writes()} 次动画写入`);
+  assert.ok(hero.writes() <= 12, `同帧产生了 ${hero.writes()} 次动画写入`);
   const previous = hero.writes();
   for (let i = 0; i < 10; i++) hero.wheel(2);
   hero.flush();
-  assert.equal(hero.writes() - previous, 5);
+  assert.equal(hero.writes() - previous, 6);
+});
+
+test('稳定态快速切换复用同一组可拖动时间线', () => {
+  const hero = mountHeroRuntime();
+  const toggle = hero.nodes.get('[data-home-cover-toggle]');
+  toggle.fire('click', { detail: 0 });
+  const createdAfterFirstToggle = hero.animationsCreated();
+  for (let index = 0; index < 8; index++) toggle.fire('click', { detail: 0 });
+  assert.equal(hero.animationsCreated(), createdAfterFirstToggle);
 });
 
 test('离开首页取消尚未提交的手势帧并移除监听', () => {

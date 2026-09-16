@@ -21,10 +21,28 @@ test('壁纸几何把封面 cover 连续映射到舞台 contain', () => {
   assert.equal(geometry.containX, 0);
   assert.equal(geometry.containY, 110);
   assert.equal(geometry.drawerDistance, 120);
-  assert.deepEqual(
-    [geometry.clipTop, geometry.clipRight, geometry.clipBottom, geometry.clipLeft],
-    [0, 0, 120, 0],
-  );
+  assert.equal(geometry.viewportX, 0);
+  assert.equal(geometry.viewportY, 0);
+  assert.equal(geometry.viewportScaleX, 1);
+  assert.equal(geometry.viewportScaleY, 5 / 6);
   assert.equal(geometry.handleX, 0);
   assert.equal(geometry.handleY, 0);
+});
+
+test('裁切视口使用位移和非等比缩放精确复现封面边界', () => {
+  const geometry = computeHomeCoverMotionGeometry({
+    sourceRect: { top: 120, right: 1080, bottom: 620, left: 280, width: 800, height: 500 },
+    stageRect: { top: 80, right: 1280, bottom: 800, left: 200, width: 1080, height: 720 },
+    imageWidth: 1920,
+    imageHeight: 1080,
+    objectPositionX: 0.54,
+    objectPositionY: 0.55,
+    headerHeight: 80,
+    toggleHeight: 44,
+  });
+
+  assert.equal(geometry.viewportX, 80);
+  assert.equal(geometry.viewportY, 40);
+  assert.equal(geometry.viewportScaleX, 800 / 1080);
+  assert.equal(geometry.viewportScaleY, 500 / 720);
 });

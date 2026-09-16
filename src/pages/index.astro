@@ -142,24 +142,26 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
       <div class="cover-gesture-zone" data-home-cover-gesture aria-hidden="true"></div>
       </section>
       <div class="cover-full-stage" data-home-cover-stage aria-hidden="true">
-        <img
-          class="cover-full-photo"
-          data-home-hero-full
-          src={homeHeroLqip.src}
-          data-light-lqip={homeHeroLqip.src}
-          data-dark-lqip={homeHeroDarkLqip.src}
-          data-full-src={homeHeroFullFallback}
-          data-full-srcset={homeHeroFullSrcset}
-          data-light-full-src={homeHeroFullFallback}
-          data-light-full-srcset={homeHeroFullSrcset}
-          data-dark-full-src={homeHeroDarkFullFallback}
-          data-dark-full-srcset={homeHeroDarkFullSrcset}
-          data-full-sizes="(min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
-          alt=""
-          width={homeHeroImage.width}
-          height={homeHeroImage.height}
-          decoding="async"
-        />
+        <div class="cover-full-viewport" data-home-cover-viewport>
+          <img
+            class="cover-full-photo"
+            data-home-hero-full
+            src={homeHeroLqip.src}
+            data-light-lqip={homeHeroLqip.src}
+            data-dark-lqip={homeHeroDarkLqip.src}
+            data-full-src={homeHeroFullFallback}
+            data-full-srcset={homeHeroFullSrcset}
+            data-light-full-src={homeHeroFullFallback}
+            data-light-full-srcset={homeHeroFullSrcset}
+            data-dark-full-src={homeHeroDarkFullFallback}
+            data-dark-full-srcset={homeHeroDarkFullSrcset}
+            data-full-sizes="(min-width: 1200px) calc(100vw - 248px), (min-width: 1000px) calc(100vw - 220px), 100vw"
+            alt=""
+            width={homeHeroImage.width}
+            height={homeHeroImage.height}
+            decoding="async"
+          />
+        </div>
       </div>
       <button
         type="button"
@@ -316,7 +318,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
     border-radius: 0;
   }
   .cover-photo-overlay,
-  .cover-full-stage::after {
+  .cover-full-viewport::after {
     position: absolute;
     z-index: 1;
     inset: 0;
@@ -325,7 +327,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
       linear-gradient(90deg, rgba(25, 5, 15, .72) 0%, rgba(34, 8, 24, .42) 36%, rgba(20, 4, 18, .1) 68%),
       linear-gradient(180deg, rgba(14, 4, 18, .12) 35%, rgba(14, 4, 18, .48) 100%);
   }
-  .cover-full-stage::after {
+  .cover-full-viewport::after {
     content: '';
     position: absolute;
     z-index: 1;
@@ -333,7 +335,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
     pointer-events: none;
   }
   :global([data-theme='dark']) .cover-photo-overlay,
-  :global([data-theme='dark']) .cover-full-stage::after {
+  :global([data-theme='dark']) .cover-full-viewport::after {
     background:
       linear-gradient(90deg, rgba(0, 0, 0, .76) 0%, rgba(0, 0, 0, .42) 38%, rgba(0, 0, 0, .08) 70%),
       linear-gradient(180deg, rgba(0, 0, 0, .08) 30%, rgba(0, 0, 0, .4) 100%);
@@ -357,10 +359,15 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
     overflow: hidden;
     place-items: center;
     pointer-events: none;
-    background: #0a0d0d var(--home-cover-lqip) center / cover no-repeat;
-    clip-path: inset(0);
+    transform-origin: 0 0;
   }
-  .cover-full-stage > :global(.cover-full-photo) {
+  .cover-full-viewport {
+    position: absolute;
+    inset: 0;
+    background: #0a0d0d var(--home-cover-lqip) center / cover no-repeat;
+    transform-origin: 0 0;
+  }
+  .cover-full-viewport > :global(.cover-full-photo) {
     position: absolute;
     z-index: 0;
     display: block;
@@ -484,7 +491,6 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
   :global(html[data-home-cover-expanded='true'] [data-persistent-sidebar]) {
     z-index: 910;
   }
-  .home-cover-shell[data-state='expanded'] .cover-full-stage { clip-path: inset(0); }
   .home-cover-shell[data-state='expanded'] .home-cover { visibility: hidden; }
   .home-cover-shell[data-state='expanded'] .cover-expand-toggle {
     position: fixed;
@@ -589,7 +595,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
     .cover-photo-frame :global(.cover-photo) { object-position: 44% 50%; }
     :global([data-theme='dark']) .cover-photo-frame :global(.cover-photo) { object-position: 63% 50%; }
     .cover-photo-overlay,
-    .cover-full-stage::after {
+    .cover-full-viewport::after {
       background:
         linear-gradient(90deg, rgba(12, 17, 19, .72) 0%, rgba(12, 17, 19, .42) 42%, rgba(12, 17, 19, .08) 78%),
         linear-gradient(180deg, rgba(12, 17, 19, .08) 38%, rgba(12, 17, 19, .5) 100%);

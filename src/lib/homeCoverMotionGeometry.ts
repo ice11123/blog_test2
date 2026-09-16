@@ -25,10 +25,10 @@ export interface HomeCoverMotionGeometry {
   containScale: number;
   containX: number;
   containY: number;
-  clipTop: number;
-  clipRight: number;
-  clipBottom: number;
-  clipLeft: number;
+  viewportX: number;
+  viewportY: number;
+  viewportScaleX: number;
+  viewportScaleY: number;
   drawerDistance: number;
   handleX: number;
   handleY: number;
@@ -55,10 +55,10 @@ export function computeHomeCoverMotionGeometry(
     containScale,
     containX: (stageWidth - imageWidth * containScale) / 2,
     containY: (stageHeight - imageHeight * containScale) / 2,
-    clipTop: Math.max(input.sourceRect.top - input.stageRect.top, 0),
-    clipRight: Math.max(input.stageRect.right - input.sourceRect.right, 0),
-    clipBottom: Math.max(input.stageRect.bottom - input.sourceRect.bottom, 0),
-    clipLeft: Math.max(input.sourceRect.left - input.stageRect.left, 0),
+    viewportX: input.sourceRect.left - input.stageRect.left,
+    viewportY: input.sourceRect.top - input.stageRect.top,
+    viewportScaleX: input.sourceRect.width / stageWidth,
+    viewportScaleY: input.sourceRect.height / stageHeight,
     drawerDistance: Math.max(input.stageRect.bottom - input.sourceRect.bottom, 0),
     handleX: input.sourceRect.left + input.sourceRect.width / 2 - targetHandleX,
     handleY: input.sourceRect.top + 16 + input.toggleHeight / 2 - targetHandleY,

@@ -10,6 +10,7 @@ import {
 import {
   computeHomeCoverMotionGeometry,
   type HomeCoverMotionGeometry,
+  type MotionRect,
 } from '../lib/homeCoverMotionGeometry';
 
 const COVER_SELECTOR = '[data-home-cover]';
@@ -17,6 +18,7 @@ const SOURCE_SELECTOR = '.home-cover';
 const HERO_SELECTOR = '[data-home-hero-photo]';
 const HERO_SOURCE_SELECTOR = '[data-home-hero-source]';
 const STAGE_SELECTOR = '[data-home-cover-stage]';
+const VIEWPORT_SELECTOR = '[data-home-cover-viewport]';
 const FULL_IMAGE_SELECTOR = '[data-home-hero-full]';
 const TOGGLE_SELECTOR = '[data-home-cover-toggle]';
 const LOWER_SELECTOR = '[data-home-lower-motion]';
@@ -90,6 +92,7 @@ function initHomeHeroMotion() {
   const heroImage = shell?.querySelector<HTMLImageElement>(HERO_SELECTOR);
   const heroSource = shell?.querySelector<HTMLSourceElement>(HERO_SOURCE_SELECTOR);
   const stage = shell?.querySelector<HTMLElement>(STAGE_SELECTOR);
+  const viewport = shell?.querySelector<HTMLElement>(VIEWPORT_SELECTOR);
   const fullImage = shell?.querySelector<HTMLImageElement>(FULL_IMAGE_SELECTOR);
   const toggle = shell?.querySelector<HTMLButtonElement>(TOGGLE_SELECTOR);
   const drawer = document.querySelector<HTMLElement>(LOWER_SELECTOR);
@@ -97,7 +100,7 @@ function initHomeHeroMotion() {
   const status = shell?.querySelector<HTMLElement>(STATUS_SELECTOR);
   const header = document.querySelector<HTMLElement>(HEADER_SELECTOR);
   const footer = document.querySelector<HTMLElement>('body > footer');
-  if (!shell || !source || !heroImage || !heroSource || !stage || !fullImage || !toggle || !drawer || !header) return;
+  if (!shell || !source || !heroImage || !heroSource || !stage || !viewport || !fullImage || !toggle || !drawer || !header) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const desktopWheel = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -141,6 +144,7 @@ function initHomeHeroMotion() {
   let wheelRequiresFreshInput = false;
   let wheelTravelDistance = 280;
   let cachedMotionBlueprint: MotionBlueprint | undefined;
+  let measuredStageRect: MotionRect | undefined;
   let layoutUpdateFrame: number | undefined;
   let geometryMeasureFrame: number | undefined;
   let progressFrame: number | undefined;
@@ -172,6 +176,14 @@ function initHomeHeroMotion() {
     stage.style.width = `${stageWidth}px`;
     shell.style.setProperty('--home-cover-stage-center', `${stageLeft + stageWidth / 2}px`);
     const stageHeight = Math.max(window.innerHeight - measuredHeaderHeight, 1);
+    measuredStageRect = {
+      top: measuredHeaderHeight,
+      right: stageLeft + stageWidth,
+      bottom: measuredHeaderHeight + stageHeight,
+      left: stageLeft,
+      width: stageWidth,
+      height: stageHeight,
+    };
     gestureTravelDistance = Math.min(Math.max(stageHeight * 0.3, 160), 280);
     wheelTravelDistance = Math.min(Math.max(stageHeight * 0.45, 240), 420);
     cachedMotionBlueprint = undefined;
@@ -179,7 +191,10 @@ function initHomeHeroMotion() {
 
   const measureMotionBlueprint = (): MotionBlueprint => {
     const sourceRect = source.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect();
+    // 舞台在稳定收起态本身带有 FLIP transform；读取它的视觉矩形会把
+    // 已缩放后的边界误当成下一轮布局边界。这里始终使用 resize 阶段缓存的
+    // 未变换布局矩形，避免第二次展开逐轮缩小或跳位。
+    const stageRect = measuredStageRect ?? stage.getBoundingClientRect();
     const imageWidth = Math.max(heroImage.naturalWidth || fullImage.naturalWidth || Number(fullImage.width), 1);
     const imageHeight = Math.max(heroImage.naturalHeight || fullImage.naturalHeight || Number(fullImage.height), 1);
     const [objectPositionX, objectPositionY] = parseObjectPosition(getComputedStyle(heroImage).objectPosition);
@@ -294,21 +309,31 @@ function initHomeHeroMotion() {
     if (!highResolutionRequested) reuseDecodedHero();
   };
 
-  const clearAnimations = () => {
+  const cancelSettleAnimations = () => {
+    for (const animation of settleAnimations.splice(0)) animation.cancel();
+  };
+
+  const setMotionLayerHints = (active: boolean) => {
+    for (const track of motionTracks) {
+      if (active) track.element.style.willChange = 'transform';
+      else track.element.style.removeProperty('will-change');
+    }
+  };
+
+  const disposeTimelines = () => {
     cancelProgressFrame();
     if (stableCleanupTimer !== undefined) window.clearTimeout(stableCleanupTimer);
     stableCleanupTimer = undefined;
     for (const animation of dragAnimations.splice(0)) animation.cancel();
-    for (const animation of settleAnimations.splice(0)) animation.cancel();
-    for (const track of motionTracks) track.element.style.removeProperty('will-change');
+    cancelSettleAnimations();
+    setMotionLayerHints(false);
+    motionTracks.splice(0);
   };
 
   const createProgressAnimation = (
     element: HTMLElement | SVGElement,
     frameAt: (value: number) => Keyframe,
-    willChange = 'transform',
   ) => {
-    element.style.willChange = willChange;
     const track = { element, frameAt };
     motionTracks.push(track);
     const animation = element.animate([frameAt(0), frameAt(1)], {
@@ -321,16 +346,28 @@ function initHomeHeroMotion() {
   };
 
   const createTimelines = (blueprint: MotionBlueprint) => {
-    clearAnimations();
-    motionTracks.splice(0);
+    disposeTimelines();
     const { geometry, imageWidth, imageHeight } = blueprint;
 
     fullImage.style.width = `${imageWidth}px`;
     fullImage.style.height = `${imageHeight}px`;
 
-    createProgressAnimation(stage, (value) => ({
-      clipPath: `inset(${interpolate(geometry.clipTop, 0, value)}px ${interpolate(geometry.clipRight, 0, value)}px ${interpolate(geometry.clipBottom, 0, value)}px ${interpolate(geometry.clipLeft, 0, value)}px)`,
-    }), 'clip-path');
+    createProgressAnimation(stage, (value) => {
+      const scaleX = interpolate(geometry.viewportScaleX, 1, value);
+      const scaleY = interpolate(geometry.viewportScaleY, 1, value);
+      return {
+        transform: `translate3d(${geometry.viewportX * (1 - value)}px, ${geometry.viewportY * (1 - value)}px, 0) scale3d(${scaleX}, ${scaleY}, 1)`,
+      };
+    });
+    createProgressAnimation(viewport, (value) => {
+      const translateX = geometry.viewportX * (1 - value);
+      const translateY = geometry.viewportY * (1 - value);
+      const scaleX = interpolate(geometry.viewportScaleX, 1, value);
+      const scaleY = interpolate(geometry.viewportScaleY, 1, value);
+      return {
+        transform: `scale3d(${1 / scaleX}, ${1 / scaleY}, 1) translate3d(${-translateX}px, ${-translateY}px, 0)`,
+      };
+    });
     createProgressAnimation(fullImage, (value) => ({
       transform: `translate3d(${interpolate(geometry.coverX, geometry.containX, value)}px, ${interpolate(geometry.coverY, geometry.containY, value)}px, 0) scale(${interpolate(geometry.coverScale, geometry.containScale, value)})`,
     }));
@@ -379,24 +416,19 @@ function initHomeHeroMotion() {
     return progress;
   };
 
-  const commitProgress = (value: number) => {
-    for (const track of motionTracks) {
-      const frame = track.frameAt(value);
-      if (typeof frame.transform === 'string') track.element.style.transform = frame.transform;
-      if (typeof frame.clipPath === 'string') track.element.style.clipPath = frame.clipPath;
-    }
-  };
-
   const scheduleGeometryMeasurement = () => {
     if (geometryMeasureFrame !== undefined) window.cancelAnimationFrame(geometryMeasureFrame);
     geometryMeasureFrame = window.requestAnimationFrame(() => {
       geometryMeasureFrame = undefined;
+      const currentProgress = sampleProgress();
+      const wasSettling = state === 'settling';
       cachedMotionBlueprint = measureMotionBlueprint();
-      if (state !== 'expanded') return;
+      cancelSettleAnimations();
       createTimelines(cachedMotionBlueprint);
-      applyProgress(1);
-      commitProgress(1);
-      clearAnimations();
+      applyProgress(currentProgress);
+      if (state === 'dragging') setMotionLayerHints(true);
+      else if (wasSettling) settleTo(requestedTarget);
+      else setMotionLayerHints(false);
     });
   };
 
@@ -413,12 +445,15 @@ function initHomeHeroMotion() {
     // 先读取并缓存几何，再写入 inert、dataset 与 will-change，避免输入首帧强制同步布局。
     const blueprint = cachedMotionBlueprint ?? measureMotionBlueprint();
     cachedMotionBlueprint = blueprint;
+    if (motionTracks.length === 0) createTimelines(blueprint);
+    if (stableCleanupTimer !== undefined) window.clearTimeout(stableCleanupTimer);
+    stableCleanupTimer = undefined;
     setElementUnavailable(drawer, false);
     setElementUnavailable(footer, false);
     source.removeAttribute('aria-hidden');
     documentElement.dataset.homeCoverMotionActive = 'true';
     shell.dataset.motionActive = 'true';
-    createTimelines(blueprint);
+    setMotionLayerHints(true);
     applyProgress(progress);
   };
 
@@ -427,7 +462,8 @@ function initHomeHeroMotion() {
     const stableSequence = ++settleSequence;
     progress = target;
     requestedTarget = target;
-    if (motionTracks.length > 0) commitProgress(target);
+    if (motionTracks.length > 0) applyProgress(target);
+    cancelSettleAnimations();
     state = target === 1 ? 'expanded' : 'collapsed';
     shell.dataset.state = state;
     shell.dataset.expanded = String(target === 1);
@@ -438,6 +474,9 @@ function initHomeHeroMotion() {
 
     if (target === 1) {
       documentElement.dataset.homeCoverExpanded = 'true';
+      // 展开动画只复用已解码的首图；待舞台稳定后再请求高清资源，
+      // 避免首次交互与图片网络调度、解码争抢同一批帧。
+      requestHighResolution();
       commitHighResolution();
       if (status) status.textContent = '全图壁纸已展开';
     } else {
@@ -458,7 +497,7 @@ function initHomeHeroMotion() {
         setElementUnavailable(drawer, true);
         setElementUnavailable(footer, true);
       }
-      clearAnimations();
+      setMotionLayerHints(false);
       if (target === 0) releaseHighResolution();
     };
     if (dragAnimations.length === 0 && settleAnimations.length === 0) finalizeStableState();
@@ -474,7 +513,7 @@ function initHomeHeroMotion() {
       settleStable(target);
       return;
     }
-    if (dragAnimations.length === 0) beginMotion();
+    beginMotion();
     state = 'settling';
     shell.dataset.state = state;
     updateWaves();
@@ -482,14 +521,13 @@ function initHomeHeroMotion() {
     settleStartProgress = currentProgress;
     settleTarget = target;
     settleDuration = duration;
-    for (const animation of settleAnimations.splice(0)) animation.cancel();
+    cancelSettleAnimations();
     for (const track of motionTracks) {
       settleAnimations.push(track.element.animate(
         [track.frameAt(currentProgress), track.frameAt(target)],
         { duration, easing: DRAWER_EASING, fill: 'both' },
       ));
     }
-    for (const animation of dragAnimations.splice(0)) animation.cancel();
     const lead = settleAnimations[0];
     if (!lead) {
       settleStable(target);
@@ -503,9 +541,8 @@ function initHomeHeroMotion() {
   const interruptMotion = () => {
     sampleProgress();
     settleSequence += 1;
-    for (const animation of settleAnimations.splice(0)) animation.cancel();
-    if (dragAnimations.length === 0) beginMotion();
-    else applyProgress(progress);
+    cancelSettleAnimations();
+    beginMotion();
     for (const animation of dragAnimations) animation.pause();
   };
 
@@ -542,7 +579,6 @@ function initHomeHeroMotion() {
 
     preventDefault();
     if (!gestureEngaged) {
-      if (intentDistance > 0) requestHighResolution();
       interruptMotion();
       gestureStartProgress = progress;
       gestureEngaged = true;
@@ -649,7 +685,6 @@ function initHomeHeroMotion() {
   const handleToggle = (event: MouseEvent) => {
     if (performance.now() < suppressClickUntil) return;
     const nextTarget: 0 | 1 = requestedTarget === 1 ? 0 : 1;
-    if (nextTarget === 1) requestHighResolution();
     interruptMotion();
     settleTo(nextTarget, event.detail === 0 ? 0 : nextTarget === 1 ? TOGGLE_EXPAND_MS : TOGGLE_COLLAPSE_MS);
   };
@@ -714,7 +749,6 @@ function initHomeHeroMotion() {
     event.preventDefault();
     const now = performance.now();
     if (wheelStartTime === 0 || now - lastWheelTime > WHEEL_GESTURE_IDLE_MS) {
-      if (intentDelta > 0) requestHighResolution();
       interruptMotion();
       wheelStartProgress = progress;
       wheelIntentDistance = 0;
@@ -805,12 +839,13 @@ function initHomeHeroMotion() {
     layoutObserver.disconnect();
     coverObserver.disconnect();
     themeObserver.disconnect();
-    clearAnimations();
+    disposeTimelines();
     if (layoutUpdateFrame !== undefined) window.cancelAnimationFrame(layoutUpdateFrame);
     if (geometryMeasureFrame !== undefined) window.cancelAnimationFrame(geometryMeasureFrame);
     layoutUpdateFrame = undefined;
     geometryMeasureFrame = undefined;
     cachedMotionBlueprint = undefined;
+    measuredStageRect = undefined;
     resetWheelGesture();
     if (wheelBoundaryTimer !== undefined) window.clearTimeout(wheelBoundaryTimer);
     wheelBoundaryTimer = undefined;
@@ -823,7 +858,8 @@ function initHomeHeroMotion() {
     shell.style.removeProperty('--home-cover-stage-center');
     stage.style.removeProperty('left');
     stage.style.removeProperty('width');
-    stage.style.removeProperty('clip-path');
+    stage.style.removeProperty('transform');
+    viewport.style.removeProperty('transform');
     fullImage.style.removeProperty('width');
     fullImage.style.removeProperty('height');
     fullImage.style.removeProperty('transform');
