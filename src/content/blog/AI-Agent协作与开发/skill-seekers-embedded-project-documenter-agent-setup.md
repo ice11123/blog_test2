@@ -4,7 +4,7 @@ description: "一份可直接交给 Agent 执行的开源安装方案：隔离�
 pubDate: "2026-09-17"
 updatedDate: "2026-09-17"
 author: "离子怪"
-sourceUrl: "https://github.com/ice11123/blog_test2/tree/main/docs/embedded-project-documenter-agent-setup"
+sourceUrl: "https://github.com/ice11123/embedded-project-documenter-agent-setup"
 dir1: "AI/Agent协作与开发"
 dir2: ""
 tags: ["Codex", "MCP", "Skills", "嵌入式", "文档工程"]
@@ -21,7 +21,7 @@ tags: ["Codex", "MCP", "Skills", "嵌入式", "文档工程"]
 
 完整安装包、Skill 源文件和验证脚本已经放在 GitHub：
 
-[打开开源安装包](https://github.com/ice11123/blog_test2/tree/main/docs/embedded-project-documenter-agent-setup)
+[打开独立开源仓库](https://github.com/ice11123/embedded-project-documenter-agent-setup)
 
 其中的 `README.md` 是一份可执行的 Agent 指令。把它交给具有本机终端和文件权限的 Agent，并说“按照文档完成安装”，即可开始自动安装。
 
@@ -150,4 +150,4 @@ OpenAI 官方文档说明可以通过 `codex mcp add` 注册 stdio MCP，并通�
 
 Copyright (c) 2026 离子怪。
 
-本文、自动安装指南、验证脚本和 `embedded-project-documenter` 自定义 Skill 使用 [MIT License](https://github.com/ice11123/blog_test2/blob/main/docs/embedded-project-documenter-agent-setup/LICENSE)。Skill Seekers、OpenAI Codex 和其他第三方组件遵循各自许可证；本项目不镜像或重新授权第三方软件。
+本文、自动安装指南、验证脚本和 `embedded-project-documenter` 自定义 Skill 使用 [MIT License](https://github.com/ice11123/embedded-project-documenter-agent-setup/blob/main/LICENSE)。Skill Seekers、OpenAI Codex 和其他第三方组件遵循各自许可证；本项目不镜像或重新授权第三方软件。
