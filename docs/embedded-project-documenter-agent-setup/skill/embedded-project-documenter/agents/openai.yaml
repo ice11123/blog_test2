@@ -1,0 +1,4 @@
+interface:
+  display_name: "嵌入式项目文档助手"
+  short_description: "从真实嵌入式代码生成可验证的新生教程、作品介绍与技术文档"
+  default_prompt: "使用 $embedded-project-documenter 审查这个嵌入式工程，并生成有证据依据的新生教程。"
