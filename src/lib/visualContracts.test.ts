@@ -136,12 +136,30 @@ test('统一侧栏在桌面常驻并在移动端复用为边缘抽屉', () => {
   assert.match(mobileStyles, /transform:\s*translate3d\(-100%,\s*0,\s*0\)/);
   assert.match(mobileStyles, /transform:\s*translate3d\(100%,\s*0,\s*0\)/);
   assert.match(mobileStyles, /transition:\s*transform 240ms var\(--ease-drawer\)/);
+  assert.match(mobileStyles, /bottom:\s*24px/);
   assert.doesNotMatch(mobileStyles, /transition:\s*all/);
   assert.match(mobileScript, /ResizeObserver\(updateHeaderHeight\)/);
+  assert.match(mobileScript, /max-width:\s*1099\.98px/);
   assert.match(mobileScript, /leftDrawer\.inert|siteSidebar\.inert/);
   assert.match(mobileScript, /event\.key === 'Escape'/);
   assert.match(mobileScript, /astro:before-swap/);
   assert.match(styles, /prefers-reduced-motion:\s*reduce/);
+});
+
+test('文章页使用紧凑导语层级与独立正文版心', () => {
+  const layout = readSource('layouts/BlogPost.astro');
+  const styles = readSource('styles/blog-post.scss');
+
+  assert.match(layout, /class="article-breadcrumbs"/);
+  assert.match(layout, /class="article-description"/);
+  assert.match(layout, /class="article-meta"/);
+  assert.match(layout, /class="prose article-content"/);
+  assert.match(layout, /查看源文件/);
+  assert.doesNotMatch(layout, /class="post-meta" aria-label="文章信息"/);
+  assert.match(styles, /\.article-header h1\s*\{[\s\S]*text-wrap:\s*balance/);
+  assert.match(styles, /\.blog-post-page \.prose\s*\{[\s\S]*font-size:\s*17px[\s\S]*line-height:\s*1\.86/);
+  assert.match(styles, /@media \(max-width:\s*680px\)[\s\S]*font-size:\s*clamp\(1\.75rem,\s*8vw,\s*2\.15rem\)/);
+  assert.match(readSource('styles/mobile-sidebars.scss'), /\.mobile-sidebar-toggle\s*\{[\s\S]*height:\s*42px/);
 });
 
 test('非首屏样式与搜索引擎按需加载', () => {

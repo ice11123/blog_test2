@@ -1,6 +1,6 @@
 type SidebarName = 'left' | 'right';
 
-const MOBILE_QUERY = '(max-width: 999.98px)';
+const MOBILE_QUERY = '(max-width: 1099.98px)';
 const ROOT_ATTRIBUTE = 'data-mobile-sidebar';
 
 let teardownCurrentPage: (() => void) | null = null;

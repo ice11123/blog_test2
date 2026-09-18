@@ -132,7 +132,7 @@
     .directory-group-body a:not(.current):hover, .directory-group > summary:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
   }
 
-  @media (max-width: 1199px) and (min-width: 1000px) {
+  @media (max-width: 1199px) and (min-width: 1100px) {
     .persistent-sidebar { width: 220px; }
     .persistent-sidebar-scroll { padding-inline: 14px; }
     .profile-avatar { width: 104px; height: 104px; }

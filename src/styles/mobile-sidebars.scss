@@ -4,7 +4,7 @@
     display: none;
   }
 
-  @media (max-width: 999.98px) {
+  @media (max-width: 1099.98px) {
     .mobile-sidebar-controls { display: contents; }
 
     .persistent-sidebar,
@@ -47,19 +47,20 @@
     .mobile-sidebar-toggle {
       position: fixed;
       z-index: 1103;
-      top: calc(var(--public-header-height, 105px) + (100dvh - var(--public-header-height, 105px)) * .46);
+      top: auto;
+      bottom: 24px;
       display: grid;
-      width: 25px;
-      height: 48px;
+      width: 23px;
+      height: 42px;
       box-sizing: border-box;
       place-items: center;
       padding: 0;
       color: var(--text-primary);
       background: color-mix(in srgb, var(--surface) 92%, transparent);
       border: 1px solid var(--border);
-      box-shadow: 0 7px 22px color-mix(in srgb, var(--text-primary) 15%, transparent);
+      box-shadow: 0 5px 16px color-mix(in srgb, var(--text-primary) 11%, transparent);
       cursor: pointer;
-      transform: translate3d(0, -50%, 0);
+      transform: translate3d(0, 0, 0);
       transition: transform 240ms var(--ease-drawer), color 150ms ease, background-color 150ms ease;
       -webkit-tap-highlight-color: transparent;
     }
@@ -88,11 +89,11 @@
     }
 
     html[data-mobile-sidebar='left'] .mobile-sidebar-toggle-left {
-      transform: translate3d(var(--mobile-sidebar-width, min(300px, calc(100vw - 44px))), -50%, 0);
+      transform: translate3d(var(--mobile-sidebar-width, min(300px, calc(100vw - 44px))), 0, 0);
     }
 
     html[data-mobile-sidebar='right'] .mobile-sidebar-toggle-right {
-      transform: translate3d(calc(-1 * var(--mobile-sidebar-width, min(300px, calc(100vw - 44px)))), -50%, 0);
+      transform: translate3d(calc(-1 * var(--mobile-sidebar-width, min(300px, calc(100vw - 44px)))), 0, 0);
     }
 
     html[data-mobile-sidebar='left'] .mobile-sidebar-toggle-left svg,
@@ -132,14 +133,14 @@
     html[data-mobile-sidebar] { overflow: hidden; }
   }
 
-  @media (hover: hover) and (pointer: fine) and (max-width: 999.98px) {
+  @media (hover: hover) and (pointer: fine) and (max-width: 1099.98px) {
     .mobile-sidebar-toggle:hover {
       color: var(--accent);
       background: var(--surface);
     }
   }
 
-  @media (prefers-reduced-motion: reduce) and (max-width: 999.98px) {
+  @media (prefers-reduced-motion: reduce) and (max-width: 1099.98px) {
     .persistent-sidebar,
     .article-toc-sidebar,
     .mobile-sidebar-toggle,
