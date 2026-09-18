@@ -1,9 +1,16 @@
 ---
-import { DIR1_ORDER, DIR2_ORDER } from '../../consts';
+import { getCollection } from 'astro:content';
+import { DIR1_ORDER, DIR2_ORDER, SITE_START_DATE } from '../../consts';
 import Layout from '../../layouts/PublicContentLayout.astro';
 import BlogList from '../../components/blog/BlogList.astro';
 import JsonLd from '../../components/blog/JsonLd.astro';
 import { withBase } from '../../lib/urls';
+
+const posts = await getCollection('blog');
+const latestPostDate = posts.reduce(
+	(latest, post) => post.data.pubDate > latest ? post.data.pubDate : latest,
+	SITE_START_DATE,
+);
 
 const dirOrder = {
   dir1: [...DIR1_ORDER, '未分类'],
@@ -20,17 +27,154 @@ const collectionPageLd = {
 ---
 
 <Layout
-	title="目录"
-	description="这里可以看到我的所有博客和文章"
-	pubDate={new Date()}
+	title="文章目录"
+	description="按主题浏览全部文章与技术笔记"
+	pubDate={latestPostDate}
+	hidePageHeader={true}
 >
 	<JsonLd slot="head" data={collectionPageLd} />
 
-	<div style="text-align: center; margin-bottom: 1.5rem;">
-		<a href={withBase('/blog/tags/')} style="color: var(--accent-light); text-decoration: none; font-size: 0.9rem;">
-			查看所有标签 →
-		</a>
-	</div>
+	<section class="blog-directory-page" aria-labelledby="blog-directory-title">
+		<header class="blog-directory-hero">
+			<div class="blog-directory-copy">
+				<p class="blog-directory-eyebrow">Writing Library</p>
+				<h1 id="blog-directory-title">文章目录</h1>
+				<p>按主题浏览学习记录、工程实践与持续维护的技术笔记。</p>
+			</div>
+			<div class="blog-directory-actions">
+				<span class="blog-directory-total"><strong>{posts.length}</strong> 篇文章</span>
+				<a href={withBase('/blog/tags/')}>所有标签 <span aria-hidden="true">→</span></a>
+			</div>
+		</header>
 
-	<BlogList sort="dir" dirOrder={dirOrder} />
+		<BlogList posts={posts} sort="dir" dirOrder={dirOrder} />
+	</section>
 </Layout>
+
+<style>
+	.blog-directory-page {
+		min-width: 0;
+		padding-bottom: 3rem;
+	}
+
+	.blog-directory-hero {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 2rem;
+		padding: 1.6rem 0 1.4rem;
+		border-bottom: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+	}
+
+	.blog-directory-copy {
+		min-width: 0;
+	}
+
+	.blog-directory-eyebrow {
+		margin: 0 0 0.45rem;
+		color: var(--accent-light);
+		font-size: 0.7rem;
+		font-weight: 760;
+		letter-spacing: 0.16em;
+		line-height: 1.2;
+		text-transform: uppercase;
+	}
+
+	.blog-directory-hero h1 {
+		margin: 0;
+		color: var(--text);
+		font-size: clamp(2rem, 5vw, 3.15rem);
+		line-height: 1.08;
+		letter-spacing: -0.045em;
+	}
+
+	.blog-directory-copy > p:last-child {
+		max-width: 38rem;
+		margin: 0.7rem 0 0;
+		color: var(--gray);
+		font-size: 0.92rem;
+		line-height: 1.65;
+	}
+
+	.blog-directory-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		flex: none;
+	}
+
+	.blog-directory-total,
+	.blog-directory-actions a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.25rem;
+		padding: 0.45rem 0.72rem;
+		border-radius: 999px;
+		font-size: 0.78rem;
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	.blog-directory-total {
+		border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+		color: var(--gray);
+	}
+
+	.blog-directory-total strong {
+		margin-right: 0.25rem;
+		color: var(--text);
+		font-size: 0.9rem;
+	}
+
+	.blog-directory-actions a {
+		gap: 0.35rem;
+		border: 1px solid color-mix(in srgb, var(--accent-light) 30%, transparent);
+		background: color-mix(in srgb, var(--accent-light) 8%, transparent);
+		color: var(--accent-light);
+		font-weight: 680;
+		text-decoration: none;
+		transition:
+			border-color 160ms var(--ease-out),
+			background-color 160ms var(--ease-out),
+			transform 120ms var(--ease-out);
+	}
+
+	.blog-directory-actions a:active {
+		transform: scale(0.97);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.blog-directory-actions a:hover {
+			border-color: var(--accent-light);
+			background: color-mix(in srgb, var(--accent-light) 14%, transparent);
+		}
+	}
+
+	@media (max-width: 680px) {
+		.blog-directory-page {
+			padding-bottom: 2rem;
+		}
+
+		.blog-directory-hero {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 1.1rem;
+			padding: 1rem 0 1.15rem;
+		}
+
+		.blog-directory-actions {
+			justify-content: space-between;
+			width: 100%;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.blog-directory-actions a {
+			transition: none;
+		}
+
+		.blog-directory-actions a:active {
+			transform: none;
+		}
+	}
+</style>

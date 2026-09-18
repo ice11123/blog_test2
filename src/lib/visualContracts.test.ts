@@ -398,3 +398,30 @@ test('静态公共页不伪装成文章日期且单友链保持适宜宽度', ()
   assert.match(friendLinks, /data-count=\{links\.length\}/);
   assert.match(friendLinks, /\.friend-links\[data-count='1'\][\s\S]*grid-template-columns:\s*minmax\(0, 720px\)/);
 });
+
+test('文章目录使用真实内容统计与紧凑分类列表', () => {
+  const page = readSource('pages/blog/index.astro');
+  const list = readSource('components/blog/BlogList.astro');
+  const row = readSource('components/blog/DirectoryPostRow.astro');
+
+  assert.match(page, /const posts = await getCollection\('blog'\)/);
+  assert.match(page, /pubDate=\{latestPostDate\}/);
+  assert.match(page, /hidePageHeader=\{true\}/);
+  assert.doesNotMatch(page, /pubDate=\{new Date\(\)\}/);
+  assert.match(page, /class="blog-directory-hero"/);
+  assert.match(page, /\{posts\.length\}<\/strong> 篇文章/);
+  assert.match(page, /<BlogList posts=\{posts\} sort="dir"/);
+
+  assert.match(list, /class="directory-groups"/);
+  assert.match(list, /class="directory-section"/);
+  assert.match(list, /dir2List\.reduce\(\(count, \[, list\]\) => count \+ list\.length, 0\)/);
+  assert.match(list, /<DirectoryPostRow post=\{post\} \/>/);
+  assert.doesNotMatch(list, /sort === 'dir'[\s\S]*<BlogCard post=\{post\} level=\{4\}/);
+
+  assert.match(row, /tags\.slice\(0, 3\)/);
+  assert.match(row, /hiddenTagCount > 0/);
+  assert.match(row, /-webkit-line-clamp:\s*1/);
+  assert.match(row, /@media \(max-width: 680px\)[\s\S]*-webkit-line-clamp:\s*2/);
+  assert.match(row, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.match(row, /@media \(prefers-reduced-motion: reduce\)/);
+});

@@ -1,0 +1,198 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+import { blogPostPath } from '../../lib/urls';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const tags = post.data.tags ?? [];
+const visibleTags = tags.slice(0, 3);
+const hiddenTagCount = Math.max(0, tags.length - visibleTags.length);
+const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
+---
+
+<li class="directory-post">
+  <a class="directory-post-link" href={blogPostPath(post.id)}>
+    <div class="directory-post-copy">
+      <h4>{post.data.title}</h4>
+      <p>{plainDescription}</p>
+      <div class="directory-post-meta">
+        <time>
+          <FormattedDate date={post.data.pubDate} />
+        </time>
+        {visibleTags.length > 0 && (
+          <span class="directory-post-tags" aria-label={`标签：${tags.join('、')}`}>
+            {visibleTags.map((tag) => <span class="directory-post-tag">{tag}</span>)}
+            {hiddenTagCount > 0 && <span class="directory-post-tag directory-post-tag-more">+{hiddenTagCount}</span>}
+          </span>
+        )}
+      </div>
+    </div>
+    <span class="directory-post-arrow" aria-hidden="true">→</span>
+  </a>
+</li>
+
+<style>
+  .directory-post {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .directory-post + .directory-post {
+    border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  }
+
+  .directory-post-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 0;
+    padding: 1.15rem 1.5rem;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      background-color 160ms var(--ease-out),
+      color 160ms var(--ease-out),
+      transform 120ms var(--ease-out);
+  }
+
+  .directory-post-copy {
+    min-width: 0;
+  }
+
+  .directory-post h4 {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(1rem, 1.6vw, 1.08rem);
+    font-weight: 680;
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+
+  .directory-post p {
+    display: -webkit-box;
+    margin: 0.42rem 0 0;
+    overflow: hidden;
+    color: var(--gray);
+    font-size: 0.84rem;
+    line-height: 1.6;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .directory-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    margin-top: 0.72rem;
+    color: var(--gray);
+    font-size: 0.72rem;
+  }
+
+  .directory-post-meta time {
+    flex: none;
+    opacity: 0.82;
+  }
+
+  .directory-post-tags {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .directory-post-tag {
+    display: inline-flex;
+    align-items: center;
+    max-width: 9rem;
+    padding: 0.14rem 0.48rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--accent-light) 26%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent-light) 8%, transparent);
+    color: var(--accent-light);
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .directory-post-tag-more {
+    flex: none;
+    color: var(--gray);
+  }
+
+  .directory-post-arrow {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    border-radius: 50%;
+    color: var(--accent-light);
+    font-size: 1rem;
+    transition:
+      border-color 160ms var(--ease-out),
+      background-color 160ms var(--ease-out),
+      color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
+  }
+
+  .directory-post-link:active {
+    transform: scale(0.995);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .directory-post-link:hover {
+      background: color-mix(in srgb, var(--accent-light) 5%, transparent);
+    }
+
+    .directory-post-link:hover .directory-post-arrow {
+      border-color: var(--accent-light);
+      background: var(--accent-light);
+      color: var(--surface);
+      transform: translateX(3px);
+    }
+  }
+
+  @media (max-width: 680px) {
+    .directory-post-link {
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+
+    .directory-post p {
+      -webkit-line-clamp: 2;
+    }
+
+    .directory-post-meta {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .directory-post-arrow {
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .directory-post-link,
+    .directory-post-arrow {
+      transition: none;
+    }
+
+    .directory-post-link:active,
+    .directory-post-link:hover .directory-post-arrow {
+      transform: none;
+    }
+  }
+</style>

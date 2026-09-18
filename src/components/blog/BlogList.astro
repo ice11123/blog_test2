@@ -1,6 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BlogCard from './BlogCard.astro';
+import DirectoryPostRow from './DirectoryPostRow.astro';
 import { resolveDirs } from '../../lib/utils';
 
 interface Props {
@@ -84,28 +85,140 @@ if (sort === 'dir') {
     list-style: none;
     padding: 0;
   }
+
+  .blog-list,
+  .directory-groups {
+    min-width: 0;
+  }
+
+  .directory-groups {
+    display: grid;
+    gap: 1.6rem;
+    margin-top: 1.75rem;
+  }
+
+  .directory-section {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    box-shadow: 0 16px 42px color-mix(in srgb, var(--text) 5%, transparent);
+  }
+
+  .directory-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.35rem 1.5rem 1.15rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-light) 7%, transparent), transparent 58%);
+  }
+
+  .directory-eyebrow {
+    margin: 0 0 0.28rem;
+    color: var(--accent-light);
+    font-size: 0.67rem;
+    font-weight: 750;
+    letter-spacing: 0.16em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .directory-section h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(1.2rem, 2vw, 1.48rem);
+    line-height: 1.3;
+  }
+
+  .directory-section-count,
+  .directory-subsection-count {
+    flex: none;
+    color: var(--gray);
+    font-size: 0.76rem;
+    white-space: nowrap;
+  }
+
+  .directory-subsection + .directory-subsection {
+    border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  }
+
+  .directory-subsection-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1.5rem 0.2rem;
+  }
+
+  .directory-subsection h3 {
+    margin: 0;
+    color: var(--gray);
+    font-size: 0.78rem;
+    font-weight: 680;
+    letter-spacing: 0.04em;
+  }
+
+  .directory-post-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 680px) {
+    .directory-groups {
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .directory-section {
+      border-radius: 15px;
+    }
+
+    .directory-section-header {
+      align-items: center;
+      padding: 1.05rem 1rem 0.9rem;
+    }
+
+    .directory-subsection-header {
+      padding: 0.7rem 1rem 0.15rem;
+    }
+  }
 </style>
 
-<main>
+<main class="blog-list">
   {sort === 'time' ? (
     <ul class="card-grid">
       {posts.map((post) => <BlogCard post={post} />)}
     </ul>
   ) : (
-    <div>
-      {(orderedData || []).map(([dir1, dir2List]) => (
-        <div>
-          <h2 class="mk-title">{dir1}</h2>
-          {dir2List.map(([dir2, list]) => (
+    <div class="directory-groups">
+      {orderedData.map(([dir1, dir2List], index) => (
+        <section class="directory-section" aria-labelledby={`directory-section-${index}`}>
+          <header class="directory-section-header">
             <div>
-              <!-- 空 dir2 不显示标题，但会显示文章 -->
-              {dir2 && <h3 class="mk-title">{dir2}</h3>}
-              <ul class="card-grid">
-                {list.map(post => <BlogCard post={post} level={4} />)}
-              </ul>
+              <p class="directory-eyebrow">Collection</p>
+              <h2 id={`directory-section-${index}`}>{dir1}</h2>
             </div>
+            <span class="directory-section-count">
+              {dir2List.reduce((count, [, list]) => count + list.length, 0)} 篇
+            </span>
+          </header>
+          {dir2List.map(([dir2, list]) => (
+            <section class="directory-subsection" aria-label={dir2 || `${dir1}文章`}>
+              {dir2 && (
+                <header class="directory-subsection-header">
+                  <h3>{dir2}</h3>
+                  <span class="directory-subsection-count">{list.length} 篇</span>
+                </header>
+              )}
+              <ul class="directory-post-list">
+                {list.map((post) => <DirectoryPostRow post={post} />)}
+              </ul>
+            </section>
           ))}
-        </div>
+        </section>
       ))}
     </div>
   )}
