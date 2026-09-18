@@ -47,7 +47,7 @@ const hasDistinctUpdate = Boolean(updatedDate && updatedDate.getTime() !== pubDa
 				<h1>{title}</h1>
 				<p class="article-description">{description}</p>
 				<div class="article-meta" aria-label="文章信息">
-					<span class="post-meta-item"><span class="post-meta-label">作者</span>{author}</span>
+					<span class="post-meta-item"><span class="post-meta-label">作者</span><a class="post-author-link" href={withBase('/')}>{author}</a></span>
 					<span class="post-meta-item"><span class="post-meta-label">发布</span><FormattedDate date={pubDate} /></span>
 					{hasDistinctUpdate && <span class="post-meta-item"><span class="post-meta-label">更新</span><FormattedDate date={updatedDate!} /></span>}
 					<a class="post-source" href={sourceUrl} target="_blank" rel="noopener noreferrer" title={sourceUrl}>

@@ -204,6 +204,14 @@
   .post-meta-item { white-space: nowrap; }
   .post-meta-label { color: var(--text-secondary); opacity: .72; }
   .post-meta-item time { font-variant-numeric: tabular-nums; }
+  .post-author-link {
+    color: #b4232c;
+    font-weight: 750;
+    text-decoration: none;
+    transition: color 150ms var(--ease-out);
+  }
+  html[data-theme='dark'] .post-author-link { color: #ff7875; }
+  .post-author-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 4px; }
   .post-source { color: var(--accent); text-decoration: none; font-weight: 650; white-space: nowrap; }
   .post-source svg { flex-shrink: 0; }
   .post-source:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 4px; }
@@ -231,6 +239,9 @@
   @media (hover: hover) and (pointer: fine) {
     .article-breadcrumbs a:hover,
     .post-source:hover { color: var(--accent); }
+
+    .post-author-link:hover { color: #d0363f; text-decoration: underline; text-underline-offset: 3px; }
+    html[data-theme='dark'] .post-author-link:hover { color: #ff9a96; }
 
     .tag-pill:hover {
       color: var(--accent);
@@ -363,6 +374,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .article-breadcrumbs a,
+    .post-author-link,
     .post-source,
     .tag-pill { transition: none; }
   }

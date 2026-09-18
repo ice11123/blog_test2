@@ -153,10 +153,12 @@ test('文章页使用紧凑导语层级与独立正文版心', () => {
   assert.match(layout, /class="article-breadcrumbs"/);
   assert.match(layout, /class="article-description"/);
   assert.match(layout, /class="article-meta"/);
+  assert.match(layout, /class="post-author-link" href=\{withBase\('\/'\)\}/);
   assert.match(layout, /class="prose article-content"/);
   assert.match(layout, /查看源文件/);
   assert.doesNotMatch(layout, /class="post-meta" aria-label="文章信息"/);
   assert.match(styles, /\.article-header h1\s*\{[\s\S]*text-wrap:\s*balance/);
+  assert.match(styles, /\.post-author-link\s*\{[\s\S]*color:\s*#b4232c/);
   assert.match(styles, /\.blog-post-page \.prose\s*\{[\s\S]*font-size:\s*17px[\s\S]*line-height:\s*1\.86/);
   assert.match(styles, /@media \(max-width:\s*680px\)[\s\S]*font-size:\s*clamp\(1\.75rem,\s*8vw,\s*2\.15rem\)/);
   assert.match(readSource('styles/mobile-sidebars.scss'), /\.mobile-sidebar-toggle\s*\{[\s\S]*height:\s*42px/);
