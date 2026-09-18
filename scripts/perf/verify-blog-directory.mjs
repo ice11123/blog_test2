@@ -7,6 +7,7 @@ const arg = (name, fallback) => process.argv.find((value) => value.startsWith(`-
 const baseUrl = arg('url', 'http://127.0.0.1:4331/blog_test2/');
 const output = resolve(arg('output', 'artifacts/performance/blog-directory'));
 const directoryUrl = new URL('blog/', baseUrl).href;
+const proxy = arg('proxy', '');
 
 let playwright;
 try {
@@ -18,7 +19,11 @@ try {
 }
 
 await mkdir(output, { recursive: true });
-const browser = await playwright.chromium.launch({ channel: arg('channel', 'msedge'), headless: true });
+const browser = await playwright.chromium.launch({
+  channel: arg('channel', 'msedge'),
+  headless: true,
+  ...(proxy ? { proxy: { server: proxy } } : {}),
+});
 const report = [];
 
 try {
@@ -28,7 +33,7 @@ try {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
 
-    await page.goto(directoryUrl, { waitUntil: 'networkidle' });
+    await page.goto(directoryUrl, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.directory-post');
 
     const metrics = await page.evaluate(() => ({
