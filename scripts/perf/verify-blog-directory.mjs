@@ -40,6 +40,7 @@ try {
       title: document.querySelector('.blog-directory-hero h1')?.textContent?.trim(),
       sections: document.querySelectorAll('.directory-section').length,
       rows: document.querySelectorAll('.directory-post').length,
+      displayedTotal: Number.parseInt(document.querySelector('.blog-directory-total strong')?.textContent ?? '', 10),
       fakeDateCount: document.querySelectorAll('.public-content-page > .prose > .title .date').length,
       overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
       rowHeights: [...document.querySelectorAll('.directory-post-link')].map((node) => node.getBoundingClientRect().height),
@@ -47,7 +48,8 @@ try {
 
     assert.equal(metrics.title, '文章目录');
     assert.ok(metrics.sections >= 1, '应至少渲染一个分类面板');
-    assert.equal(metrics.rows, 4, '当前仓库应渲染四篇文章');
+    assert.ok(metrics.rows > 0, '目录页应至少渲染一篇文章');
+    assert.equal(metrics.rows, metrics.displayedTotal, '文章行数量应与页面统计一致');
     assert.equal(metrics.fakeDateCount, 0, '目录页不应显示伪造的页面日期');
     assert.equal(metrics.overflow, false, `${viewport.width}px 视口出现横向溢出`);
     assert.ok(Math.max(...metrics.rowHeights) < (viewport.width < 680 ? 190 : 150), '文章行不够紧凑');
