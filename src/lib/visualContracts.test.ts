@@ -415,7 +415,7 @@ test('文章目录使用真实内容统计与紧凑分类列表', () => {
   assert.match(list, /class="directory-groups"/);
   assert.match(list, /class="directory-section"/);
   assert.match(list, /dir2List\.reduce\(\(count, \[, list\]\) => count \+ list\.length, 0\)/);
-  assert.match(list, /<DirectoryPostRow post=\{post\} \/>/);
+  assert.match(list, /<DirectoryPostRow post=\{post\} index=\{postIndex\} \/>/);
   assert.doesNotMatch(list, /sort === 'dir'[\s\S]*<BlogCard post=\{post\} level=\{4\}/);
 
   assert.match(row, /tags\.slice\(0, 3\)/);
@@ -424,4 +424,25 @@ test('文章目录使用真实内容统计与紧凑分类列表', () => {
   assert.match(row, /@media \(max-width: 680px\)[\s\S]*-webkit-line-clamp:\s*2/);
   assert.match(row, /@media \(hover: hover\) and \(pointer: fine\)/);
   assert.match(row, /@media \(prefers-reduced-motion: reduce\)/);
+});
+
+test('文章目录以图案、一级分类和二级分类建立稳定层级', () => {
+  const constants = readSource('consts.ts');
+  const list = readSource('components/blog/BlogList.astro');
+  const categoryHeader = readSource('components/blog/DirectoryCategoryHeader.astro');
+  const row = readSource('components/blog/DirectoryPostRow.astro');
+
+  assert.match(constants, /'AI\/Agent协作与开发': \['Agent 工具链', 'Codex 故障排查'\]/);
+  assert.match(constants, /'博客功能介绍与演示': \['站点指南'\]/);
+  assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, index\)\}/);
+  assert.match(list, /<DirectoryCategoryHeader/);
+  assert.match(list, /directory-subsection-label">二级分类/);
+  assert.match(list, /dir2 \|\| '未归入二级分类'/);
+  assert.match(categoryHeader, /一级分类/);
+  assert.match(categoryHeader, /data-visual=\{visual\}/);
+  assert.match(categoryHeader, /visual === 'window'/);
+  assert.match(categoryHeader, /visual === 'network'/);
+  assert.match(categoryHeader, /directory-category-mark/);
+  assert.match(row, /class="directory-post-order"/);
+  assert.match(row, /--directory-accent/);
 });

@@ -5,9 +5,11 @@ import { blogPostPath } from '../../lib/urls';
 
 interface Props {
   post: CollectionEntry<'blog'>;
+  index: number;
 }
 
-const { post } = Astro.props;
+const { post, index } = Astro.props;
+const order = String(index + 1).padStart(2, '0');
 const tags = post.data.tags ?? [];
 const visibleTags = tags.slice(0, 3);
 const hiddenTagCount = Math.max(0, tags.length - visibleTags.length);
@@ -16,6 +18,7 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
 
 <li class="directory-post">
   <a class="directory-post-link" href={blogPostPath(post.id)}>
+    <span class="directory-post-order" aria-hidden="true">{order}</span>
     <div class="directory-post-copy">
       <h4>{post.data.title}</h4>
       <p>{plainDescription}</p>
@@ -48,7 +51,7 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
 
   .directory-post-link {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 2.15rem minmax(0, 1fr) auto;
     align-items: center;
     gap: 1.25rem;
     min-width: 0;
@@ -59,6 +62,17 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
       background-color 160ms var(--ease-out),
       color 160ms var(--ease-out),
       transform 120ms var(--ease-out);
+  }
+
+  .directory-post-order {
+    align-self: start;
+    padding-top: 0.14rem;
+    color: var(--directory-accent, var(--accent-light));
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 720;
+    letter-spacing: 0.06em;
+    opacity: 0.82;
   }
 
   .directory-post-copy {
@@ -115,10 +129,10 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
     max-width: 9rem;
     padding: 0.14rem 0.48rem;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--accent-light) 26%, transparent);
+    border: 1px solid color-mix(in srgb, var(--directory-accent, var(--accent-light)) 26%, transparent);
     border-radius: 999px;
-    background: color-mix(in srgb, var(--accent-light) 8%, transparent);
-    color: var(--accent-light);
+    background: color-mix(in srgb, var(--directory-accent, var(--accent-light)) 8%, transparent);
+    color: var(--directory-accent, var(--accent-light));
     line-height: 1.25;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -136,7 +150,7 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
     place-items: center;
     border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
     border-radius: 50%;
-    color: var(--accent-light);
+    color: var(--directory-accent, var(--accent-light));
     font-size: 1rem;
     transition:
       border-color 160ms var(--ease-out),
@@ -151,12 +165,12 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
 
   @media (hover: hover) and (pointer: fine) {
     .directory-post-link:hover {
-      background: color-mix(in srgb, var(--accent-light) 5%, transparent);
+      background: color-mix(in srgb, var(--directory-accent, var(--accent-light)) 5%, transparent);
     }
 
     .directory-post-link:hover .directory-post-arrow {
-      border-color: var(--accent-light);
-      background: var(--accent-light);
+      border-color: var(--directory-accent, var(--accent-light));
+      background: var(--directory-accent, var(--accent-light));
       color: var(--surface);
       transform: translateX(3px);
     }
@@ -164,7 +178,8 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
 
   @media (max-width: 680px) {
     .directory-post-link {
-      gap: 0.75rem;
+      grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+      gap: 0.55rem;
       padding: 1rem;
     }
 

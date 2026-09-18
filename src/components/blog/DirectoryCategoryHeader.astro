@@ -1,0 +1,222 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  count: number;
+  index: number;
+  visual: 'window' | 'network' | 'library';
+}
+
+const { id, title, count, index, visual } = Astro.props;
+const order = String(index + 1).padStart(2, '0');
+---
+
+<header class="directory-section-header" data-visual={visual}>
+  <div class="directory-section-identity">
+    <span class="directory-category-mark" aria-hidden="true">
+      {visual === 'window' ? (
+        <svg viewBox="0 0 48 48" role="presentation">
+          <rect x="7" y="9" width="34" height="30" rx="6"></rect>
+          <path d="M7 17h34M13 13h.1M18 13h.1M23 13h.1"></path>
+          <path d="M14 25h20M14 31h13"></path>
+        </svg>
+      ) : visual === 'network' ? (
+        <svg viewBox="0 0 48 48" role="presentation">
+          <circle cx="12" cy="13" r="4"></circle>
+          <circle cx="36" cy="11" r="4"></circle>
+          <circle cx="24" cy="36" r="5"></circle>
+          <path d="m15.5 15 6 16M32.5 14l-6 17M16 13h16"></path>
+        </svg>
+      ) : (
+        <svg viewBox="0 0 48 48" role="presentation">
+          <path d="M9 11h12a5 5 0 0 1 5 5v23H14a5 5 0 0 1-5-5V11Z"></path>
+          <path d="M39 11H27a5 5 0 0 0-5 5v23h12a5 5 0 0 0 5-5V11Z"></path>
+        </svg>
+      )}
+    </span>
+    <div class="directory-section-copy">
+      <p class="directory-level-label"><span>{order}</span> 一级分类</p>
+      <h2 id={id}>{title}</h2>
+    </div>
+  </div>
+  <span class="directory-section-count"><strong>{count}</strong> 篇文章</span>
+</header>
+
+<style>
+  .directory-section-header {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    min-height: 7rem;
+    padding: 1.3rem 1.5rem;
+    overflow: hidden;
+    border-bottom: 1px solid color-mix(in srgb, var(--directory-accent) 24%, var(--border));
+    background:
+      linear-gradient(110deg, color-mix(in srgb, var(--directory-accent) 14%, var(--surface)) 0%, var(--surface) 62%);
+  }
+
+  .directory-section-header::after {
+    position: absolute;
+    z-index: -1;
+    top: -2rem;
+    right: 4.5rem;
+    width: 14rem;
+    height: 10rem;
+    border-radius: 50%;
+    content: '';
+    opacity: 0.34;
+    pointer-events: none;
+  }
+
+  .directory-section-header[data-visual='window']::after {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--directory-accent) 18%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--directory-accent) 18%, transparent) 1px, transparent 1px);
+    background-size: 18px 18px;
+    transform: rotate(-8deg);
+  }
+
+  .directory-section-header[data-visual='network']::after {
+    background:
+      radial-gradient(circle at 18% 64%, var(--directory-accent) 0 3px, transparent 4px),
+      radial-gradient(circle at 46% 22%, var(--directory-accent) 0 2px, transparent 3px),
+      radial-gradient(circle at 75% 70%, var(--directory-accent) 0 4px, transparent 5px),
+      radial-gradient(circle at 94% 18%, var(--directory-accent) 0 2px, transparent 3px),
+      linear-gradient(28deg, transparent 42%, color-mix(in srgb, var(--directory-accent) 36%, transparent) 43% 44%, transparent 45%),
+      linear-gradient(-26deg, transparent 49%, color-mix(in srgb, var(--directory-accent) 32%, transparent) 50% 51%, transparent 52%);
+  }
+
+  .directory-section-header[data-visual='library']::after {
+    background:
+      repeating-linear-gradient(90deg, transparent 0 14px, color-mix(in srgb, var(--directory-accent) 19%, transparent) 14px 16px),
+      linear-gradient(transparent 72%, color-mix(in srgb, var(--directory-accent) 22%, transparent) 72% 74%, transparent 74%);
+    transform: skewX(-9deg);
+  }
+
+  .directory-section-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .directory-category-mark {
+    display: grid;
+    flex: none;
+    width: 3.8rem;
+    height: 3.8rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--directory-accent) 38%, transparent);
+    border-radius: 17px;
+    background: color-mix(in srgb, var(--directory-accent) 12%, var(--surface));
+    color: var(--directory-accent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 58%, transparent);
+  }
+
+  .directory-category-mark svg {
+    width: 2rem;
+    height: 2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .directory-section-copy {
+    min-width: 0;
+  }
+
+  .directory-level-label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 0.32rem;
+    color: var(--directory-accent);
+    font-size: 0.68rem;
+    font-weight: 760;
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+  }
+
+  .directory-level-label span {
+    display: inline-grid;
+    width: 1.65rem;
+    height: 1.3rem;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--directory-accent);
+    color: var(--surface);
+    font-size: 0.61rem;
+    letter-spacing: 0.04em;
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(1.22rem, 2.3vw, 1.62rem);
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .directory-section-count {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.28rem;
+    flex: none;
+    padding: 0.48rem 0.68rem;
+    border: 1px solid color-mix(in srgb, var(--directory-accent) 27%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    color: var(--gray);
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  .directory-section-count strong {
+    color: var(--directory-accent);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 680px) {
+    .directory-section-header {
+      align-items: flex-start;
+      min-height: 0;
+      padding: 1rem;
+    }
+
+    .directory-section-header::after {
+      right: -4rem;
+      opacity: 0.23;
+    }
+
+    .directory-section-identity {
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .directory-category-mark {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 14px;
+    }
+
+    .directory-category-mark svg {
+      width: 1.65rem;
+      height: 1.65rem;
+    }
+
+    .directory-section-count {
+      padding: 0.34rem 0.5rem;
+    }
+
+    .directory-section-count strong {
+      font-size: 0.8rem;
+    }
+  }
+</style>

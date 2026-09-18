@@ -6,7 +6,7 @@ updatedDate: "2026-09-12"
 author: "离子怪"
 sourceUrl: "https://github.com/ice11123/matlab-simulink-agent-install-guide"
 dir1: "AI/Agent协作与开发"
-dir2: ""
+dir2: "Agent 工具链"
 tags: ["MATLAB", "Simulink", "MCP", "Skills", "Codex"]
 ---
 
