@@ -443,7 +443,7 @@ test('文章总目录使用真实统计并将每个一级分类压缩为近期�
 
   assert.match(list, /class="directory-groups"/);
   assert.match(list, /class="directory-section"/);
-  assert.match(list, /sort\?: 'time' \| 'dir' \| 'overview'/);
+  assert.match(list, /sort\?: 'time' \| 'oldest' \| 'dir' \| 'overview'/);
   assert.match(list, /const recentPosts = categoryPosts\.slice\(0, 3\)/);
   assert.match(list, /href=\{sort === 'overview' \? categoryHref : undefined\}/);
   assert.match(list, /<DirectoryRecentLink post=\{post\} \/>/);
@@ -491,7 +491,7 @@ test('一级分类页展开二级目录与完整文章且不伪造页面日期',
   assert.doesNotMatch(categoryPage, /pubDate=\{new Date\(\)\}/);
   assert.match(categoryPage, /hidePageHeader=\{!filterDir2\}/);
   assert.match(categoryPage, /<BlogList posts=\{filtered\} sort="dir" dirOrder=\{dirOrder\} \/>/);
-  assert.match(categoryPage, /filterDir2 \? \([\s\S]*sort="time"/);
+  assert.match(categoryPage, /filterDir2 \? \([\s\S]*sort="oldest"/);
   assert.match(categoryPage, /返回全部分类/);
   assert.match(urls, /export function blogCategoryPath/);
   assert.match(urls, /export function blogCategorySegment/);

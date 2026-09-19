@@ -8,7 +8,7 @@ import { resolveDirs } from '../../lib/utils';
 import { blogCategoryPath } from '../../lib/urls';
 
 interface Props {
-  sort?: 'time' | 'dir' | 'overview';
+  sort?: 'time' | 'oldest' | 'dir' | 'overview';
   dirOrder?: {
     dir1: string[];
     dir2: Record<string, string[]>;
@@ -21,8 +21,20 @@ let posts = externalPosts ?? await getCollection('blog');
 
 posts = posts.map(post => ({ ...post, data: { ...post.data, ...resolveDirs(post) } }));
 
+function sortDirectoryPosts(list: CollectionEntry<'blog'>[]): CollectionEntry<'blog'>[] {
+  return list.sort((a, b) => {
+    const aOrder = a.data.title.match(/^(\d{2})｜/)?.[1];
+    const bOrder = b.data.title.match(/^(\d{2})｜/)?.[1];
+    if (aOrder && bOrder) return Number(aOrder) - Number(bOrder);
+    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+  });
+}
+
 if (sort === 'time') {
   posts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+}
+if (sort === 'oldest') {
+  posts = sortDirectoryPosts(posts);
 }
 
 let orderedData: Array<[string, Array<[string, CollectionEntry<'blog'>[]]>]> = [];
@@ -66,21 +78,21 @@ if (sort === 'dir' || sort === 'overview') {
     const expectedDir2 = dirOrder.dir2[d1] || [];
     for (const d2 of expectedDir2) {
       if (dir2Map[d2]) {
-        const sortedPosts = dir2Map[d2].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+        const sortedPosts = sortDirectoryPosts(dir2Map[d2]);
         dir2List.push([d2, sortedPosts]);
       }
     }
 
     // 2. 自动渲染没有二级目录的文章（dir2 = ""）
     if (dir2Map[""]) {
-      const sortedPosts = dir2Map[""].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+      const sortedPosts = sortDirectoryPosts(dir2Map[""]);
       dir2List.push(["", sortedPosts]);
     }
 
     // 3. 渲染未在配置中的其他二级目录
     for (const d2 of Object.keys(dir2Map)) {
       if (d2 === "" || expectedDir2.includes(d2)) continue;
-      const sortedPosts = dir2Map[d2].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+      const sortedPosts = sortDirectoryPosts(dir2Map[d2]);
       dir2List.push([d2, sortedPosts]);
     }
 
@@ -309,7 +321,7 @@ if (sort === 'dir' || sort === 'overview') {
 </style>
 
 <main class="blog-list">
-  {sort === 'time' ? (
+  {sort === 'time' || sort === 'oldest' ? (
     <ul class="card-grid">
       {posts.map((post) => <BlogCard post={post} />)}
     </ul>

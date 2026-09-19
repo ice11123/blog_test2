@@ -7,6 +7,43 @@ import { fileURLToPath } from 'node:url';
 const srcRoot = fileURLToPath(new URL('..', import.meta.url));
 const readSource = (path: string) => readFileSync(join(srcRoot, path), 'utf8');
 
+test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', () => {
+  const filenames = [
+    '01-ti-car-start.md',
+    '02-system-architecture.md',
+    '03-first-motor-run.md',
+    '04-software-architecture.md',
+    '05-motor-execution-chain.md',
+    '06-encoder-motion-metrics.md',
+    '07-speed-position-control.md',
+    '08-line-tracking-system.md',
+    '09-observability-and-hmi.md',
+    '10-integration-and-delivery.md',
+  ];
+
+  const posts = filenames.map((filename) =>
+    readSource(`content/blog/小车组/TI小车实战/${filename}`),
+  );
+
+  posts.forEach((post, index) => {
+    const articleNumber = String(index + 1).padStart(2, '0');
+    assert.match(post, new RegExp(`^title: "${articleNumber}｜`, 'm'));
+    assert.match(post, /dir1: "小车组"/);
+    assert.match(post, /dir2: "TI小车实战"/);
+    assert.match(post, /MSPM0G35XX/);
+    assert.match(post, /^## 本篇总结$/m);
+    assert.doesNotMatch(post, /MSPM0G3507|MSPM0G3519/);
+    assert.doesNotMatch(post, /^## (动手练习|读完后应该能回答|本篇验收清单)$/m);
+  });
+
+  const directory = readSource('components/blog/BlogList.astro');
+  const categoryPage = readSource('pages/blog/category/[...slug].astro');
+  assert.match(directory, /function sortDirectoryPosts/);
+  assert.match(directory, /Number\(aOrder\) - Number\(bOrder\)/);
+  assert.match(directory, /sort\?: 'time' \| 'oldest' \| 'dir' \| 'overview'/);
+  assert.match(categoryPage, /<BlogList posts=\{filtered\} sort="oldest" \/>/);
+});
+
 test('GitHub Languages 近视口加载、限制并发并使用跨会话定时缓存', () => {
   const source = readSource('components/github/GitHubLanguages.astro');
   const publicFetch = readSource('lib/publicDataFetch.ts');

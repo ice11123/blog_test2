@@ -75,7 +75,7 @@ const collectionPageLd = {
   {
     filtered.length > 0 ? (
       filterDir2 ? (
-        <BlogList posts={filtered} sort="time" />
+        <BlogList posts={filtered} sort="oldest" />
       ) : (
         <BlogList posts={filtered} sort="dir" dirOrder={dirOrder} />
       )
