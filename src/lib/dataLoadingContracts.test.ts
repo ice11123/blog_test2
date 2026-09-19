@@ -36,6 +36,19 @@ test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', ()
     assert.doesNotMatch(post, /^## (动手练习|读完后应该能回答|本篇验收清单)$/m);
   });
 
+  assert.match(posts[0], /整体—部分—整体/);
+  assert.match(posts[0], /非抢占式任务调度器/);
+  assert.match(posts[1], /优先级不等于抢占/);
+  assert.match(posts[2], /TB6612/);
+  assert.match(posts[3], /硬件 QEI/);
+  assert.match(posts[4], /速度内环/);
+  assert.match(posts[5], /五路循迹/);
+  assert.match(posts[6], /ICM42688_ENABLE = 0U/);
+  assert.match(posts[6], /当前模块默认关闭/);
+  assert.match(posts[7], /阻塞串口/);
+  assert.match(posts[8], /统一停机/);
+  assert.match(posts[9], /初始化—启动—感知—决策—控制—观测—完成/);
+
   const directory = readSource('components/blog/BlogList.astro');
   const ordering = readSource('lib/postOrdering.ts');
   const categoryPage = readSource('pages/blog/category/[...slug].astro');
