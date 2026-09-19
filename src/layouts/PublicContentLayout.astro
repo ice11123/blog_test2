@@ -2,7 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import PublicLayout from './PublicLayout.astro';
 import FormattedDate from '../components/blog/FormattedDate.astro';
-import { withBase } from '../lib/urls';
+import { blogCategoryPath, withBase } from '../lib/urls';
 import blogPostCss from '../styles/blog-post.scss?url';
 
 type BlogData = CollectionEntry<'blog'>['data'];
@@ -45,8 +45,8 @@ const {
           <div class="post-meta">
             {dir1 && (
               <span class="post-category">
-                分类：<a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/`)}>{dir1}</a>
-                {dir2 && <span> / <a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/${encodeURIComponent(dir2)}/`)}>{dir2}</a></span>}
+                分类：<a href={blogCategoryPath(dir1)}>{dir1}</a>
+                {dir2 && <span> / <a href={blogCategoryPath(dir1, dir2)}>{dir2}</a></span>}
               </span>
             )}
             {tags.length > 0 && (

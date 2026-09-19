@@ -399,10 +399,11 @@ test('静态公共页不伪装成文章日期且单友链保持适宜宽度', ()
   assert.match(friendLinks, /\.friend-links\[data-count='1'\][\s\S]*grid-template-columns:\s*minmax\(0, 720px\)/);
 });
 
-test('文章目录使用真实内容统计与紧凑分类列表', () => {
+test('文章总目录使用真实统计并将每个一级分类压缩为近期更新总览', () => {
   const page = readSource('pages/blog/index.astro');
   const list = readSource('components/blog/BlogList.astro');
-  const row = readSource('components/blog/DirectoryPostRow.astro');
+  const recentLink = readSource('components/blog/DirectoryRecentLink.astro');
+  const homeRecent = readSource('components/home/RecentPosts.astro');
 
   assert.match(page, /const posts = await getCollection\('blog'\)/);
   assert.match(page, /pubDate=\{latestPostDate\}/);
@@ -410,20 +411,22 @@ test('文章目录使用真实内容统计与紧凑分类列表', () => {
   assert.doesNotMatch(page, /pubDate=\{new Date\(\)\}/);
   assert.match(page, /class="blog-directory-hero"/);
   assert.match(page, /\{posts\.length\}<\/strong> 篇文章/);
-  assert.match(page, /<BlogList posts=\{posts\} sort="dir"/);
+  assert.match(page, /<BlogList posts=\{posts\} sort="overview"/);
 
   assert.match(list, /class="directory-groups"/);
   assert.match(list, /class="directory-section"/);
-  assert.match(list, /dir2List\.reduce\(\(count, \[, list\]\) => count \+ list\.length, 0\)/);
-  assert.match(list, /<DirectoryPostRow post=\{post\} index=\{postIndex\} \/>/);
-  assert.doesNotMatch(list, /sort === 'dir'[\s\S]*<BlogCard post=\{post\} level=\{4\}/);
+  assert.match(list, /sort\?: 'time' \| 'dir' \| 'overview'/);
+  assert.match(list, /const recentPosts = categoryPosts\.slice\(0, 3\)/);
+  assert.match(list, /href=\{sort === 'overview' \? categoryHref : undefined\}/);
+  assert.match(list, /<DirectoryRecentLink post=\{post\} \/>/);
+  assert.match(list, /查看完整分类/);
+  assert.match(list, /sort === 'overview' \? \([\s\S]*directory-overview-body/);
 
-  assert.match(row, /tags\.slice\(0, 3\)/);
-  assert.match(row, /hiddenTagCount > 0/);
-  assert.match(row, /-webkit-line-clamp:\s*1/);
-  assert.match(row, /@media \(max-width: 680px\)[\s\S]*-webkit-line-clamp:\s*2/);
-  assert.match(row, /@media \(hover: hover\) and \(pointer: fine\)/);
-  assert.match(row, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(recentLink, /href=\{blogPostPath\(post\.id\)\}/);
+  assert.match(recentLink, /plainDescription/);
+  assert.match(recentLink, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.match(recentLink, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(homeRecent, /class="home-post-link" href=\{blogPostPath\(post\.id\)\}/);
 });
 
 test('文章目录以图案、一级分类和二级分类建立稳定层级', () => {
@@ -434,7 +437,7 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
 
   assert.match(constants, /'AI\/Agent协作与开发': \['Agent 工具链', 'Codex 故障排查'\]/);
   assert.match(constants, /'博客功能介绍与演示': \['站点指南'\]/);
-  assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, index\)\}/);
+  assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, displayIndex\)\}/);
   assert.match(list, /<DirectoryCategoryHeader/);
   assert.match(list, /directory-subsection-label">二级分类/);
   assert.match(list, /dir2 \|\| '未归入二级分类'/);
@@ -445,4 +448,29 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(categoryHeader, /directory-category-mark/);
   assert.match(row, /class="directory-post-order"/);
   assert.match(row, /--directory-accent/);
+});
+
+test('一级分类页展开二级目录与完整文章且不伪造页面日期', () => {
+  const categoryPage = readSource('pages/blog/category/[...slug].astro');
+  const urls = readSource('lib/urls.ts');
+  const publicLayout = readSource('layouts/PublicContentLayout.astro');
+  const postLayout = readSource('layouts/BlogPost.astro');
+
+  assert.match(categoryPage, /pubDate=\{latestPostDate\}/);
+  assert.match(categoryPage, /showDate=\{false\}/);
+  assert.doesNotMatch(categoryPage, /pubDate=\{new Date\(\)\}/);
+  assert.match(categoryPage, /hidePageHeader=\{!filterDir2\}/);
+  assert.match(categoryPage, /<BlogList posts=\{filtered\} sort="dir" dirOrder=\{dirOrder\} \/>/);
+  assert.match(categoryPage, /filterDir2 \? \([\s\S]*sort="time"/);
+  assert.match(categoryPage, /返回全部分类/);
+  assert.match(urls, /export function blogCategoryPath/);
+  assert.match(urls, /export function blogCategorySegment/);
+  assert.match(urls, /replaceAll\('\/', '~2F'\)/);
+  assert.match(urls, /export function parseBlogCategorySegment/);
+  assert.match(categoryPage, /blogCategorySegment\(dir1\)/);
+  assert.match(categoryPage, /parseBlogCategorySegment\(segments\[0\]\)/);
+  assert.match(publicLayout, /blogCategoryPath\(dir1, dir2\)/);
+  assert.match(postLayout, /blogCategoryPath\(dir1, dir2\)/);
+  assert.doesNotMatch(publicLayout, /encodeURIComponent\(dir1\)/);
+  assert.doesNotMatch(postLayout, /encodeURIComponent\(dir1\)/);
 });

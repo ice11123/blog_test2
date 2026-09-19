@@ -5,57 +5,81 @@ interface Props {
   count: number;
   index: number;
   visual: 'window' | 'network' | 'library';
+  href?: string;
 }
 
-const { id, title, count, index, visual } = Astro.props;
+const { id, title, count, index, visual, href } = Astro.props;
 const order = String(index + 1).padStart(2, '0');
+const Container = href ? 'a' : 'div';
 ---
 
 <header class="directory-section-header" data-visual={visual}>
-  <div class="directory-section-identity">
-    <span class="directory-category-mark" aria-hidden="true">
-      {visual === 'window' ? (
-        <svg viewBox="0 0 48 48" role="presentation">
-          <rect x="7" y="9" width="34" height="30" rx="6"></rect>
-          <path d="M7 17h34M13 13h.1M18 13h.1M23 13h.1"></path>
-          <path d="M14 25h20M14 31h13"></path>
-        </svg>
-      ) : visual === 'network' ? (
-        <svg viewBox="0 0 48 48" role="presentation">
-          <circle cx="12" cy="13" r="4"></circle>
-          <circle cx="36" cy="11" r="4"></circle>
-          <circle cx="24" cy="36" r="5"></circle>
-          <path d="m15.5 15 6 16M32.5 14l-6 17M16 13h16"></path>
-        </svg>
-      ) : (
-        <svg viewBox="0 0 48 48" role="presentation">
-          <path d="M9 11h12a5 5 0 0 1 5 5v23H14a5 5 0 0 1-5-5V11Z"></path>
-          <path d="M39 11H27a5 5 0 0 0-5 5v23h12a5 5 0 0 0 5-5V11Z"></path>
-        </svg>
-      )}
-    </span>
-    <div class="directory-section-copy">
-      <p class="directory-level-label"><span>{order}</span> 一级分类</p>
-      <h2 id={id}>{title}</h2>
+  <Container class:list={["directory-header-content", { "is-link": href }]} href={href} aria-labelledby={href ? id : undefined}>
+    <div class="directory-section-identity">
+      <span class="directory-category-mark" aria-hidden="true">
+        {visual === 'window' ? (
+          <svg viewBox="0 0 48 48" role="presentation">
+            <rect x="7" y="9" width="34" height="30" rx="6"></rect>
+            <path d="M7 17h34M13 13h.1M18 13h.1M23 13h.1"></path>
+            <path d="M14 25h20M14 31h13"></path>
+          </svg>
+        ) : visual === 'network' ? (
+          <svg viewBox="0 0 48 48" role="presentation">
+            <circle cx="12" cy="13" r="4"></circle>
+            <circle cx="36" cy="11" r="4"></circle>
+            <circle cx="24" cy="36" r="5"></circle>
+            <path d="m15.5 15 6 16M32.5 14l-6 17M16 13h16"></path>
+          </svg>
+        ) : (
+          <svg viewBox="0 0 48 48" role="presentation">
+            <path d="M9 11h12a5 5 0 0 1 5 5v23H14a5 5 0 0 1-5-5V11Z"></path>
+            <path d="M39 11H27a5 5 0 0 0-5 5v23h12a5 5 0 0 0 5-5V11Z"></path>
+          </svg>
+        )}
+      </span>
+      <div class="directory-section-copy">
+        <p class="directory-level-label"><span>{order}</span> 一级分类</p>
+        <h2 id={id}>{title}</h2>
+      </div>
     </div>
-  </div>
-  <span class="directory-section-count"><strong>{count}</strong> 篇文章</span>
+    <span class="directory-section-count"><strong>{count}</strong> 篇文章</span>
+    {href && <span class="directory-section-arrow" aria-hidden="true">→</span>}
+  </Container>
 </header>
 
 <style>
   .directory-section-header {
     position: relative;
     isolation: isolate;
+    min-height: 7rem;
+    overflow: hidden;
+    border-bottom: 1px solid color-mix(in srgb, var(--directory-accent) 24%, var(--border));
+    background:
+      linear-gradient(110deg, color-mix(in srgb, var(--directory-accent) 14%, var(--surface)) 0%, var(--surface) 62%);
+  }
+
+  .directory-header-content {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1.25rem;
     min-height: 7rem;
     padding: 1.3rem 1.5rem;
-    overflow: hidden;
-    border-bottom: 1px solid color-mix(in srgb, var(--directory-accent) 24%, var(--border));
-    background:
-      linear-gradient(110deg, color-mix(in srgb, var(--directory-accent) 14%, var(--surface)) 0%, var(--surface) 62%);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .directory-header-content.is-link {
+    padding-right: 1.2rem;
+    transition:
+      background-color 160ms var(--ease-out),
+      transform 120ms var(--ease-out);
+  }
+
+  .directory-header-content.is-link:active {
+    transform: scale(0.997);
   }
 
   .directory-section-header::after {
@@ -183,8 +207,39 @@ const order = String(index + 1).padStart(2, '0');
     font-size: 0.9rem;
   }
 
+  .directory-section-arrow {
+    display: grid;
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--directory-accent) 28%, transparent);
+    border-radius: 50%;
+    color: var(--directory-accent);
+    transition:
+      background-color 160ms var(--ease-out),
+      color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .directory-header-content.is-link:hover {
+      background: color-mix(in srgb, var(--directory-accent) 5%, transparent);
+    }
+
+    .directory-header-content.is-link:hover .directory-section-arrow {
+      background: var(--directory-accent);
+      color: var(--surface);
+      transform: translateX(3px);
+    }
+  }
+
   @media (max-width: 680px) {
     .directory-section-header {
+      min-height: 0;
+    }
+
+    .directory-header-content {
       align-items: flex-start;
       min-height: 0;
       padding: 1rem;
@@ -217,6 +272,22 @@ const order = String(index + 1).padStart(2, '0');
 
     .directory-section-count strong {
       font-size: 0.8rem;
+    }
+
+    .directory-section-arrow {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .directory-header-content.is-link,
+    .directory-section-arrow {
+      transition: none;
+    }
+
+    .directory-header-content.is-link:active,
+    .directory-header-content.is-link:hover .directory-section-arrow {
+      transform: none;
     }
   }
 </style>

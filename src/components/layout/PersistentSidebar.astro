@@ -6,7 +6,7 @@ import {
   buildTagDirectory,
   computeSidebarStats,
 } from '../../lib/persistentSidebar';
-import { blogPostPath, stripBase, withBase } from '../../lib/urls';
+import { blogPostPath, parseBlogCategorySegment, stripBase, withBase } from '../../lib/urls';
 import '../../styles/persistent-sidebar.scss';
 import SocialLinks from '../ui/SocialLinks.astro';
 
@@ -42,8 +42,8 @@ function decodePathPart(value = ''): string {
 }
 
 const categoryMatch = currentPath.match(/^\/blog\/category\/([^/]+)(?:\/([^/]+))?/);
-const activeDir1 = currentDir1 || decodePathPart(categoryMatch?.[1]);
-const activeDir2 = currentDir2 || decodePathPart(categoryMatch?.[2]);
+const activeDir1 = currentDir1 || parseBlogCategorySegment(decodePathPart(categoryMatch?.[1]));
+const activeDir2 = currentDir2 || parseBlogCategorySegment(decodePathPart(categoryMatch?.[2]));
 const tagMatch = currentPath.match(/^\/blog\/tag\/([^/]+)/);
 const activeTag = decodePathPart(tagMatch?.[1]);
 ---

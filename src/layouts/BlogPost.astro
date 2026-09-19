@@ -4,7 +4,7 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import FormattedDate from '../components/blog/FormattedDate.astro';
 import PublicLayout from './PublicLayout.astro';
-import { stripBase, withBase } from '../lib/urls';
+import { blogCategoryPath, stripBase, withBase } from '../lib/urls';
 import blogPostCss from '../styles/blog-post.scss?url';
 import katexCss from 'katex/dist/katex.min.css?url';
 import { SITE_AUTHOR, TARGET_REPOSITORY } from '../consts';
@@ -40,8 +40,8 @@ const hasDistinctUpdate = Boolean(updatedDate && updatedDate.getTime() !== pubDa
 				<nav class="article-breadcrumbs" aria-label="文章路径">
 					<a href={withBase('/')}>首页</a><span aria-hidden="true">/</span>
 					<a href={withBase('/blog/')}>博客</a>
-					{dir1 && <><span aria-hidden="true">/</span><a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/`)}>{dir1}</a></>}
-					{dir1 && dir2 && <><span aria-hidden="true">/</span><a href={withBase(`/blog/category/${encodeURIComponent(dir1)}/${encodeURIComponent(dir2)}/`)}>{dir2}</a></>}
+					{dir1 && <><span aria-hidden="true">/</span><a href={blogCategoryPath(dir1)}>{dir1}</a></>}
+					{dir1 && dir2 && <><span aria-hidden="true">/</span><a href={blogCategoryPath(dir1, dir2)}>{dir2}</a></>}
 				</nav>
 				<div class="article-kicker"><span>{dir2 || dir1 || '文章'}</span><span aria-hidden="true">·</span><FormattedDate date={pubDate} /></div>
 				<h1>{title}</h1>

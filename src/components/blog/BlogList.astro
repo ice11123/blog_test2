@@ -3,10 +3,12 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import BlogCard from './BlogCard.astro';
 import DirectoryCategoryHeader from './DirectoryCategoryHeader.astro';
 import DirectoryPostRow from './DirectoryPostRow.astro';
+import DirectoryRecentLink from './DirectoryRecentLink.astro';
 import { resolveDirs } from '../../lib/utils';
+import { blogCategoryPath } from '../../lib/urls';
 
 interface Props {
-  sort?: 'time' | 'dir';
+  sort?: 'time' | 'dir' | 'overview';
   dirOrder?: {
     dir1: string[];
     dir2: Record<string, string[]>;
@@ -31,7 +33,7 @@ function resolveCategoryVisual(name: string, index: number): 'window' | 'network
   return index % 2 === 0 ? 'library' : 'network';
 }
 
-if (sort === 'dir') {
+if (sort === 'dir' || sort === 'overview') {
   const grouped: Record<string, Record<string, CollectionEntry<'blog'>[]>> = {};
   for (const post of posts) {
     const d1 = post.data.dir1 || '未分类';
@@ -213,6 +215,56 @@ if (sort === 'dir') {
     list-style: none;
   }
 
+  .directory-overview-body {
+    padding: 0.15rem 1.5rem 0.5rem;
+  }
+
+  .directory-overview-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0 0.65rem;
+    color: var(--gray);
+    font-size: 0.72rem;
+  }
+
+  .directory-overview-heading strong {
+    color: var(--text);
+    font-size: 0.76rem;
+    font-weight: 680;
+    letter-spacing: 0.04em;
+  }
+
+  .directory-overview-heading a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--directory-accent);
+    font-weight: 680;
+    text-decoration: none;
+  }
+
+  .directory-overview-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .directory-overview-empty {
+    margin: 0;
+    padding: 1rem 0 1.25rem;
+    color: var(--gray);
+    font-size: 0.82rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .directory-overview-heading a:hover {
+      text-decoration: underline;
+      text-underline-offset: 0.22em;
+    }
+  }
+
   @media (max-width: 680px) {
     .directory-groups {
       gap: 1rem;
@@ -226,6 +278,10 @@ if (sort === 'dir') {
     .directory-subsection-header {
       padding: 0.7rem 1rem;
     }
+
+    .directory-overview-body {
+      padding-inline: 1rem;
+    }
   }
 </style>
 
@@ -236,20 +292,44 @@ if (sort === 'dir') {
     </ul>
   ) : (
     <div class="directory-groups">
-      {orderedData.map(([dir1, dir2List], index) => (
+      {orderedData.map(([dir1, dir2List], index) => {
+        const categoryIndex = dirOrder.dir1.indexOf(dir1);
+        const displayIndex = categoryIndex >= 0 ? categoryIndex : index;
+        const categoryHref = blogCategoryPath(dir1);
+        const categoryPosts = dir2List
+          .flatMap(([, list]) => list)
+          .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+        const recentPosts = categoryPosts.slice(0, 3);
+
+        return (
         <section
           class="directory-section"
-          data-visual={resolveCategoryVisual(dir1, index)}
-          aria-labelledby={`directory-section-${index}`}
+          data-visual={resolveCategoryVisual(dir1, displayIndex)}
+          aria-labelledby={`directory-section-${displayIndex}`}
         >
           <DirectoryCategoryHeader
-            id={`directory-section-${index}`}
+            id={`directory-section-${displayIndex}`}
             title={dir1}
-            count={dir2List.reduce((count, [, list]) => count + list.length, 0)}
-            index={index}
-            visual={resolveCategoryVisual(dir1, index)}
+            count={categoryPosts.length}
+            index={displayIndex}
+            visual={resolveCategoryVisual(dir1, displayIndex)}
+            href={sort === 'overview' ? categoryHref : undefined}
           />
-          {dir2List.map(([dir2, list]) => (
+          {sort === 'overview' ? (
+            <div class="directory-overview-body">
+              <div class="directory-overview-heading">
+                <strong>近期更新</strong>
+                <a href={categoryHref}>查看完整分类 <span aria-hidden="true">→</span></a>
+              </div>
+              {recentPosts.length > 0 ? (
+                <ul class="directory-overview-list">
+                  {recentPosts.map((post) => <DirectoryRecentLink post={post} />)}
+                </ul>
+              ) : (
+                <p class="directory-overview-empty">这个分类还没有文章。</p>
+              )}
+            </div>
+          ) : dir2List.map(([dir2, list]) => (
             <section class="directory-subsection" aria-label={dir2 || `${dir1}文章`}>
               <header class="directory-subsection-header">
                 <div class="directory-subsection-title">
@@ -267,7 +347,8 @@ if (sort === 'dir') {
             </section>
           ))}
         </section>
-      ))}
+        );
+      })}
     </div>
   )}
 </main>
