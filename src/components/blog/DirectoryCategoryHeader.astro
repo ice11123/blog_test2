@@ -4,7 +4,7 @@ interface Props {
   title: string;
   count: number;
   index: number;
-  visual: 'window' | 'network' | 'library';
+  visual: 'window' | 'network' | 'circuit' | 'power' | 'library';
   href?: string;
 }
 
@@ -29,6 +29,16 @@ const Container = href ? 'a' : 'div';
             <circle cx="36" cy="11" r="4"></circle>
             <circle cx="24" cy="36" r="5"></circle>
             <path d="m15.5 15 6 16M32.5 14l-6 17M16 13h16"></path>
+          </svg>
+        ) : visual === 'circuit' ? (
+          <svg viewBox="0 0 48 48" role="presentation">
+            <rect x="14" y="14" width="20" height="20" rx="4"></rect>
+            <path d="M19 20h10v8H19zM8 18h6M8 30h6M34 18h6M34 30h6M18 8v6M30 8v6M18 34v6M30 34v6"></path>
+          </svg>
+        ) : visual === 'power' ? (
+          <svg viewBox="0 0 48 48" role="presentation">
+            <path d="m27 5-14 22h10l-3 16 15-24H25l2-14Z"></path>
+            <path d="M8 38h9M31 38h9"></path>
           </svg>
         ) : (
           <svg viewBox="0 0 48 48" role="presentation">
@@ -118,6 +128,21 @@ const Container = href ? 'a' : 'div';
       repeating-linear-gradient(90deg, transparent 0 14px, color-mix(in srgb, var(--directory-accent) 19%, transparent) 14px 16px),
       linear-gradient(transparent 72%, color-mix(in srgb, var(--directory-accent) 22%, transparent) 72% 74%, transparent 74%);
     transform: skewX(-9deg);
+  }
+
+  .directory-section-header[data-visual='circuit']::after {
+    background:
+      linear-gradient(90deg, transparent 18%, color-mix(in srgb, var(--directory-accent) 28%, transparent) 18% 20%, transparent 20% 48%, color-mix(in srgb, var(--directory-accent) 28%, transparent) 48% 50%, transparent 50%),
+      linear-gradient(transparent 28%, color-mix(in srgb, var(--directory-accent) 24%, transparent) 28% 30%, transparent 30% 68%, color-mix(in srgb, var(--directory-accent) 24%, transparent) 68% 70%, transparent 70%),
+      radial-gradient(circle at 20% 29%, var(--directory-accent) 0 3px, transparent 4px),
+      radial-gradient(circle at 50% 69%, var(--directory-accent) 0 3px, transparent 4px);
+  }
+
+  .directory-section-header[data-visual='power']::after {
+    background:
+      linear-gradient(115deg, transparent 39%, color-mix(in srgb, var(--directory-accent) 30%, transparent) 40% 42%, transparent 43%),
+      repeating-linear-gradient(0deg, transparent 0 17px, color-mix(in srgb, var(--directory-accent) 15%, transparent) 17px 18px);
+    transform: skewX(-7deg);
   }
 
   .directory-section-identity {

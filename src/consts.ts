@@ -16,11 +16,13 @@ export const ADMIN_SYNC_API_URL = import.meta.env.PUBLIC_ADMIN_SYNC_API_URL?.tri
 export const CLOUD_PUBLISH_ENABLED = import.meta.env.PUBLIC_CLOUD_PUBLISH_ENABLED === 'true';
 export const TARGET_REPOSITORY = 'ice11123/blog_test2';
 
-// 目录页按稳定的内容层级排序，避免新增文章后分类位置随文件名漂移。
-export const DIR1_ORDER: string[] = ['AI/Agent协作与开发', '博客功能介绍与演示'];
+// 目录页与主页技术星图共享稳定顺序，空分类也保留入口。
+export const DIR1_ORDER: string[] = ['AI/Agent协作与开发', '电控', '电源', '其他'];
 export const DIR2_ORDER: Record<string, string[]> = {
   'AI/Agent协作与开发': ['Agent 工具链', 'Codex 故障排查'],
-  '博客功能介绍与演示': ['站点指南'],
+  '电控': [],
+  '电源': [],
+  '其他': ['站点指南'],
 };
 
 export const VALID_THEMES = ['light', 'dark'] as const;

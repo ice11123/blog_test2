@@ -27,10 +27,12 @@ if (sort === 'time') {
 
 let orderedData: Array<[string, Array<[string, CollectionEntry<'blog'>[]]>]> = [];
 
-function resolveCategoryVisual(name: string, index: number): 'window' | 'network' | 'library' {
+function resolveCategoryVisual(name: string, index: number): 'window' | 'network' | 'circuit' | 'power' | 'library' {
   if (/AI|Agent/i.test(name)) return 'network';
+  if (/电控|控制|嵌入式/.test(name)) return 'circuit';
+  if (/电源|功率/.test(name)) return 'power';
   if (/博客|演示|站点/.test(name)) return 'window';
-  return index % 2 === 0 ? 'library' : 'network';
+  return index % 2 === 0 ? 'library' : 'window';
 }
 
 if (sort === 'dir' || sort === 'overview') {
@@ -41,6 +43,11 @@ if (sort === 'dir' || sort === 'overview') {
     grouped[d1] ??= {};
     grouped[d1][d2] ??= [];
     grouped[d1][d2].push(post);
+  }
+
+  // 只有总目录需要展示尚无文章的预设一级分类；进入某个分类后应只呈现当前分组。
+  if (sort === 'overview') {
+    for (const dir1 of dirOrder.dir1) grouped[dir1] ??= {};
   }
 
   const finalOrder: typeof orderedData = [];
@@ -123,12 +130,28 @@ if (sort === 'dir' || sort === 'overview') {
     --directory-accent: #397f70;
   }
 
+  .directory-section[data-visual='circuit'] {
+    --directory-accent: #287f83;
+  }
+
+  .directory-section[data-visual='power'] {
+    --directory-accent: #c8753f;
+  }
+
   :global([data-theme='dark']) .directory-section[data-visual='network'] {
     --directory-accent: #aeb9ff;
   }
 
   :global([data-theme='dark']) .directory-section[data-visual='library'] {
     --directory-accent: #83cab9;
+  }
+
+  :global([data-theme='dark']) .directory-section[data-visual='circuit'] {
+    --directory-accent: #73cbc9;
+  }
+
+  :global([data-theme='dark']) .directory-section[data-visual='power'] {
+    --directory-accent: #f0a36d;
   }
 
   .directory-subsection + .directory-subsection {

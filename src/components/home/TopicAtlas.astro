@@ -1,0 +1,672 @@
+---
+import { getImage } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import controlPlatform from '../../assets/topics/control-platform.png';
+import { DIR1_ORDER } from '../../consts';
+import { blogPostPath, blogCategoryPath } from '../../lib/urls';
+import { resolveDirs } from '../../lib/utils';
+import FormattedDate from '../blog/FormattedDate.astro';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+}
+
+type TopicVisual = 'codex' | 'control' | 'power' | 'archive';
+
+interface TopicPresentation {
+  name: string;
+  index: string;
+  eyebrow: string;
+  summary: string;
+  visual: TopicVisual;
+  size: 'wide' | 'compact';
+}
+
+const { posts } = Astro.props;
+const presentations: TopicPresentation[] = [
+  {
+    name: 'AI/Agent协作与开发',
+    index: '01',
+    eyebrow: 'AGENT SYSTEMS',
+    summary: '记录 Agent 工具链、Codex 实践与可复用的工程工作流。',
+    visual: 'codex',
+    size: 'wide',
+  },
+  {
+    name: '电控',
+    index: '02',
+    eyebrow: 'EMBEDDED CONTROL',
+    summary: '从 MCU、执行机构到整机联调的电控学习与项目记录。',
+    visual: 'control',
+    size: 'compact',
+  },
+  {
+    name: '电源',
+    index: '03',
+    eyebrow: 'POWER ELECTRONICS',
+    summary: '电源拓扑、测量方法与硬件调试过程中的关键笔记。',
+    visual: 'power',
+    size: 'compact',
+  },
+  {
+    name: '其他',
+    index: '04',
+    eyebrow: 'FIELD NOTES',
+    summary: '无法被单一技术方向定义，但仍值得长期保存的内容。',
+    visual: 'archive',
+    size: 'wide',
+  },
+];
+
+if (presentations.map(({ name }) => name).join('|') !== DIR1_ORDER.join('|')) {
+  throw new Error('主页技术分组与文章一级分类顺序不一致');
+}
+
+const controlWidths = [320, 520, 760];
+const [controlAvif, controlWebp] = await Promise.all([
+  Promise.all(controlWidths.map((width) => getImage({ src: controlPlatform, width, format: 'avif', quality: 64 }))),
+  Promise.all(controlWidths.map((width) => getImage({ src: controlPlatform, width, format: 'webp', quality: 78 }))),
+]);
+const toSrcset = (sources: typeof controlAvif) => sources
+  .map((source, index) => `${source.src} ${controlWidths[index]}w`)
+  .join(', ');
+const controlSources = {
+  avif: toSrcset(controlAvif),
+  webp: toSrcset(controlWebp),
+  fallback: controlWebp.at(-1)?.src ?? controlPlatform.src,
+};
+
+const topics = presentations.map((topic) => {
+  const topicPosts = posts
+    .filter((post) => resolveDirs(post).dir1 === topic.name)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  return { ...topic, count: topicPosts.length, recentPosts: topicPosts.slice(0, 2) };
+});
+---
+
+<section class="topic-atlas" aria-labelledby="topic-atlas-title">
+  <header class="topic-atlas-heading">
+    <div>
+      <p>KNOWLEDGE CONSTELLATION</p>
+      <h2 id="topic-atlas-title">技术星图</h2>
+    </div>
+    <p>沿着主题进入，查看正在生长的学习路径与工程记录。</p>
+  </header>
+
+  <div class="topic-grid">
+    {topics.map((topic) => (
+      <article class:list={['topic-card', `topic-${topic.visual}`, `topic-${topic.size}`]} data-topic={topic.visual}>
+        <a class="topic-card-link" href={blogCategoryPath(topic.name)} aria-label={`进入${topic.name}分类`}></a>
+
+        <div class="topic-copy">
+          <div class="topic-meta">
+            <span class="topic-index">{topic.index}</span>
+            <span>{topic.eyebrow}</span>
+            <span class="topic-count"><strong>{topic.count}</strong> 篇</span>
+          </div>
+          <h3>{topic.name}</h3>
+          <p class="topic-summary">{topic.summary}</p>
+
+          <div class="topic-recent">
+            <span class="topic-recent-label">RECENT SIGNALS</span>
+            {topic.recentPosts.length > 0 ? (
+              <ol>
+                {topic.recentPosts.map((post) => (
+                  <li>
+                    <a href={blogPostPath(post.id)}>
+                      <span>{post.data.title}</span>
+                      <time datetime={post.data.pubDate.toISOString()}><FormattedDate date={post.data.pubDate} /></time>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p class="topic-empty">内容坐标已建立，等待第一篇记录。</p>
+            )}
+          </div>
+
+          <span class="topic-enter" aria-hidden="true">打开主题档案 <span>↗</span></span>
+        </div>
+
+        <div class="topic-art" aria-hidden="true">
+          {topic.visual === 'codex' && (
+            <div class="codex-emblem">
+              <svg viewBox="0 0 180 180" role="presentation">
+                <circle class="codex-orbit orbit-a" cx="90" cy="90" r="63"></circle>
+                <circle class="codex-orbit orbit-b" cx="90" cy="90" r="45"></circle>
+                <path class="codex-code" d="m70 68-23 22 23 22M110 68l23 22-23 22M101 55 79 125"></path>
+                <circle class="codex-node node-a" cx="43" cy="55" r="4"></circle>
+                <circle class="codex-node node-b" cx="139" cy="123" r="5"></circle>
+                <circle class="codex-node node-c" cx="133" cy="48" r="3"></circle>
+              </svg>
+              <span>CODEX</span>
+            </div>
+          )}
+
+          {topic.visual === 'control' && (
+            <picture class="control-art">
+              <source type="image/avif" srcset={controlSources.avif} sizes="(max-width: 680px) 68vw, 390px" />
+              <source type="image/webp" srcset={controlSources.webp} sizes="(max-width: 680px) 68vw, 390px" />
+              <img
+                src={controlSources.fallback}
+                width={controlPlatform.width}
+                height={controlPlatform.height}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+          )}
+
+          {topic.visual === 'power' && (
+            <div class="power-emblem">
+              <svg viewBox="0 0 220 160" role="presentation">
+                <path class="power-grid" d="M20 30h180M20 70h180M20 110h180M50 15v130M100 15v130M150 15v130"></path>
+                <path class="power-wave" d="M18 92h35l12-42 24 82 23-68 18 28h72"></path>
+                <path class="power-bolt" d="m132 20-29 49h25l-18 61 49-70h-28l21-40Z"></path>
+              </svg>
+              <span>V / A</span>
+            </div>
+          )}
+
+          {topic.visual === 'archive' && (
+            <div class="archive-emblem">
+              <span class="archive-sheet sheet-back"></span>
+              <span class="archive-sheet sheet-middle"></span>
+              <span class="archive-sheet sheet-front"><i></i><i></i><i></i></span>
+              <span class="archive-number">04</span>
+            </div>
+          )}
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .topic-atlas {
+    padding: 4px 0 52px;
+  }
+
+  .topic-atlas-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 26px;
+  }
+
+  .topic-atlas-heading > div > p {
+    margin: 0 0 10px;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 760;
+    letter-spacing: .16em;
+  }
+
+  .topic-atlas-heading h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 30px;
+    line-height: 1.15;
+  }
+
+  .topic-atlas-heading > p {
+    max-width: 420px;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.75;
+    text-align: right;
+  }
+
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .topic-card {
+    --topic-accent: var(--accent);
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 292px;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid color-mix(in srgb, var(--topic-accent) 24%, var(--border));
+    border-radius: 22px;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--topic-accent) 7%, var(--surface)) 0%, var(--surface) 62%),
+      var(--surface);
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--text-primary) 6%, transparent);
+    transform-style: preserve-3d;
+    transition:
+      border-color 170ms ease,
+      box-shadow 180ms ease,
+      transform 190ms var(--ease-out);
+  }
+
+  .topic-card::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background:
+      radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--topic-accent) 18%, transparent), transparent 31%),
+      linear-gradient(color-mix(in srgb, var(--topic-accent) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--topic-accent) 5%, transparent) 1px, transparent 1px);
+    background-size: auto, 24px 24px, 24px 24px;
+    content: '';
+    opacity: .72;
+    pointer-events: none;
+  }
+
+  .topic-codex { --topic-accent: #7164d8; grid-column: span 7; }
+  .topic-control { --topic-accent: #287f83; grid-column: span 5; }
+  .topic-power { --topic-accent: #c8753f; grid-column: span 5; }
+  .topic-archive { --topic-accent: #aa4f68; grid-column: span 7; }
+
+  :global([data-theme='dark']) .topic-codex { --topic-accent: #aca4ff; }
+  :global([data-theme='dark']) .topic-control { --topic-accent: #73cbc9; }
+  :global([data-theme='dark']) .topic-power { --topic-accent: #f0a36d; }
+  :global([data-theme='dark']) .topic-archive { --topic-accent: #e58ba4; }
+
+  .topic-card-link {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    border-radius: inherit;
+    cursor: pointer;
+  }
+
+  .topic-card-link:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: -5px;
+  }
+
+  .topic-copy {
+    position: relative;
+    z-index: 2;
+    align-self: stretch;
+    width: min(63%, 480px);
+    min-width: 0;
+    padding: 28px;
+    pointer-events: none;
+  }
+
+  .topic-compact .topic-copy {
+    width: min(68%, 340px);
+    padding: 24px;
+  }
+
+  .topic-meta {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    color: var(--topic-accent);
+    font-size: 10px;
+    font-weight: 760;
+    letter-spacing: .12em;
+  }
+
+  .topic-index {
+    display: grid;
+    flex: none;
+    width: 26px;
+    height: 22px;
+    place-items: center;
+    border-radius: 7px;
+    background: var(--topic-accent);
+    color: var(--surface);
+    letter-spacing: .02em;
+  }
+
+  .topic-count {
+    margin-left: auto;
+    color: var(--text-secondary);
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .topic-count strong {
+    color: var(--topic-accent);
+    font-size: 13px;
+  }
+
+  .topic-copy h3 {
+    max-width: 470px;
+    margin: 15px 0 0;
+    color: var(--text-primary);
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.18;
+    letter-spacing: -.025em;
+    text-wrap: balance;
+  }
+
+  .topic-compact .topic-copy h3 {
+    font-size: clamp(24px, 3vw, 31px);
+  }
+
+  .topic-summary {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 11px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .topic-recent {
+    margin-top: 19px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--topic-accent) 18%, var(--border));
+  }
+
+  .topic-recent-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+    font-size: 9px;
+    font-weight: 740;
+    letter-spacing: .13em;
+  }
+
+  .topic-recent ol {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .topic-recent a {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    margin-inline: -8px;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: var(--text-primary);
+    font-size: 12px;
+    line-height: 1.45;
+    text-decoration: none;
+    pointer-events: auto;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease,
+      transform 145ms var(--ease-out);
+  }
+
+  .topic-recent a > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topic-recent time {
+    color: var(--text-secondary);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .topic-empty {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  .topic-enter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 15px;
+    color: var(--topic-accent);
+    font-size: 12px;
+    font-weight: 720;
+  }
+
+  .topic-enter > span {
+    transition: transform 150ms var(--ease-out);
+  }
+
+  .topic-art {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    right: 0;
+    width: 42%;
+    height: 100%;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transform-style: preserve-3d;
+  }
+
+  .topic-compact .topic-art { width: 48%; }
+
+  .codex-emblem,
+  .power-emblem,
+  .archive-emblem {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .codex-emblem svg {
+    width: min(95%, 250px);
+    overflow: visible;
+    color: var(--topic-accent);
+    filter: drop-shadow(0 22px 26px color-mix(in srgb, var(--topic-accent) 22%, transparent));
+    transform: rotate(-7deg) translateZ(18px);
+    transition: transform 190ms var(--ease-out);
+  }
+
+  .codex-orbit,
+  .codex-code {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .codex-orbit { stroke-width: 1.6; opacity: .44; }
+  .orbit-b { stroke-dasharray: 7 8; opacity: .68; }
+  .codex-code { stroke-width: 8; }
+  .codex-node { fill: currentColor; }
+  .codex-emblem > span {
+    position: absolute;
+    right: 18%;
+    bottom: 18%;
+    padding: 4px 9px;
+    border: 1px solid color-mix(in srgb, var(--topic-accent) 42%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 84%, transparent);
+    color: var(--topic-accent);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .18em;
+    backdrop-filter: blur(8px);
+  }
+
+  .control-art {
+    position: absolute;
+    inset: 0;
+  }
+
+  .control-art img {
+    position: absolute;
+    top: 52%;
+    right: -12%;
+    width: min(142%, 430px);
+    max-width: none;
+    height: auto;
+    filter: drop-shadow(0 22px 24px color-mix(in srgb, #031b35 28%, transparent));
+    transform: translateY(-50%) rotate(-3deg) translateZ(22px);
+    transform-origin: 60% 64%;
+    transition: transform 190ms var(--ease-out), filter 180ms ease;
+  }
+
+  .power-emblem svg {
+    width: min(110%, 250px);
+    overflow: visible;
+    color: var(--topic-accent);
+    filter: drop-shadow(0 18px 24px color-mix(in srgb, var(--topic-accent) 18%, transparent));
+    transform: rotate(3deg) translateZ(16px);
+    transition: transform 190ms var(--ease-out);
+  }
+
+  .power-grid { fill: none; stroke: currentColor; stroke-width: 1; opacity: .14; }
+  .power-wave { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+  .power-bolt { fill: color-mix(in srgb, var(--topic-accent) 22%, transparent); stroke: currentColor; stroke-width: 2; }
+  .power-emblem > span {
+    position: absolute;
+    right: 13%;
+    bottom: 19%;
+    color: color-mix(in srgb, var(--topic-accent) 60%, transparent);
+    font-size: 34px;
+    font-weight: 850;
+    letter-spacing: -.06em;
+  }
+
+  .archive-emblem {
+    perspective: 600px;
+  }
+
+  .archive-sheet {
+    position: absolute;
+    width: 142px;
+    height: 178px;
+    border: 1px solid color-mix(in srgb, var(--topic-accent) 40%, var(--border));
+    border-radius: 15px;
+    background: color-mix(in srgb, var(--surface) 88%, var(--topic-accent) 12%);
+    box-shadow: 0 16px 30px color-mix(in srgb, var(--text-primary) 9%, transparent);
+    transition: transform 190ms var(--ease-out);
+  }
+
+  .sheet-back { transform: translate(-24px, 4px) rotate(-10deg) translateZ(-20px); opacity: .45; }
+  .sheet-middle { transform: translate(18px, -5px) rotate(7deg) translateZ(-10px); opacity: .72; }
+  .sheet-front { display: grid; align-content: center; gap: 13px; padding: 0 24px; box-sizing: border-box; transform: rotate(-2deg) translateZ(18px); }
+  .sheet-front i { display: block; height: 3px; border-radius: 999px; background: var(--topic-accent); opacity: .38; }
+  .sheet-front i:nth-child(2) { width: 72%; }
+  .sheet-front i:nth-child(3) { width: 86%; }
+  .archive-number {
+    position: absolute;
+    right: 7%;
+    bottom: 3%;
+    color: color-mix(in srgb, var(--topic-accent) 10%, transparent);
+    font-size: 92px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -.08em;
+  }
+
+  .topic-recent a:active { transform: scale(.985); }
+  .topic-card:has(.topic-card-link:active) { transform: perspective(1100px) translateY(-1px) scale(.994); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .topic-card:has(.topic-card-link:hover) {
+      border-color: color-mix(in srgb, var(--topic-accent) 62%, var(--border));
+      box-shadow: 0 25px 58px color-mix(in srgb, var(--text-primary) 12%, transparent);
+      transform: perspective(1100px) translateY(-4px) rotateX(.5deg) rotateY(-.35deg);
+    }
+
+    .topic-card:has(.topic-card-link:hover) .topic-enter > span { transform: translate(2px, -2px); }
+    .topic-codex:has(.topic-card-link:hover) .codex-emblem svg { transform: rotate(-3deg) translateY(-4px) translateZ(30px) scale(1.025); }
+    .topic-control:has(.topic-card-link:hover) .control-art img { transform: translateY(-52%) rotate(-1deg) translateZ(34px) scale(1.025); }
+    .topic-power:has(.topic-card-link:hover) .power-emblem svg { transform: rotate(0deg) translateY(-3px) translateZ(30px) scale(1.025); }
+    .topic-archive:has(.topic-card-link:hover) .sheet-back { transform: translate(-32px, 1px) rotate(-12deg) translateZ(-20px); }
+    .topic-archive:has(.topic-card-link:hover) .sheet-middle { transform: translate(26px, -8px) rotate(9deg) translateZ(-10px); }
+    .topic-archive:has(.topic-card-link:hover) .sheet-front { transform: translateY(-4px) rotate(-1deg) translateZ(28px); }
+
+    .topic-recent a:hover {
+      border-color: color-mix(in srgb, var(--topic-accent) 33%, transparent);
+      background: color-mix(in srgb, var(--topic-accent) 8%, var(--surface));
+      color: var(--topic-accent);
+      transform: translateX(3px);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .topic-codex,
+    .topic-control,
+    .topic-power,
+    .topic-archive { grid-column: span 6; }
+
+    .topic-card { min-height: 312px; }
+    .topic-copy,
+    .topic-compact .topic-copy { width: 72%; padding: 22px; }
+    .topic-art,
+    .topic-compact .topic-art { width: 42%; opacity: .82; }
+    .topic-summary { font-size: 12px; }
+    .topic-recent time { display: none; }
+  }
+
+  @media (max-width: 680px) {
+    .topic-atlas { padding-bottom: 38px; }
+    .topic-atlas-heading { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .topic-atlas-heading h2 { font-size: 25px; }
+    .topic-atlas-heading > p { max-width: 34rem; text-align: left; }
+    .topic-grid { grid-template-columns: minmax(0, 1fr); gap: 13px; }
+    .topic-codex,
+    .topic-control,
+    .topic-power,
+    .topic-archive { grid-column: 1; }
+    .topic-card { min-height: 286px; border-radius: 18px; }
+    .topic-copy,
+    .topic-compact .topic-copy { width: 72%; padding: 20px; }
+    .topic-copy h3,
+    .topic-compact .topic-copy h3 { margin-top: 12px; font-size: 24px; }
+    .topic-summary { margin-top: 8px; -webkit-line-clamp: 2; }
+    .topic-recent { margin-top: 14px; }
+    .topic-recent a { grid-template-columns: minmax(0, 1fr); }
+    .topic-recent time { display: none; }
+    .topic-enter { margin-top: 12px; }
+    .topic-art,
+    .topic-compact .topic-art { right: -2%; width: 40%; opacity: .72; }
+    .codex-emblem svg { width: 170px; }
+    .codex-emblem > span { right: 6%; bottom: 16%; }
+    .control-art img { right: -45%; width: 280px; }
+    .power-emblem svg { width: 190px; }
+    .power-emblem > span { right: 0; }
+    .archive-sheet { width: 92px; height: 124px; }
+    .archive-number { right: -2%; font-size: 70px; }
+  }
+
+  @media (max-width: 390px) {
+    .topic-copy,
+    .topic-compact .topic-copy { width: 78%; padding: 18px; }
+    .topic-meta > span:nth-child(2) { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .topic-art,
+    .topic-compact .topic-art { width: 34%; opacity: .6; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .topic-card,
+    .topic-enter > span,
+    .topic-recent a,
+    .codex-emblem svg,
+    .control-art img,
+    .power-emblem svg,
+    .archive-sheet { transition-duration: 0ms; }
+
+    .topic-card:has(.topic-card-link:hover),
+    .topic-card:has(.topic-card-link:active),
+    .topic-recent a:hover { transform: none; }
+
+    .topic-codex:has(.topic-card-link:hover) .codex-emblem svg { transform: rotate(-7deg) translateZ(18px); }
+    .topic-control:has(.topic-card-link:hover) .control-art img { transform: translateY(-50%) rotate(-3deg) translateZ(22px); }
+    .topic-power:has(.topic-card-link:hover) .power-emblem svg { transform: rotate(3deg) translateZ(16px); }
+    .topic-archive:has(.topic-card-link:hover) .sheet-back { transform: translate(-24px, 4px) rotate(-10deg) translateZ(-20px); }
+    .topic-archive:has(.topic-card-link:hover) .sheet-middle { transform: translate(18px, -5px) rotate(7deg) translateZ(-10px); }
+    .topic-archive:has(.topic-card-link:hover) .sheet-front { transform: rotate(-2deg) translateZ(18px); }
+  }
+</style>

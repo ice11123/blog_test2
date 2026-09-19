@@ -217,6 +217,7 @@ test('顶部栏背景全宽且导航内容保持居中约束', () => {
 test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
   const home = readSource('pages/index.astro');
   const recentPosts = readSource('components/home/RecentPosts.astro');
+  const topicAtlas = readSource('components/home/TopicAtlas.astro');
   const layout = readSource('layouts/PublicLayout.astro');
   const sidebar = readSource('components/layout/PersistentSidebar.astro');
 
@@ -224,13 +225,40 @@ test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
   assert.match(layout, /<PersistentSidebar/);
   assert.match(layout, /grid-template-columns:\s*248px minmax\(0,\s*1fr\)/);
   assert.match(home, /<RecentPosts posts=\{recentPosts\}/);
+  assert.match(home, /<TopicAtlas posts=\{allPosts\}/);
   assert.match(recentPosts, /class="home-post-sequence"/);
+  assert.match(topicAtlas, /class="topic-grid"/);
   assert.doesNotMatch(recentPosts, /class="document-sheet"/);
   assert.doesNotMatch(home, /cover-letter|cover-grid|--cover-hue|home-intro/);
 
   assert.match(sidebar, /aria-current=\{isHome \? 'page'/);
   assert.match(sidebar, /data-sidebar-tab="profile"[\s\S]*data-sidebar-tab="catalog"[\s\S]*data-sidebar-tab="tags"/);
   assert.match(sidebar, /全部文章[\s\S]*全部标签/);
+});
+
+test('主页技术星图固定四个真实分类并分离整卡与近期文章交互', () => {
+  const constants = readSource('consts.ts');
+  const atlas = readSource('components/home/TopicAtlas.astro');
+  const categoryPage = readSource('pages/blog/category/[...slug].astro');
+  const list = readSource('components/blog/BlogList.astro');
+
+  assert.match(constants, /DIR1_ORDER:\s*string\[\]\s*=\s*\['AI\/Agent协作与开发', '电控', '电源', '其他'\]/);
+  assert.match(atlas, /import controlPlatform from '\.\.\/\.\.\/assets\/topics\/control-platform\.png'/);
+  assert.match(atlas, /class="codex-emblem"/);
+  assert.match(atlas, /class="control-art"/);
+  assert.match(atlas, /format: 'avif'/);
+  assert.match(atlas, /format: 'webp'/);
+  assert.match(atlas, /class="topic-card-link"[\s\S]*blogCategoryPath\(topic\.name\)/);
+  assert.match(atlas, /href=\{blogPostPath\(post\.id\)\}/);
+  assert.match(atlas, /\.topic-copy[\s\S]*pointer-events:\s*none/);
+  assert.match(atlas, /\.topic-recent a[\s\S]*pointer-events:\s*auto/);
+  assert.match(atlas, /\.topic-card:has\(\.topic-card-link:hover\)/);
+  assert.doesNotMatch(atlas, /\.topic-card:has\(a:hover\)/);
+  assert.match(atlas, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.match(atlas, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(categoryPage, /new Set<string>\(DIR1_ORDER\.map\(blogCategorySegment\)\)/);
+  assert.match(list, /if \(sort === 'overview'\)[\s\S]*for \(const dir1 of dirOrder\.dir1\) grouped\[dir1\] \?\?= \{\}/);
+  assert.match(readSource('pages/blog/index.astro'), /dir1:\s*DIR1_ORDER/);
 });
 
 test('主题按钮直接切换并提供双向可降级圆形过渡', () => {
@@ -436,7 +464,9 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   const row = readSource('components/blog/DirectoryPostRow.astro');
 
   assert.match(constants, /'AI\/Agent协作与开发': \['Agent 工具链', 'Codex 故障排查'\]/);
-  assert.match(constants, /'博客功能介绍与演示': \['站点指南'\]/);
+  assert.match(constants, /'电控': \[\]/);
+  assert.match(constants, /'电源': \[\]/);
+  assert.match(constants, /'其他': \['站点指南'\]/);
   assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, displayIndex\)\}/);
   assert.match(list, /<DirectoryCategoryHeader/);
   assert.match(list, /directory-subsection-label">二级分类/);
