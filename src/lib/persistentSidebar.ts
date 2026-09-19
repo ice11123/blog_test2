@@ -1,4 +1,5 @@
 import type { SidebarPost } from './blogData';
+import { compareDirectoryPostMetadata } from './postOrdering.ts';
 
 export interface SidebarStats {
   totalArticles: number;
@@ -29,8 +30,8 @@ export function computeSidebarStats(posts: SidebarPost[]): SidebarStats {
   };
 }
 
-function byNewest(a: SidebarPost, b: SidebarPost): number {
-  return b.pubDate.valueOf() - a.pubDate.valueOf();
+function byDirectoryOrder(a: SidebarPost, b: SidebarPost): number {
+  return compareDirectoryPostMetadata(a.title, a.pubDate, b.title, b.pubDate);
 }
 
 export function buildArticleDirectory(posts: SidebarPost[]): ArticleDirectorySection[] {
@@ -46,7 +47,7 @@ export function buildArticleDirectory(posts: SidebarPost[]): ArticleDirectorySec
   return [...groups.entries()]
     .sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
     .map(([name, groupPosts]) => {
-      const directPosts = groupPosts.filter((post) => !post.dir2).sort(byNewest);
+      const directPosts = groupPosts.filter((post) => !post.dir2).sort(byDirectoryOrder);
       const nested = new Map<string, SidebarPost[]>();
 
       for (const post of groupPosts) {
@@ -63,7 +64,7 @@ export function buildArticleDirectory(posts: SidebarPost[]): ArticleDirectorySec
           .sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
           .map(([subdirectoryName, subgroupPosts]) => ({
             name: subdirectoryName,
-            posts: subgroupPosts.sort(byNewest),
+            posts: subgroupPosts.sort(byDirectoryOrder),
           })),
         total: groupPosts.length,
       };

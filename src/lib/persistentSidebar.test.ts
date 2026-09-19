@@ -22,7 +22,7 @@ test('侧栏统计按一级分类和去重标签计算', () => {
   });
 });
 
-test('文章目录按一级和二级分类分组，组内按日期倒序', () => {
+test('文章目录按一级和二级分类分组，普通文章按日期倒序', () => {
   const directory = buildArticleDirectory(posts);
 
   assert.deepEqual(directory.map(({ name, total }) => ({ name, total })), [
@@ -38,6 +38,19 @@ test('文章目录按一级和二级分类分组，组内按日期倒序', () =>
     { name: 'Astro', slugs: ['a', 'b'] },
   ]);
   assert.deepEqual(directory[1].directPosts.map((post) => post.slug), ['d']);
+});
+
+test('编号专题在侧栏按编号升序展示', () => {
+  const directory = buildArticleDirectory([
+    { title: '10｜交付', slug: '10', pubDate: new Date('2026-09-19T17:00:00+08:00'), dir1: '小车组', dir2: 'TI小车实战', tags: [] },
+    { title: '01｜总览', slug: '01', pubDate: new Date('2026-09-19T08:00:00+08:00'), dir1: '小车组', dir2: 'TI小车实战', tags: [] },
+    { title: '02｜启动', slug: '02', pubDate: new Date('2026-09-19T09:00:00+08:00'), dir1: '小车组', dir2: 'TI小车实战', tags: [] },
+  ]);
+
+  assert.deepEqual(
+    directory[0].subdirectories[0].posts.map((post) => post.slug),
+    ['01', '02', '10'],
+  );
 });
 
 test('标签目录按文章数倒序并对同数量标签稳定排序', () => {

@@ -6,6 +6,7 @@ import DirectoryPostRow from './DirectoryPostRow.astro';
 import DirectoryRecentLink from './DirectoryRecentLink.astro';
 import { resolveDirs } from '../../lib/utils';
 import { blogCategoryPath } from '../../lib/urls';
+import { compareDirectoryPostMetadata } from '../../lib/postOrdering';
 
 interface Props {
   sort?: 'time' | 'oldest' | 'dir' | 'overview';
@@ -22,12 +23,12 @@ let posts = externalPosts ?? await getCollection('blog');
 posts = posts.map(post => ({ ...post, data: { ...post.data, ...resolveDirs(post) } }));
 
 function sortDirectoryPosts(list: CollectionEntry<'blog'>[]): CollectionEntry<'blog'>[] {
-  return list.sort((a, b) => {
-    const aOrder = a.data.title.match(/^(\d{2})｜/)?.[1];
-    const bOrder = b.data.title.match(/^(\d{2})｜/)?.[1];
-    if (aOrder && bOrder) return Number(aOrder) - Number(bOrder);
-    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
-  });
+  return list.sort((a, b) => compareDirectoryPostMetadata(
+    a.data.title,
+    a.data.pubDate,
+    b.data.title,
+    b.data.pubDate,
+  ));
 }
 
 if (sort === 'time') {

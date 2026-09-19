@@ -37,9 +37,11 @@ test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', ()
   });
 
   const directory = readSource('components/blog/BlogList.astro');
+  const ordering = readSource('lib/postOrdering.ts');
   const categoryPage = readSource('pages/blog/category/[...slug].astro');
   assert.match(directory, /function sortDirectoryPosts/);
-  assert.match(directory, /Number\(aOrder\) - Number\(bOrder\)/);
+  assert.match(directory, /compareDirectoryPostMetadata/);
+  assert.match(ordering, /Number\(aOrder\) - Number\(bOrder\)/);
   assert.match(directory, /sort\?: 'time' \| 'oldest' \| 'dir' \| 'overview'/);
   assert.match(categoryPage, /<BlogList posts=\{filtered\} sort="oldest" \/>/);
 });
