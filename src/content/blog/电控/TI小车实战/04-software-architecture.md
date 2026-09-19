@@ -4,7 +4,7 @@ description: "拆解 MSPM0G35XX TI 小车的 APP/BSP 分层、合作式任务调
 pubDate: 2026-09-19T11:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["软件架构", "任务调度", "APP", "BSP"]
 ---

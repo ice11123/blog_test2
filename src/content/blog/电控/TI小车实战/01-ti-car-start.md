@@ -4,7 +4,7 @@ description: "以整体视角认识 MSPM0G35XX TI 小车的任务边界、软硬
 pubDate: 2026-09-19T08:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["TI小车", "MSPM0G35XX", "系统工程", "专题导读"]
 ---

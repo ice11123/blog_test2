@@ -4,7 +4,7 @@ description: "解释 MSPM0G35XX 硬件 QEI 的计数差、方向、RPM 换算、
 pubDate: 2026-09-19T13:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["编码器", "QEI", "RPM", "距离标定"]
 ---

@@ -22,13 +22,13 @@ test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', ()
   ];
 
   const posts = filenames.map((filename) =>
-    readSource(`content/blog/小车组/TI小车实战/${filename}`),
+    readSource(`content/blog/电控/TI小车实战/${filename}`),
   );
 
   posts.forEach((post, index) => {
     const articleNumber = String(index + 1).padStart(2, '0');
     assert.match(post, new RegExp(`^title: "${articleNumber}｜`, 'm'));
-    assert.match(post, /dir1: "小车组"/);
+    assert.match(post, /dir1: "电控"/);
     assert.match(post, /dir2: "TI小车实战"/);
     assert.match(post, /MSPM0G35XX/);
     assert.match(post, /^## 本篇总结$/m);
@@ -39,11 +39,17 @@ test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', ()
   const directory = readSource('components/blog/BlogList.astro');
   const ordering = readSource('lib/postOrdering.ts');
   const categoryPage = readSource('pages/blog/category/[...slug].astro');
+  const astroConfig = readFileSync(join(srcRoot, '..', 'astro.config.mjs'), 'utf8');
   assert.match(directory, /function sortDirectoryPosts/);
   assert.match(directory, /compareDirectoryPostMetadata/);
   assert.match(ordering, /Number\(aOrder\) - Number\(bOrder\)/);
   assert.match(directory, /sort\?: 'time' \| 'oldest' \| 'dir' \| 'overview'/);
   assert.match(categoryPage, /<BlogList posts=\{filtered\} sort="oldest" \/>/);
+  assert.match(astroConfig, /const tiCarRedirects = Object\.fromEntries\(tiCarArticleSlugs\.map/);
+  assert.match(astroConfig, /`\/blog\/小车组\/ti小车实战\/\$\{slug\}`/);
+  assert.match(astroConfig, /`\$\{publicBaseUrl\}\/blog\/电控\/ti小车实战\/\$\{slug\}\/`/);
+  assert.match(astroConfig, /'\/blog\/category\/小车组': `\$\{publicBaseUrl\}\/blog\/category\/电控\/`/);
+  assert.match(astroConfig, /'\/blog\/category\/小车组\/TI小车实战': `\$\{publicBaseUrl\}\/blog\/category\/电控\/TI小车实战\/`/);
 });
 
 test('GitHub Languages 近视口加载、限制并发并使用跨会话定时缓存', () => {

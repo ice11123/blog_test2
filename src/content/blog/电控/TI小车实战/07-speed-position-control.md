@@ -4,7 +4,7 @@ description: "解释 TI 小车的目标速度斜坡、前馈 PID、位置外环�
 pubDate: 2026-09-19T14:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["PID", "速度环", "位置环", "目标规划", "MSPM0G35XX"]
 ---

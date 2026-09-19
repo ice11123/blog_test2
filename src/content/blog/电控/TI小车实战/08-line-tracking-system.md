@@ -4,7 +4,7 @@ description: "拆解 TI 小车的五路循迹采样、位置偏差、滤波 PD�
 pubDate: 2026-09-19T15:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["循迹", "PD", "状态机", "传感器", "MSPM0G35XX"]
 ---

@@ -4,7 +4,7 @@ description: "梳理 MSPM0G35XX TI 小车的电源域、TB6612、编码器、循
 pubDate: 2026-09-19T10:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["硬件", "安全上电", "TB6612", "MSPM0G35XX"]
 ---

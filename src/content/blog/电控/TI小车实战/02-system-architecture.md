@@ -4,7 +4,7 @@ description: "从 CCS 工程、SysConfig、编译、下载到首次观测，建�
 pubDate: 2026-09-19T09:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["CCS", "SysConfig", "MSPM0G35XX", "工程基线"]
 ---

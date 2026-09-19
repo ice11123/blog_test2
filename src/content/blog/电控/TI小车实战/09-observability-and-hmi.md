@@ -4,7 +4,7 @@ description: "设计 TI 小车的按键、OLED、串口、LED、蜂鸣器与外�
 pubDate: 2026-09-19T16:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["可观测性", "OLED", "串口", "按键", "MSPM0G35XX"]
 ---

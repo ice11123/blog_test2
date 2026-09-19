@@ -42,9 +42,9 @@ test('文章目录按一级和二级分类分组，普通文章按日期倒序',
 
 test('编号专题在侧栏按编号升序展示', () => {
   const directory = buildArticleDirectory([
-    { title: '10｜交付', slug: '10', pubDate: new Date('2026-09-19T17:00:00+08:00'), dir1: '小车组', dir2: 'TI小车实战', tags: [] },
-    { title: '01｜总览', slug: '01', pubDate: new Date('2026-09-19T08:00:00+08:00'), dir1: '小车组', dir2: 'TI小车实战', tags: [] },
-    { title: '02｜启动', slug: '02', pubDate: new Date('2026-09-19T09:00:00+08:00'), dir1: '小车组', dir2: 'TI小车实战', tags: [] },
+    { title: '10｜交付', slug: '10', pubDate: new Date('2026-09-19T17:00:00+08:00'), dir1: '电控', dir2: 'TI小车实战', tags: [] },
+    { title: '01｜总览', slug: '01', pubDate: new Date('2026-09-19T08:00:00+08:00'), dir1: '电控', dir2: 'TI小车实战', tags: [] },
+    { title: '02｜启动', slug: '02', pubDate: new Date('2026-09-19T09:00:00+08:00'), dir1: '电控', dir2: 'TI小车实战', tags: [] },
   ]);
 
   assert.deepEqual(

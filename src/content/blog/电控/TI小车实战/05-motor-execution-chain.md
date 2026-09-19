@@ -4,7 +4,7 @@ description: "沿着 MSPM0G35XX、方向 GPIO、TIMA0 PWM、TB6612 到左右车�
 pubDate: 2026-09-19T12:00:00+08:00
 updatedDate: 2026-09-19T18:00:00+08:00
 author: "离子怪"
-dir1: "小车组"
+dir1: "电控"
 dir2: "TI小车实战"
 tags: ["电机", "TB6612", "PWM", "执行链"]
 ---
