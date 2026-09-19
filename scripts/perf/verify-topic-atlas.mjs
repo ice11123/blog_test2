@@ -63,6 +63,8 @@ try {
         assert.notEqual(cardTransform, 'none', '整卡悬停应提供明确视觉反馈');
 
         await firstCard.locator('.topic-recent a').first().hover();
+        // 等父卡 190ms 的退出过渡结束，再判断是否存在父子 hover 串联。
+        await page.waitForTimeout(220);
         const nestedState = await firstCard.evaluate((node) => ({
           cardTransform: getComputedStyle(node).transform,
           linkBackground: getComputedStyle(node.querySelector('.topic-recent a')).backgroundColor,
