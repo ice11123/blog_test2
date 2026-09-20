@@ -20,7 +20,7 @@ export const TARGET_REPOSITORY = 'ice11123/blog_test2';
 export const DIR1_ORDER: string[] = ['AI/Agent协作与开发', '电控', '电源', '其他'];
 export const DIR2_ORDER: Record<string, string[]> = {
   'AI/Agent协作与开发': ['Agent 工具链', 'Codex 故障排查'],
-  '电控': ['TI小车实战'],
+  '电控': ['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'],
   '电源': [],
   '其他': ['站点指南'],
 };

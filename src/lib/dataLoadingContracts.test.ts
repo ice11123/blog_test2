@@ -65,6 +65,30 @@ test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', ()
   assert.match(astroConfig, /'\/blog\/category\/小车组\/TI小车实战': `\$\{publicBaseUrl\}\/blog\/category\/电控\/TI小车实战\/`/);
 });
 
+test('电控资料总结按四个二级目录同步并保留代码审查结论', () => {
+  const paths = [
+    'content/blog/电控/PID算法/01-pid-algorithms.md',
+    'content/blog/电控/RTOS-任务调度器/01-cooperative-scheduler.md',
+    'content/blog/电控/灰度及循迹环PID/01-line-tracking-control.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/01-filtering-and-imu-drivers.md',
+  ];
+  const posts = paths.map(readSource);
+
+  posts.forEach((post) => {
+    assert.match(post, /dir1: "电控"/);
+    assert.match(post, /^## 本篇总结$/m);
+    assert.doesNotMatch(post, /^## (动手练习|读完后应该能回答|本篇验收清单)$/m);
+  });
+
+  assert.match(posts[0], /前馈与反馈各自做什么/);
+  assert.match(posts[1], /任务名使用指针比较/);
+  assert.match(posts[2], /速度 PID 的调用在控制中断里被注释掉/);
+  assert.match(posts[3], /`fast_sqrt\(\)`/);
+
+  const constants = readSource('consts.ts');
+  assert.match(constants, /'电控': \['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'\]/);
+});
+
 test('GitHub Languages 近视口加载、限制并发并使用跨会话定时缓存', () => {
   const source = readSource('components/github/GitHubLanguages.astro');
   const publicFetch = readSource('lib/publicDataFetch.ts');
