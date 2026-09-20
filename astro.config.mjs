@@ -47,6 +47,9 @@ export default defineConfig({
     ...tiCarRedirects,
     '/blog/category/小车组': `${publicBaseUrl}/blog/category/电控/`,
     '/blog/category/小车组/TI小车实战': `${publicBaseUrl}/blog/category/电控/TI小车实战/`,
+    '/blog/电控/pid算法/01-pid-algorithms': `${publicBaseUrl}/blog/电控/pid算法/01-positional-incremental-pid/`,
+    '/blog/电控/灰度及循迹环pid/01-line-tracking-control': `${publicBaseUrl}/blog/电控/灰度及循迹环pid/01-eight-channel-tracker/`,
+    '/blog/电控/滤波算法与陀螺仪驱动/01-filtering-and-imu-drivers': `${publicBaseUrl}/blog/电控/滤波算法与陀螺仪驱动/01-kalman-fusion-design/`,
   },
 
   integrations: [

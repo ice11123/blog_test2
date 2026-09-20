@@ -65,12 +65,21 @@ test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', ()
   assert.match(astroConfig, /'\/blog\/category\/小车组\/TI小车实战': `\$\{publicBaseUrl\}\/blog\/category\/电控\/TI小车实战\/`/);
 });
 
-test('电控资料总结按四个二级目录同步并保留代码审查结论', () => {
+test('电控每份资料独立成文并保留代码审查结论', () => {
   const paths = [
-    'content/blog/电控/PID算法/01-pid-algorithms.md',
+    'content/blog/电控/PID算法/01-positional-incremental-pid.md',
+    'content/blog/电控/PID算法/02-low-pass-incremental-speed-pid.md',
+    'content/blog/电控/PID算法/03-feedforward-anti-windup-cascade-pid.md',
     'content/blog/电控/RTOS-任务调度器/01-cooperative-scheduler.md',
-    'content/blog/电控/灰度及循迹环PID/01-line-tracking-control.md',
-    'content/blog/电控/滤波算法与陀螺仪驱动/01-filtering-and-imu-drivers.md',
+    'content/blog/电控/灰度及循迹环PID/01-eight-channel-tracker.md',
+    'content/blog/电控/灰度及循迹环PID/02-mspm0g35xx-line-tracking-project.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/01-kalman-fusion-design.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/02-two-state-kalman-filter.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/03-mspm0-mpu6050-balance-control.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/04-mpu6050-dmp-package.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/05-jy901s-uart-driver.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/06-bno080-uart-rvc-project.md',
+    'content/blog/电控/滤波算法与陀螺仪驱动/07-bno080-datasheet-rvc.md',
   ];
   const posts = paths.map(readSource);
 
@@ -80,10 +89,25 @@ test('电控资料总结按四个二级目录同步并保留代码审查结论',
     assert.doesNotMatch(post, /^## (动手练习|读完后应该能回答|本篇验收清单)$/m);
   });
 
-  assert.match(posts[0], /前馈与反馈各自做什么/);
-  assert.match(posts[1], /任务名使用指针比较/);
-  assert.match(posts[2], /速度 PID 的调用在控制中断里被注释掉/);
-  assert.match(posts[3], /`fast_sqrt\(\)`/);
+  assert.equal(paths.length, 13);
+  assert.match(posts[0], /`pid_set_target\(\)` 会重置历史状态/);
+  assert.match(posts[1], /航向差速代码仍被注释/);
+  assert.match(posts[2], /条件积分、积分限幅和饱和方向判断/);
+  assert.match(posts[3], /任务名使用指针比较/);
+  assert.match(posts[4], /备用未调用/);
+  assert.match(posts[5], /速度 PID 文件存在，但当前调用链仍被注释/);
+  assert.match(posts[6], /四状态模型/);
+  assert.match(posts[7], /固定 5 ms/);
+  assert.match(posts[8], /I²C 等待没有超时/);
+  assert.match(posts[9], /当前 `IMU\.c` 使用 DMP FIFO 输出 \| 否/);
+  assert.match(posts[10], /100 组独立同步样本 \| 否/);
+  assert.match(posts[11], /新数据标志被正确消费 \| 否/);
+  assert.match(posts[12], /RVC 帧固定为 19 字节/);
+
+  const astroConfig = readSource('../astro.config.mjs');
+  assert.match(astroConfig, /01-pid-algorithms.*01-positional-incremental-pid/);
+  assert.match(astroConfig, /01-line-tracking-control.*01-eight-channel-tracker/);
+  assert.match(astroConfig, /01-filtering-and-imu-drivers.*01-kalman-fusion-design/);
 
   const constants = readSource('consts.ts');
   assert.match(constants, /'电控': \['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'\]/);
