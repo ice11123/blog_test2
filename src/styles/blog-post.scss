@@ -14,6 +14,8 @@
   }
 
   .blog-post-page {
+    --article-heading-offset: 104px;
+
     width: min(920px, calc(100% - 56px));
     min-width: 0;
     margin: 40px auto 72px;
@@ -95,7 +97,7 @@
     }
 
     > :is(h2, h3, h4) {
-      scroll-margin-top: 104px;
+      scroll-margin-top: var(--article-heading-offset);
       text-wrap: balance;
     }
 
@@ -168,16 +170,18 @@
   }
 
   .article-header h1 {
-    max-width: 18em;
-    margin: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
     color: var(--foreground-light);
     font-size: clamp(2.15rem, 4vw, 3.1rem);
     font-weight: 780;
     line-height: 1.16;
     letter-spacing: -.035em;
-    text-wrap: balance;
+    text-align: center;
+    text-wrap: pretty;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   .article-description {
@@ -274,6 +278,8 @@
 
   @media (max-width: 1099.98px) {
     .blog-post-page {
+      --article-heading-offset: 88px;
+
       width: min(820px, calc(100% - 40px));
       margin-top: 28px;
     }
@@ -328,7 +334,6 @@
     }
 
     .article-header h1 {
-      max-width: none;
       font-size: clamp(1.75rem, 8vw, 2.15rem);
       line-height: 1.22;
       letter-spacing: -.025em;
