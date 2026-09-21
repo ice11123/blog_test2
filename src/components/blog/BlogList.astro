@@ -167,85 +167,204 @@ if (sort === 'dir' || sort === 'overview') {
     --directory-accent: #f0a36d;
   }
 
-  .directory-subsection + .directory-subsection {
-    border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  .directory-subsection-stack {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1rem 1.2rem 1.25rem;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--directory-accent) 3%, transparent), transparent 7rem),
+      color-mix(in srgb, var(--surface) 96%, var(--bg));
   }
 
-  .directory-subsection-header {
-    display: flex;
+  .directory-subsection {
+    overflow: clip;
+    border: 1px solid color-mix(in srgb, var(--directory-accent) 20%, var(--border));
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--surface) 97%, var(--directory-accent) 3%);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--text) 3.5%, transparent);
+  }
+
+  .directory-subsection > summary {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.78rem 1.5rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--directory-accent) 16%, var(--border));
-    background: color-mix(in srgb, var(--directory-accent) 5%, var(--surface));
+    gap: 0.85rem;
+    min-height: 4.7rem;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .directory-subsection > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .directory-subsection > summary:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: -4px;
+  }
+
+  .directory-subsection-order {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--directory-accent) 34%, transparent);
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--directory-accent) 10%, var(--surface));
+    color: var(--directory-accent);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 760;
+    letter-spacing: 0.04em;
   }
 
   .directory-subsection-title {
-    display: flex;
-    align-items: center;
-    gap: 0.68rem;
+    display: block;
     min-width: 0;
   }
 
-  .directory-branch-mark {
-    position: relative;
-    display: block;
-    flex: none;
-    width: 1.45rem;
-    height: 1.45rem;
-    border: 1px solid color-mix(in srgb, var(--directory-accent) 32%, transparent);
-    border-radius: 7px;
-    background: color-mix(in srgb, var(--directory-accent) 9%, transparent);
-  }
-
-  .directory-branch-mark::before,
-  .directory-branch-mark::after {
-    position: absolute;
-    background: var(--directory-accent);
-    content: '';
-    opacity: 0.78;
-  }
-
-  .directory-branch-mark::before {
-    top: 0.35rem;
-    left: 0.43rem;
-    width: 1px;
-    height: 0.68rem;
-  }
-
-  .directory-branch-mark::after {
-    top: 0.72rem;
-    left: 0.43rem;
-    width: 0.52rem;
-    height: 1px;
-  }
-
   .directory-subsection-label {
-    margin: 0 0 0.1rem;
+    display: block;
+    margin: 0 0 0.18rem;
     color: var(--directory-accent);
     font-size: 0.58rem;
     font-weight: 760;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.13em;
     line-height: 1.15;
   }
 
-  .directory-subsection h3 {
-    margin: 0;
+  .directory-subsection-name {
+    display: block;
+    overflow: hidden;
     color: var(--text);
-    font-size: 0.88rem;
-    font-weight: 720;
-    letter-spacing: 0.01em;
+    font-size: clamp(0.94rem, 1.6vw, 1.06rem);
+    font-weight: 740;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .directory-subsection-count {
-    flex: none;
-    color: var(--gray);
+    padding: 0.32rem 0.55rem;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+    border-radius: 999px;
+    color: var(--text-secondary);
     font-size: 0.7rem;
     white-space: nowrap;
   }
 
+  .directory-subsection-action {
+    color: var(--directory-accent);
+    font-size: 0.68rem;
+    font-weight: 690;
+    white-space: nowrap;
+  }
+
+  .directory-action-close,
+  .directory-subsection[data-state='opening'] .directory-action-open,
+  .directory-subsection[data-state='open'] .directory-action-open {
+    display: none;
+  }
+
+  .directory-subsection[data-state='opening'] .directory-action-close,
+  .directory-subsection[data-state='open'] .directory-action-close {
+    display: inline;
+  }
+
+  .directory-subsection-chevron {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--directory-accent) 26%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--directory-accent) 6%, transparent);
+    color: var(--directory-accent);
+    transition:
+      background-color 160ms ease,
+      color 160ms ease,
+      transform 200ms var(--ease-out);
+  }
+
+  .directory-subsection-chevron svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .directory-subsection[data-state='opening'] .directory-subsection-chevron,
+  .directory-subsection[data-state='open'] .directory-subsection-chevron {
+    background: var(--directory-accent);
+    color: var(--surface);
+    transform: rotate(180deg);
+  }
+
+  .directory-subsection-panel {
+    opacity: 1;
+  }
+
+  .directory-subsection:not([open]) > .directory-subsection-panel {
+    display: none;
+  }
+
+  .directory-subsection-panel-inner {
+    padding: 0.78rem;
+    border-top: 1px solid color-mix(in srgb, var(--directory-accent) 17%, var(--border));
+    background: color-mix(in srgb, var(--directory-accent) 2.5%, var(--bg));
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 170ms var(--ease-out),
+      transform 200ms var(--ease-out);
+  }
+
+  .directory-subsection[data-state='closed'] .directory-subsection-panel-inner,
+  .directory-subsection[data-state='closing'] .directory-subsection-panel-inner {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  .directory-third-level-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.15rem 0.2rem 0.65rem;
+    color: var(--gray);
+    font-size: 0.66rem;
+  }
+
+  .directory-third-level-heading strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--directory-accent);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+  }
+
+  .directory-third-level-heading strong::before {
+    display: block;
+    width: 1.2rem;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--directory-accent);
+    content: '';
+  }
+
   .directory-post-list {
+    display: grid;
+    gap: 0.55rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -295,6 +414,10 @@ if (sort === 'dir' || sort === 'overview') {
   }
 
   @media (hover: hover) and (pointer: fine) {
+    .directory-subsection > summary:hover {
+      background: color-mix(in srgb, var(--directory-accent) 7%, transparent);
+    }
+
     .directory-overview-heading a:hover {
       text-decoration: underline;
       text-underline-offset: 0.22em;
@@ -311,12 +434,62 @@ if (sort === 'dir' || sort === 'overview') {
       border-radius: 15px;
     }
 
-    .directory-subsection-header {
-      padding: 0.7rem 1rem;
+    .directory-subsection-stack {
+      gap: 0.65rem;
+      padding: 0.75rem;
+    }
+
+    .directory-subsection > summary {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 0.65rem;
+      min-height: 4.3rem;
+      padding: 0.75rem;
+    }
+
+    .directory-subsection-order {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 9px;
+    }
+
+    .directory-subsection-action {
+      display: none;
+    }
+
+    .directory-subsection-count {
+      position: absolute;
+      right: 3.35rem;
+      align-self: end;
+      padding: 0;
+      border: 0;
+      color: var(--gray);
+      font-size: 0.62rem;
+      transform: translateY(-0.38rem);
+    }
+
+    .directory-subsection-panel-inner {
+      padding: 0.65rem;
+    }
+
+    .directory-third-level-heading > span:last-child {
+      display: none;
     }
 
     .directory-overview-body {
       padding-inline: 1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .directory-subsection > summary,
+    .directory-subsection-chevron,
+    .directory-subsection-panel-inner {
+      transition: none;
+    }
+
+    .directory-subsection[data-state='closed'] .directory-subsection-panel-inner,
+    .directory-subsection[data-state='closing'] .directory-subsection-panel-inner {
+      transform: none;
     }
   }
 </style>
@@ -365,26 +538,55 @@ if (sort === 'dir' || sort === 'overview') {
                 <p class="directory-overview-empty">这个分类还没有文章。</p>
               )}
             </div>
-          ) : dir2List.map(([dir2, list]) => (
-            <section class="directory-subsection" aria-label={dir2 || `${dir1}文章`}>
-              <header class="directory-subsection-header">
-                <div class="directory-subsection-title">
-                  <span class="directory-branch-mark" aria-hidden="true"></span>
-                  <div>
-                    <p class="directory-subsection-label">二级分类</p>
-                  <h3>{dir2 || '未归入二级分类'}</h3>
-                  </div>
-                </div>
-                <span class="directory-subsection-count">{list.length} 篇</span>
-              </header>
-              <ul class="directory-post-list">
-                {list.map((post, postIndex) => <DirectoryPostRow post={post} index={postIndex} />)}
-              </ul>
-            </section>
-          ))}
+          ) : (
+            <div class="directory-subsection-stack">
+              {dir2List.map(([dir2, list], subsectionIndex) => {
+                const subsectionOrder = String(subsectionIndex + 1).padStart(2, '0');
+                const panelId = `directory-panel-${displayIndex}-${subsectionIndex}`;
+                const title = dir2 || '未归入二级分类';
+                return (
+                  <details class="directory-subsection" data-directory-accordion data-state="closed">
+                    <summary aria-controls={panelId} aria-expanded="false">
+                      <span class="directory-subsection-order" aria-hidden="true">02.{subsectionOrder}</span>
+                      <span class="directory-subsection-title">
+                        <span class="directory-subsection-label">二级分类</span>
+                        <span class="directory-subsection-name" role="heading" aria-level="3">{title}</span>
+                      </span>
+                      <span class="directory-subsection-count">{list.length} 篇</span>
+                      <span class="directory-subsection-action">
+                        <span class="directory-action-open">展开文章</span>
+                        <span class="directory-action-close">收起文章</span>
+                      </span>
+                      <span class="directory-subsection-chevron" aria-hidden="true">
+                        <svg viewBox="0 0 16 16"><path d="m4 6 4 4 4-4" /></svg>
+                      </span>
+                    </summary>
+                    <div class="directory-subsection-panel" id={panelId} data-directory-panel role="region" aria-label={`${title}文章`}>
+                      <div class="directory-subsection-panel-inner">
+                        <div class="directory-third-level-heading">
+                          <strong>三级文章</strong>
+                          <span>按学习顺序排列 · 点击标题进入正文</span>
+                        </div>
+                        <ol class="directory-post-list">
+                          {list.map((post, postIndex) => <DirectoryPostRow post={post} index={postIndex} />)}
+                        </ol>
+                      </div>
+                    </div>
+                  </details>
+                );
+              })}
+            </div>
+          )}
         </section>
         );
       })}
     </div>
   )}
 </main>
+
+<script>
+  import { initializeDirectoryAccordions } from '../../scripts/directory-accordion';
+
+  initializeDirectoryAccordions();
+  document.addEventListener('astro:page-load', () => initializeDirectoryAccordions());
+</script>

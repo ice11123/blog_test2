@@ -470,6 +470,7 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   const list = readSource('components/blog/BlogList.astro');
   const categoryHeader = readSource('components/blog/DirectoryCategoryHeader.astro');
   const row = readSource('components/blog/DirectoryPostRow.astro');
+  const accordion = readSource('scripts/directory-accordion.ts');
 
   assert.match(constants, /'AI\/Agent协作与开发': \['Agent 工具链', 'Codex 故障排查'\]/);
   assert.match(constants, /'电控': \['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'\]/);
@@ -477,7 +478,10 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(constants, /'其他': \['站点指南'\]/);
   assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, displayIndex\)\}/);
   assert.match(list, /<DirectoryCategoryHeader/);
+  assert.match(list, /<details class="directory-subsection" data-directory-accordion data-state="closed">/);
   assert.match(list, /directory-subsection-label">二级分类/);
+  assert.match(list, /class="directory-third-level-heading"/);
+  assert.match(list, /<ol class="directory-post-list">/);
   assert.match(list, /dir2 \|\| '未归入二级分类'/);
   assert.match(categoryHeader, /一级分类/);
   assert.match(categoryHeader, /data-visual=\{visual\}/);
@@ -485,7 +489,12 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(categoryHeader, /visual === 'network'/);
   assert.match(categoryHeader, /directory-category-mark/);
   assert.match(row, /class="directory-post-order"/);
+  assert.match(row, /class="directory-post-level">三级文章/);
   assert.match(row, /--directory-accent/);
+  assert.match(accordion, /event\.detail === 0 \|\| reduceMotion\.matches/);
+  assert.match(accordion, /duration = Math\.round\(Math\.max\(90, fullDuration \* distanceRatio\)\)/);
+  assert.match(accordion, /cubic-bezier\(0\.23, 1, 0\.32, 1\)/);
+  assert.doesNotMatch(list, /max-height/);
 });
 
 test('一级分类页展开二级目录与完整文章且不伪造页面日期', () => {

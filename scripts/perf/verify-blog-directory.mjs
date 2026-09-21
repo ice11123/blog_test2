@@ -67,21 +67,56 @@ try {
     assert.equal(metrics.overflow, false, `${viewport.width}px 视口出现横向溢出`);
 
     await page.goto(categoryUrl, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('.directory-post');
+    await page.waitForSelector('.directory-post', { state: 'attached' });
     const categoryMetrics = await page.evaluate(() => ({
       sections: document.querySelectorAll('.directory-section').length,
       levelTwoLabels: document.querySelectorAll('.directory-subsection-label').length,
+      accordions: document.querySelectorAll('[data-directory-accordion]').length,
+      openAccordions: document.querySelectorAll('[data-directory-accordion][open]').length,
       rows: document.querySelectorAll('.directory-post').length,
+      visibleRows: [...document.querySelectorAll('.directory-post')].filter((node) => node.getClientRects().length > 0).length,
+      levelThreeLabels: document.querySelectorAll('.directory-post-level').length,
       fakeDateCount: document.querySelectorAll('.public-content-page > .prose > .title .date').length,
       overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
       backHref: document.querySelector('.category-context a')?.getAttribute('href'),
     }));
     assert.equal(categoryMetrics.sections, 1, '一级分类页只应展开当前分类');
     assert.ok(categoryMetrics.levelTwoLabels >= 1, '一级分类页应展示二级目录');
+    assert.equal(categoryMetrics.accordions, categoryMetrics.levelTwoLabels, '每个二级分类都应是独立折叠组');
+    assert.equal(categoryMetrics.openAccordions, 0, '二级分类默认应全部收起');
     assert.ok(categoryMetrics.rows > 0, '一级分类页应展示完整文章列表');
+    assert.equal(categoryMetrics.visibleRows, 0, '默认状态不应直接铺开三级文章');
+    assert.equal(categoryMetrics.levelThreeLabels, categoryMetrics.rows, '每篇文章都应有明确的三级层级标识');
     assert.equal(categoryMetrics.fakeDateCount, 0, '分类页不应显示伪造日期');
     assert.equal(categoryMetrics.overflow, false, `${viewport.width}px 分类页出现横向溢出`);
     assert.ok(categoryMetrics.backHref?.endsWith('/blog/'), '分类页应能返回总目录');
+
+    await page.screenshot({ path: join(output, `${viewport.width}-category-collapsed-light.png`), fullPage: true });
+
+    const firstAccordion = page.locator('[data-directory-accordion]').first();
+    const firstSummary = firstAccordion.locator('summary');
+    await firstSummary.click();
+    await page.waitForFunction((element) => element.dataset.state === 'open', await firstAccordion.elementHandle());
+    const expandedMetrics = await page.evaluate(() => ({
+      openAccordions: document.querySelectorAll('[data-directory-accordion][open]').length,
+      visibleRows: [...document.querySelectorAll('.directory-post')].filter((node) => node.getClientRects().length > 0).length,
+      expanded: document.querySelector('[data-directory-accordion] summary')?.getAttribute('aria-expanded'),
+    }));
+    assert.equal(expandedMetrics.openAccordions, 1, '只应展开用户选择的二级分类');
+    assert.ok(expandedMetrics.visibleRows > 0, '展开后应显示该分类的三级文章');
+    assert.equal(expandedMetrics.expanded, 'true');
+
+    await firstSummary.press('Enter');
+    assert.equal(await firstAccordion.getAttribute('data-state'), 'closed', '键盘应立即收起二级分类');
+    assert.equal(await firstSummary.getAttribute('aria-expanded'), 'false');
+    await firstSummary.press('Enter');
+    assert.equal(await firstAccordion.getAttribute('data-state'), 'open', '键盘应立即展开二级分类');
+
+    await firstSummary.click();
+    await page.waitForTimeout(35);
+    await firstSummary.click();
+    await page.waitForFunction((element) => element.dataset.state === 'open', await firstAccordion.elementHandle());
+    assert.equal(await firstSummary.getAttribute('aria-expanded'), 'true', '快速反向后展开状态应保持同步');
 
     await page.screenshot({ path: join(output, `${viewport.width}-category-light.png`), fullPage: true });
     await page.goto(directoryUrl, { waitUntil: 'domcontentloaded' });
@@ -91,6 +126,14 @@ try {
     await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
     await page.waitForTimeout(400);
     await page.screenshot({ path: join(output, `${viewport.width}-dark.png`), fullPage: true });
+
+    await page.goto(categoryUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('[data-directory-accordion]');
+    await page.screenshot({ path: join(output, `${viewport.width}-category-collapsed-dark.png`), fullPage: true });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const reducedAccordion = page.locator('[data-directory-accordion]').first();
+    await reducedAccordion.locator('summary').click();
+    assert.equal(await reducedAccordion.getAttribute('data-state'), 'open', '降低动态模式应立即完成切换');
 
     report.push({ viewport, metrics, categoryMetrics, errors });
     assert.deepEqual(errors, []);

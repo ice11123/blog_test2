@@ -20,6 +20,7 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
   <a class="directory-post-link" href={blogPostPath(post.id)}>
     <span class="directory-post-order" aria-hidden="true">{order}</span>
     <div class="directory-post-copy">
+      <span class="directory-post-level">三级文章 · {order}</span>
       <h4>{post.data.title}</h4>
       <p>{plainDescription}</p>
       <div class="directory-post-meta">
@@ -42,11 +43,15 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
   .directory-post {
     margin: 0;
     padding: 0;
+    overflow: clip;
+    border: 1px solid color-mix(in srgb, var(--directory-accent, var(--accent-light)) 14%, var(--border));
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--surface) 96%, var(--directory-accent, var(--accent-light)) 4%);
     list-style: none;
   }
 
   .directory-post + .directory-post {
-    border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+    border-top-color: color-mix(in srgb, var(--directory-accent, var(--accent-light)) 14%, var(--border));
   }
 
   .directory-post-link {
@@ -60,13 +65,20 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
     text-decoration: none;
     transition:
       background-color 160ms var(--ease-out),
+      box-shadow 160ms var(--ease-out),
       color 160ms var(--ease-out),
       transform 120ms var(--ease-out);
   }
 
   .directory-post-order {
+    display: grid;
     align-self: start;
-    padding-top: 0.14rem;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--directory-accent, var(--accent-light)) 24%, transparent);
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--directory-accent, var(--accent-light)) 8%, transparent);
     color: var(--directory-accent, var(--accent-light));
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
     font-size: 0.68rem;
@@ -77,6 +89,16 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
 
   .directory-post-copy {
     min-width: 0;
+  }
+
+  .directory-post-level {
+    display: block;
+    margin: 0 0 0.25rem;
+    color: var(--directory-accent, var(--accent-light));
+    font-size: 0.58rem;
+    font-weight: 740;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
   }
 
   .directory-post h4 {
@@ -166,6 +188,8 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
   @media (hover: hover) and (pointer: fine) {
     .directory-post-link:hover {
       background: color-mix(in srgb, var(--directory-accent, var(--accent-light)) 5%, transparent);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--text) 4%, transparent);
     }
 
     .directory-post-link:hover .directory-post-arrow {
@@ -196,6 +220,13 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
     .directory-post-arrow {
       width: 1.8rem;
       height: 1.8rem;
+    }
+
+    .directory-post-order {
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 7px;
+      font-size: 0.6rem;
     }
   }
 
