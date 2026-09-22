@@ -1,5 +1,6 @@
 export const SITE_TITLE = '离子怪的博客';
 export const SITE_DESCRIPTION = '记录学习、技术与思考的个人博客。';
+export const SITE_TAGLINE = '失败并不可怕，放弃才是可耻的。';
 export const SITE_AUTHOR = '离子怪';
 export const SITE_START_DATE = new Date('2026-08-11');
 

@@ -1,5 +1,5 @@
 ---
-import { SITE_AUTHOR, SITE_DESCRIPTION } from '../../consts';
+import { SITE_AUTHOR, SITE_TAGLINE } from '../../consts';
 import type { SidebarPost } from '../../lib/blogData';
 import {
   buildArticleDirectory,
@@ -71,7 +71,7 @@ const activeTag = decodePathPart(tagMatch?.[1]);
           <img src={withBase('/avatar.jpg')} alt={`${SITE_AUTHOR}的头像`} width="120" height="120" loading="lazy" decoding="async" />
         </a>
         <strong>{SITE_AUTHOR}</strong>
-        <p>{SITE_DESCRIPTION}</p>
+        <p>{SITE_TAGLINE}</p>
         <SocialLinks showHeaderContacts compact />
       </div>
 
