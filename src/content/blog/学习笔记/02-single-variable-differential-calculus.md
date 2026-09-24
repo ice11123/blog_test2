@@ -113,10 +113,15 @@ $$
 \varphi''(y)=-\frac{f''(x)}{[f'(x)]^3}.
 $$
 
-> [!source-note]- 原稿第 1 页
-> [打开原稿第 1 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp)
-
 <span id="page-01" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="1">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 1 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp" alt="高数原稿第 1 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 1 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 3.2 奇偶性、绝对值与不可导点
 
 ### 导数的奇偶性
@@ -142,10 +147,15 @@ $$
 
 若 $f^{(n)}(x_0)$ 存在，则 $f,f',\dots,f^{(n-1)}$ 在相应点具有前一阶可导所带来的连续性；不能把“高阶导数存在”误写成“高阶导数必在邻域连续”。
 
-> [!source-note]- 原稿第 2 页
-> [打开原稿第 2 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp)
-
 <span id="page-02" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="2">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 2 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp" alt="高数原稿第 2 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 2 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 3.3 导数的几何意义与微分
 
 导数 $f'(x_0)$ 是曲线 $y=f(x)$ 在点 $(x_0,y_0)$ 处的切线斜率。
@@ -180,10 +190,15 @@ $$
 f^{(n)}(x)=\left[f^{(n-1)}(x)\right]'.
 $$
 
-> [!source-note]- 原稿第 3 页
-> [打开原稿第 3 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp)
-
 <span id="page-03" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="3">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 3 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp" alt="高数原稿第 3 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 3 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 <a href="#%E6%80%BB%E5%AF%BC%E8%88%AA">返回总导航</a>
 
 ---
@@ -243,10 +258,15 @@ $$
 
 （第二式需在表达式有定义的区间内使用。）
 
-> [!source-note]- 原稿第 4 页
-> [打开原稿第 4 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp)
-
 <span id="page-04" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="4">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 4 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp" alt="高数原稿第 4 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 4 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 4.2 复合、分段与反函数求导
 
 ### 复合函数
@@ -276,10 +296,15 @@ $$
 > **重点订正｜易错点**
 > 反函数导数最终应写成题目所需自变量的函数；不要只写 $1/f'(x)$ 后忘记代回 $x=\varphi(y)$。
 
-> [!source-note]- 原稿第 5 页
-> [打开原稿第 5 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp)
-
 <span id="page-05" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="5">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 5 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp" alt="高数原稿第 5 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 5 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 4.3 隐函数、参数方程与对数求导
 
 ### 隐函数求导
@@ -333,10 +358,15 @@ $$
 
 典型对象包括 $x^x$、$x^{1/x}$ 和多个因式的乘除幂组合。
 
-> [!source-note]- 原稿第 6 页
-> [打开原稿第 6 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp)
-
 <span id="page-06" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="6">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 6 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp" alt="高数原稿第 6 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 6 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 4.4 高阶导数的计算
 
 <span class="priority-star">★★★</span>
@@ -385,10 +415,15 @@ $$
 
 该方法尤其适合直接连求多次导数很繁琐、而函数又容易展开的题。
 
-> [!source-note]- 原稿第 7 页
-> [打开原稿第 7 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp)
-
 <span id="page-07" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="7">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 7 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp" alt="高数原稿第 7 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 7 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 4.5 含绝对值函数的求导
 
 当 $f(x)\ne0$ 时，
@@ -408,10 +443,15 @@ $$
 > **重点订正｜不要机械套公式**
 > $f(x)=0$ 时，$f/|f|$ 无定义，必须单独判断；这正是含绝对值函数最容易出现不可导点的位置。
 
-> [!source-note]- 原稿第 8 页
-> [打开原稿第 8 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp)
-
 <span id="page-08" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="8">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 8 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp" alt="高数原稿第 8 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 8 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 <a href="#%E6%80%BB%E5%AF%BC%E8%88%AA">返回总导航</a>
 
 ---
@@ -428,10 +468,15 @@ $$
 
 本章顺序：极值 → 凹凸与拐点 → 两者关系 → 最值 → 渐近线 → 函数作图 → 曲率。
 
-> [!source-note]- 原稿第 9 页
-> [打开原稿第 9 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp)
-
 <span id="page-09" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="9">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 9 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp" alt="高数原稿第 9 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 9 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 5.2 极值及其判定
 
 <span class="priority-star">★</span>
@@ -455,10 +500,15 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E7%AC%AC5%E7%AB%A0-%E9%97%B4%E6%96%AD%E7%82%B9%E7%A4%BA%E6%84%8F.webp" alt="第5章-间断点示意" width="520" loading="lazy" decoding="async">
 
-> [!source-note]- 原稿第 10 页
-> [打开原稿第 10 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp)
-
 <span id="page-10" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="10">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 10 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp" alt="高数原稿第 10 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 10 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ### 三种充分判据
 
 #### 第一充分条件：一阶导数变号
@@ -498,10 +548,15 @@ $$
 4. 作符号表；
 5. 根据变号判断极值并计算极值。
 
-> [!source-note]- 原稿第 11 页
-> [打开原稿第 11 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp)
-
 <span id="page-11" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="11">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 11 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp" alt="高数原稿第 11 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 11 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 5.3 凹凸性与拐点
 
 ### 用中点、弦与切线描述
@@ -535,10 +590,15 @@ $$
 
 此外，$f''$ 不存在的点也可能是拐点。
 
-> [!source-note]- 原稿第 12 页
-> [打开原稿第 12 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp)
-
 <span id="page-12" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="12">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 12 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp" alt="高数原稿第 12 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 12 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ### 二阶导数判别
 
 - $f''(x)>0$：$f'$ 递增，图像呈“开口向上”型；
@@ -555,10 +615,15 @@ $$
 3. 作 $f''$ 符号表；
 4. 只有发生变号的候选点才是拐点。
 
-> [!source-note]- 原稿第 13 页
-> [打开原稿第 13 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp)
-
 <span id="page-13" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="13">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 13 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp" alt="高数原稿第 13 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 13 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 5.4 极值点与拐点的联系
 
 <span class="priority-star">★★★</span>
@@ -576,10 +641,15 @@ $$
 > **蓝笔补充｜多项式快速观察**
 > 因式分解后先看每个根的重数，再看相邻区间符号。它比直接展开再反复求导更快，也更不容易丢掉重复根。
 
-> [!source-note]- 原稿第 14 页
-> [打开原稿第 14 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC14%E9%A1%B5.webp)
-
 <span id="page-14" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="14">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC14%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 14 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC14%E9%A1%B5.webp" alt="高数原稿第 14 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 14 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 5.5 最值
 
 <span class="priority-star">★★★</span>
@@ -630,10 +700,15 @@ $$
 
 两个极限都存在且 $a\ne0$ 时，得到斜渐近线。
 
-> [!source-note]- 原稿第 15 页
-> [打开原稿第 15 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC15%E9%A1%B5.webp)
-
 <span id="page-15" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="15">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC15%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 15 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC15%E9%A1%B5.webp" alt="高数原稿第 15 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 15 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 5.7 函数作图
 
 <span class="priority-star">★</span>
@@ -673,10 +748,15 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E7%AC%AC5%E7%AB%A0-%E5%87%BD%E6%95%B0%E4%BD%9C%E5%9B%BE%E4%BE%8B%E9%A2%98.webp" alt="第5章-函数作图例题" width="650" loading="lazy" decoding="async">
 
-> [!source-note]- 原稿第 16 页
-> [打开原稿第 16 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC16%E9%A1%B5.webp)
-
 <span id="page-16" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="16">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC16%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 16 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC16%E9%A1%B5.webp" alt="高数原稿第 16 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 16 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ### 需要熟悉的函数图像
 
 #### $y=x^x\;(x>0)$
@@ -714,10 +794,15 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E7%AC%AC5%E7%AB%A0-%E6%9E%81%E5%9D%90%E6%A0%87%E4%B8%8E%E5%8F%82%E6%95%B0%E6%9B%B2%E7%BA%BF.webp" alt="第5章-极坐标与参数曲线" width="760" loading="lazy" decoding="async">
 
-> [!source-note]- 原稿第 17 页
-> [打开原稿第 17 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC17%E9%A1%B5.webp)
-
 <span id="page-17" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="17">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC17%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 17 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC17%E9%A1%B5.webp" alt="高数原稿第 17 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 17 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 5.8 曲率
 
 对显函数 $y=f(x)$，曲率为
@@ -751,10 +836,15 @@ $$
 
 <span class="priority-star">★★★</span> 原稿特别强调：证明题中优先判断能否使用微分中值定理。
 
-> [!source-note]- 原稿第 18 页
-> [打开原稿第 18 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC18%E9%A1%B5.webp)
-
 <span id="page-18" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="18">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC18%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 18 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC18%E9%A1%B5.webp" alt="高数原稿第 18 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 18 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ### 连续函数的几个定理
 
 #### 有界性与最值定理
@@ -779,10 +869,15 @@ $$
 
 对若干个函数值，其算术平均数仍处于最小值与最大值之间；结合介值定理，可找到某个 $\xi$ 使 $f(\xi)$ 等于该平均值。
 
-> [!source-note]- 原稿第 19 页
-> [打开原稿第 19 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC19%E9%A1%B5.webp)
-
 <span id="page-19" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="19">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC19%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 19 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC19%E9%A1%B5.webp" alt="高数原稿第 19 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 19 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 6.2 三大微分中值定理
 
 ### Fermat 引理
@@ -803,10 +898,15 @@ $$
 
 构造辅助函数的核心，是把题目要求改写成某个 $F'(\xi)=0$，再设法让 $F(a)=F(b)$。若有三个或更多等值点，可以分区间反复使用 Rolle 定理，得到更高阶导数的零点。
 
-> [!source-note]- 原稿第 20 页
-> [打开原稿第 20 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC20%E9%A1%B5.webp)
-
 <span id="page-20" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="20">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC20%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 20 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC20%E9%A1%B5.webp" alt="高数原稿第 20 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 20 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ### Lagrange 中值定理
 
 <span class="priority-star">★★★</span>
@@ -844,10 +944,15 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E7%AC%AC6%E7%AB%A0-%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E4%B8%AD%E5%80%BC%E5%AE%9A%E7%90%86%E5%9B%BE%E7%A4%BA.webp" alt="第6章-拉格朗日中值定理图示" width="560" loading="lazy" decoding="async">
 
-> [!source-note]- 原稿第 21 页
-> [打开原稿第 21 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC21%E9%A1%B5.webp)
-
 <span id="page-21" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="21">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC21%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 21 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC21%E9%A1%B5.webp" alt="高数原稿第 21 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 21 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 6.3 Taylor 公式
 
 <span class="priority-star">★</span>
@@ -884,10 +989,15 @@ $$
 
 第二积分中值定理把单调因子在端点的值与其余因子的分段积分组合，常用于估计振荡积分。
 
-> [!source-note]- 原稿第 22 页
-> [打开原稿第 22 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC22%E9%A1%B5.webp)
-
 <span id="page-22" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="22">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC22%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 22 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC22%E9%A1%B5.webp" alt="高数原稿第 22 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 22 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 6.5 等式、零点与根的证明套路
 
 <span class="priority-star">★</span>
@@ -919,10 +1029,15 @@ $$
 
 - <span class="priority-star">★★</span> 多个等值点可通过反复使用 Rolle 定理，逐阶推出高阶导数存在零点。
 
-> [!source-note]- 原稿第 23 页
-> [打开原稿第 23 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC23%E9%A1%B5.webp)
-
 <span id="page-23" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="23">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC23%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 23 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC23%E9%A1%B5.webp" alt="高数原稿第 23 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 23 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 6.6 辅助函数的构造
 
 看到“存在 $\xi$ 使某个式子成立”时，先把目标式整理为以下形态之一：
@@ -938,10 +1053,15 @@ $$
 > **蓝笔补充｜构造原则**
 > 辅助函数不是凭空猜。先从目标等式反推“它像谁的导数”，再用端点条件补出常数项或线性项。
 
-> [!source-note]- 原稿第 24 页
-> [打开原稿第 24 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC24%E9%A1%B5.webp)
-
 <span id="page-24" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="24">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC24%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 24 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC24%E9%A1%B5.webp" alt="高数原稿第 24 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 24 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 <a href="#%E6%80%BB%E5%AF%BC%E8%88%AA">返回总导航</a>
 
 ---
@@ -985,10 +1105,15 @@ $$
 
 其中 $\xi$ 位于 $x,y$ 之间。然后利用 $f'$ 的上下界、单调性或符号估计右端。
 
-> [!source-note]- 原稿第 25 页
-> [打开原稿第 25 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC25%E9%A1%B5.webp)
-
 <span id="page-25" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="25">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC25%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 25 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC25%E9%A1%B5.webp" alt="高数原稿第 25 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 25 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 ## 7.3 凹凸性与 Jensen 型不等式
 
 <span class="priority-star">★★</span>
@@ -1016,10 +1141,15 @@ $$
 > - 不等式取等条件是否核对？
 > - 用 Taylor 公式时，需要的导数阶数和余项形式是否匹配？
 
-> [!source-note]- 原稿第 26 页
-> [打开原稿第 26 页](/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC26%E9%A1%B5.webp)
-
 <span id="page-26" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="26">
+  <a href="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC26%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 26 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-3-7/%E5%8E%9F%E7%A8%BF-%E7%AC%AC26%E9%A1%B5.webp" alt="高数原稿第 26 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 26 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 <a href="#%E6%80%BB%E5%AF%BC%E8%88%AA">返回总导航</a>
 
 ---

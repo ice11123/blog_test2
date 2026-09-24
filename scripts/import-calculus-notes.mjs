@@ -134,6 +134,21 @@ function escapeHtmlAttribute(value) {
   return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
+function sourcePagePreview(rawPath, pageNumber) {
+  const src = publicAssetUrl(rawPath);
+  if (!src) return '';
+  const page = Number.parseInt(pageNumber, 10);
+  const anchor = `page-${String(page).padStart(2, '0')}`;
+  return `<span id="${anchor}" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="${page}">
+  <a href="${src}" target="_blank" rel="noopener" aria-label="打开高数原稿第 ${page} 页原尺寸图片">
+    <img src="${src}" alt="高数原稿第 ${page} 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 ${page} 页 · 点击查看原尺寸</figcaption>
+</figure>`;
+}
+
 function adaptEditorialCopyForWeb(body, currentSource) {
   if (currentSource === '00-高数笔记索引') {
     body = body
@@ -174,6 +189,11 @@ export function convertNoteBody(source, { currentSource }) {
   let body = source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
   body = adaptEditorialCopyForWeb(body, currentSource);
   body = body.replace(/<!--\s*原PDF第\s*(\d+)\s*页\s*-->/g, '<!-- 原稿第 $1 页 -->');
+
+  body = body.replace(
+    /(?:^> \[!source-note\]-?\s*原稿第\s*\d+\s*页\s*\r?\n)?^> \[(?:查看|打开)原稿第\s*(\d+)\s*页\]\(([^)\r\n]+)\)(?:\s*·\s*\[\[#目录\|返回目录\]\])?[ \t]*\r?\n\r?\n^\^page-(\d+)[ \t]*$/gm,
+    (_match, labelPage, target, anchorPage) => sourcePagePreview(target, anchorPage || labelPage),
+  );
 
   body = body.replace(/^#\s+(.+)$/m, (_match, title) => {
     const id = headingId(title);

@@ -53,9 +53,15 @@ tags: ["高等数学", "极限", "连续", "数列极限", "学习笔记"]
 
 <!-- 原稿第 1 页 -->
 
-> [查看原稿第 1 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-01" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="1">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 1 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp" alt="高数原稿第 1 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 1 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 1. 极限的定义
 
 函数在点 $x_0$ 的去心邻域
@@ -155,9 +161,15 @@ $$
 
 <!-- 原稿第 2 页 -->
 
-> [查看原稿第 2 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-02" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="2">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 2 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp" alt="高数原稿第 2 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 2 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 5. 无穷小相关运算提示
 
 - 常数与不存在的极限或无穷大量做加减，结果一般仍可能不存在或为无穷。
@@ -240,9 +252,15 @@ $$
 
 <!-- 原稿第 3 页 -->
 
-> [查看原稿第 3 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-03" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="3">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 3 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp" alt="高数原稿第 3 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 3 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 7. 左极限与右极限
 
 > **核心公式｜双侧极限存在的充要条件**
@@ -259,9 +277,15 @@ $$
 
 <!-- 原稿第 4 页 -->
 
-> [查看原稿第 4 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-04" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="4">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 4 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp" alt="高数原稿第 4 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 4 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 1. 洛必达法则
 
 <span class="priority-star">★★★</span>
@@ -348,9 +372,15 @@ $$
 
 <!-- 原稿第 5 页 -->
 
-> [查看原稿第 5 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-05" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="5">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 5 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp" alt="高数原稿第 5 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 5 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 4. 泰勒展开
 
 <span class="priority-star">★★★</span>
@@ -468,9 +498,15 @@ $$
 
 <!-- 原稿第 6 页 -->
 
-> [查看原稿第 6 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-06" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="6">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 6 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp" alt="高数原稿第 6 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 6 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 5. 展开原则
 
 1. **商 $A/B$ 型**：分子、分母展开到相同的有效阶数。
@@ -537,9 +573,15 @@ $$
 
 <!-- 原稿第 7 页 -->
 
-> [查看原稿第 7 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-07" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="7">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 7 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp" alt="高数原稿第 7 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 7 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 9. 常见极限不存在的情形
 
 1. **绝对值导致左右极限不同**
@@ -591,9 +633,15 @@ $$
 
 <!-- 原稿第 8 页 -->
 
-> [查看原稿第 8 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-08" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="8">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 8 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp" alt="高数原稿第 8 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 8 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 1. 数列
 
 **等差数列**：
@@ -674,9 +722,15 @@ $$
 
 <!-- 原稿第 9 页 -->
 
-> [查看原稿第 9 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-09" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="9">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 9 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp" alt="高数原稿第 9 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 9 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 5. 数列极限的定义
 
 <span class="priority-star">★★★</span>
@@ -738,9 +792,15 @@ $$
 
 <!-- 原稿第 10 页 -->
 
-> [查看原稿第 10 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-10" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="10">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 10 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp" alt="高数原稿第 10 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 10 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 1. 海涅（归结）定理
 
 <span class="priority-star">★★★</span>
@@ -834,9 +894,15 @@ $$
 
 <!-- 原稿第 11 页 -->
 
-> [查看原稿第 11 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-11" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="11">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 11 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp" alt="高数原稿第 11 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 11 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 4. 常见函数性质与不等式
 
 幂函数比较需要区分指数符号：
@@ -928,9 +994,15 @@ $$
 
 <!-- 原稿第 12 页 -->
 
-> [查看原稿第 12 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-12" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="12">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 12 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp" alt="高数原稿第 12 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 12 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 6. 单调有界准则
 
 > **核心公式｜判定结论**
@@ -1034,9 +1106,15 @@ $$
 
 <!-- 原稿第 13 页 -->
 
-> [查看原稿第 13 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
-
 <span id="page-13" class="source-page-anchor" aria-hidden="true"></span>
+
+<figure class="source-page-preview" data-source-page="13">
+  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 13 页原尺寸图片">
+    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp" alt="高数原稿第 13 页" width="1400" height="2100" loading="lazy" decoding="async">
+  </a>
+  <figcaption>原稿第 13 页 · 点击查看原尺寸</figcaption>
+</figure>
+
 #### 8. 两个趋于同一极限的数列：收敛速度
 
 若

@@ -9,6 +9,10 @@ const ARTICLE_SLUGS = [
   '02-single-variable-differential-calculus',
   '03-review-outline-chapters-1-2',
 ];
+const EXPECTED_SOURCE_PAGE_COUNTS = new Map([
+  ['01-limits-and-sequences', 13],
+  ['02-single-variable-differential-calculus', 26],
+]);
 
 function decodeHtml(value) {
   return value
@@ -48,6 +52,13 @@ export async function validateCalculusBuild(distRoot) {
     await assertFile(sourceFile, errors);
     if (errors.some((message) => message.endsWith(sourceFile))) continue;
     const html = await getHtml(sourceFile);
+    const expectedSourcePages = EXPECTED_SOURCE_PAGE_COUNTS.get(slug);
+    if (expectedSourcePages) {
+      const sourcePagePreviews = [...html.matchAll(/data-source-page=(?:"\d+"|\d+)/g)].length;
+      if (sourcePagePreviews !== expectedSourcePages) {
+        errors.push(`原稿页预览数量错误：${slug} 应为 ${expectedSourcePages}，实际为 ${sourcePagePreviews}`);
+      }
+    }
     const references = [...html.matchAll(/\b(?:href|src)="([^"]+)"/g)].map((match) => decodeHtml(match[1]));
 
     for (const reference of references) {

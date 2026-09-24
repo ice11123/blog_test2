@@ -11,7 +11,11 @@ test('把 Obsidian 双链、页锚点和图片转换为 blog2 可访问链接且
 [[02高数_3-7章_一元微分#4.1 基本求导公式|查看求导公式]]
 [[原PDF/高数笔记_1-2章_极限与连续.pdf|打开扫描 PDF]]
 
+> [查看原稿第 1 页](./临时文件/高数笔记_1-2章%281%29_assets/原稿-第01页.jpg) · [[#目录|返回目录]]
+
 ^page-01
+
+#### 1. 极限的定义
 
 ![函数图](./临时文件/高数笔记_1-2章%281%29_assets/图-第05页-函数高阶关系.png)
 `;
@@ -27,6 +31,11 @@ test('把 Obsidian 双链、页锚点和图片转换为 blog2 可访问链接且
   assert.match(decoded, /02-single-variable-differential-calculus\/#41-基本求导公式/);
   assert.doesNotMatch(converted, /\/notes\/calculus\/pdfs\//);
   assert.match(converted, /\/blog_test2\/notes\/calculus\/images\/chapters-1-2\//);
+  assert.match(converted, /<figure class="source-page-preview" data-source-page="1">/);
+  assert.match(converted, /<img[^>]+alt="高数原稿第 1 页"[^>]+loading="lazy"[^>]+decoding="async"/);
+  assert.match(converted, /<span id="page-01" class="source-page-anchor"/);
+  assert.match(converted, /点击查看原尺寸/);
+  assert.match(converted, /<\/figure>\n\n#### 1\. 极限的定义/);
   assert.doesNotMatch(converted, /\[\[/);
 });
 
