@@ -9,11 +9,13 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "node scripts/validate-calculus-build.mjs",
     "check": "astro check",
     "test": "pnpm run test:root && pnpm run test:worker",
-    "test:root": "node --experimental-strip-types --test src/lib/publicStatusRequest.test.ts src/lib/boundedConcurrency.test.ts src/lib/requestPool.test.ts src/lib/timedCache.test.ts src/lib/dataLoadingContracts.test.ts src/lib/adminDrafts.test.ts src/lib/headingAnchors.test.ts src/lib/tocGeometry.test.ts src/lib/homeCoverGesture.test.ts src/lib/homeCoverMotionGeometry.test.ts src/lib/persistentSidebar.test.ts src/lib/embeddedTeachingArticles.test.ts src/lib/visualContracts.test.ts scripts/publish-article.test.mjs scripts/runtime-regressions.test.mjs",
+    "test:root": "node --experimental-strip-types --test src/lib/publicStatusRequest.test.ts src/lib/boundedConcurrency.test.ts src/lib/requestPool.test.ts src/lib/timedCache.test.ts src/lib/dataLoadingContracts.test.ts src/lib/adminDrafts.test.ts src/lib/headingAnchors.test.ts src/lib/tocGeometry.test.ts src/lib/homeCoverGesture.test.ts src/lib/homeCoverMotionGeometry.test.ts src/lib/persistentSidebar.test.ts src/lib/embeddedTeachingArticles.test.ts src/lib/visualContracts.test.ts scripts/import-calculus-notes.test.mjs scripts/publish-article.test.mjs scripts/runtime-regressions.test.mjs",
     "test:worker": "pnpm --dir worker test",
     "preview": "astro preview",
+    "import:calculus": "node scripts/import-calculus-notes.mjs",
     "publish:article": "node scripts/publish-article.mjs",
     "astro": "astro"
   },
@@ -44,6 +46,7 @@
     "@astrojs/check": "^0.9.4",
     "@types/prismjs": "^1.26.6",
     "astro-compress": "^2.4.1",
+    "github-slugger": "2.0.0",
     "sass": "^1.99.0",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.9.2"

@@ -81,6 +81,9 @@ importers:
       astro-compress:
         specifier: ^2.4.1
         version: 2.4.1(@types/node@25.7.0)(jiti@2.7.0)(rollup@4.60.3)(sass@1.99.0)(yaml@2.9.0)
+      github-slugger:
+        specifier: 2.0.0
+        version: 2.0.0
       sass:
         specifier: ^1.99.0
         version: 1.99.0
