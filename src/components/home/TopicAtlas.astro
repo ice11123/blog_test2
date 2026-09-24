@@ -11,7 +11,7 @@ interface Props {
   posts: CollectionEntry<'blog'>[];
 }
 
-type TopicVisual = 'codex' | 'control' | 'power' | 'archive';
+type TopicVisual = 'codex' | 'control' | 'power' | 'study' | 'archive';
 
 interface TopicPresentation {
   name: string;
@@ -49,8 +49,16 @@ const presentations: TopicPresentation[] = [
     size: 'compact',
   },
   {
-    name: '其他',
+    name: '学习笔记',
     index: '04',
+    eyebrow: 'FOUNDATION NOTES',
+    summary: '整理高数、线代、概率论、电路与数电等理论学习笔记。',
+    visual: 'study',
+    size: 'wide',
+  },
+  {
+    name: '其他',
+    index: '05',
     eyebrow: 'FIELD NOTES',
     summary: '无法被单一技术方向定义，但仍值得长期保存的内容。',
     visual: 'archive',
@@ -170,12 +178,24 @@ const topics = presentations.map((topic) => {
             </div>
           )}
 
+          {topic.visual === 'study' && (
+            <div class="study-emblem">
+              <svg viewBox="0 0 220 160" role="presentation">
+                <path class="study-book" d="M28 31c28-7 55-1 82 18v84c-27-19-54-24-82-17V31Zm164 0c-28-7-55-1-82 18v84c27-19 54-24 82-17V31Z"></path>
+                <path class="study-spine" d="M110 49v84"></path>
+                <path class="study-line" d="M45 56c18-2 33 2 48 11M45 76c18-2 33 2 48 11M127 60c15-6 30-8 47-5M127 80c15-6 30-8 47-5"></path>
+                <path class="study-formula" d="m139 104 9 13 16-25M49 104h38M58 96l-9 8 9 8"></path>
+              </svg>
+              <span>∑ · ∫ · Ω</span>
+            </div>
+          )}
+
           {topic.visual === 'archive' && (
             <div class="archive-emblem">
               <span class="archive-sheet sheet-back"></span>
               <span class="archive-sheet sheet-middle"></span>
               <span class="archive-sheet sheet-front"><i></i><i></i><i></i></span>
-              <span class="archive-number">04</span>
+              <span class="archive-number">05</span>
             </div>
           )}
         </div>
@@ -265,11 +285,13 @@ const topics = presentations.map((topic) => {
   .topic-codex { --topic-accent: #7164d8; grid-column: span 7; }
   .topic-control { --topic-accent: #287f83; grid-column: span 5; }
   .topic-power { --topic-accent: #c8753f; grid-column: span 5; }
-  .topic-archive { --topic-accent: #aa4f68; grid-column: span 7; }
+  .topic-study { --topic-accent: #4f6f9f; grid-column: span 7; }
+  .topic-archive { --topic-accent: #aa4f68; grid-column: span 12; }
 
   :global([data-theme='dark']) .topic-codex { --topic-accent: #aca4ff; }
   :global([data-theme='dark']) .topic-control { --topic-accent: #73cbc9; }
   :global([data-theme='dark']) .topic-power { --topic-accent: #f0a36d; }
+  :global([data-theme='dark']) .topic-study { --topic-accent: #9bb9eb; }
   :global([data-theme='dark']) .topic-archive { --topic-accent: #e58ba4; }
 
   .topic-card-link {
@@ -454,6 +476,7 @@ const topics = presentations.map((topic) => {
 
   .codex-emblem,
   .power-emblem,
+  .study-emblem,
   .archive-emblem {
     position: absolute;
     inset: 0;
@@ -537,6 +560,46 @@ const topics = presentations.map((topic) => {
     letter-spacing: -.06em;
   }
 
+  .study-emblem svg {
+    width: min(108%, 270px);
+    overflow: visible;
+    color: var(--topic-accent);
+    filter: drop-shadow(0 20px 26px color-mix(in srgb, var(--topic-accent) 20%, transparent));
+    transform: rotate(-4deg) translateZ(16px);
+    transition: transform 190ms var(--ease-out);
+  }
+
+  .study-book {
+    fill: color-mix(in srgb, var(--surface) 76%, var(--topic-accent) 24%);
+    stroke: currentColor;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .study-spine,
+  .study-line,
+  .study-formula {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .study-spine { stroke-width: 2; opacity: .66; }
+  .study-line { stroke-width: 2; opacity: .42; }
+  .study-formula { stroke-width: 3; opacity: .9; }
+
+  .study-emblem > span {
+    position: absolute;
+    right: 12%;
+    bottom: 17%;
+    color: color-mix(in srgb, var(--topic-accent) 72%, transparent);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .08em;
+  }
+
   .archive-emblem {
     perspective: 600px;
   }
@@ -583,6 +646,7 @@ const topics = presentations.map((topic) => {
     .topic-codex:has(.topic-card-link:hover) .codex-emblem svg { transform: rotate(-3deg) translateY(-4px) translateZ(30px) scale(1.025); }
     .topic-control:has(.topic-card-link:hover) .control-art img { transform: translateY(-52%) rotate(-1deg) translateZ(34px) scale(1.025); }
     .topic-power:has(.topic-card-link:hover) .power-emblem svg { transform: rotate(0deg) translateY(-3px) translateZ(30px) scale(1.025); }
+    .topic-study:has(.topic-card-link:hover) .study-emblem svg { transform: rotate(-1deg) translateY(-4px) translateZ(30px) scale(1.025); }
     .topic-archive:has(.topic-card-link:hover) .sheet-back { transform: translate(-32px, 1px) rotate(-12deg) translateZ(-20px); }
     .topic-archive:has(.topic-card-link:hover) .sheet-middle { transform: translate(26px, -8px) rotate(9deg) translateZ(-10px); }
     .topic-archive:has(.topic-card-link:hover) .sheet-front { transform: translateY(-4px) rotate(-1deg) translateZ(28px); }
@@ -599,6 +663,7 @@ const topics = presentations.map((topic) => {
     .topic-codex,
     .topic-control,
     .topic-power,
+    .topic-study,
     .topic-archive { grid-column: span 6; }
 
     .topic-card { min-height: 312px; }
@@ -619,6 +684,7 @@ const topics = presentations.map((topic) => {
     .topic-codex,
     .topic-control,
     .topic-power,
+    .topic-study,
     .topic-archive { grid-column: 1; }
     .topic-card { min-height: 286px; border-radius: 18px; }
     .topic-copy,
@@ -637,6 +703,8 @@ const topics = presentations.map((topic) => {
     .control-art img { right: -45%; width: 280px; }
     .power-emblem svg { width: 190px; }
     .power-emblem > span { right: 0; }
+    .study-emblem svg { width: 190px; }
+    .study-emblem > span { right: 0; font-size: 17px; }
     .archive-sheet { width: 92px; height: 124px; }
     .archive-number { right: -2%; font-size: 70px; }
   }
@@ -656,6 +724,7 @@ const topics = presentations.map((topic) => {
     .codex-emblem svg,
     .control-art img,
     .power-emblem svg,
+    .study-emblem svg,
     .archive-sheet { transition-duration: 0ms; }
 
     .topic-card:has(.topic-card-link:hover),
@@ -665,6 +734,7 @@ const topics = presentations.map((topic) => {
     .topic-codex:has(.topic-card-link:hover) .codex-emblem svg { transform: rotate(-7deg) translateZ(18px); }
     .topic-control:has(.topic-card-link:hover) .control-art img { transform: translateY(-50%) rotate(-3deg) translateZ(22px); }
     .topic-power:has(.topic-card-link:hover) .power-emblem svg { transform: rotate(3deg) translateZ(16px); }
+    .topic-study:has(.topic-card-link:hover) .study-emblem svg { transform: rotate(-4deg) translateZ(16px); }
     .topic-archive:has(.topic-card-link:hover) .sheet-back { transform: translate(-24px, 4px) rotate(-10deg) translateZ(-20px); }
     .topic-archive:has(.topic-card-link:hover) .sheet-middle { transform: translate(18px, -5px) rotate(7deg) translateZ(-10px); }
     .topic-archive:has(.topic-card-link:hover) .sheet-front { transform: rotate(-2deg) translateZ(18px); }

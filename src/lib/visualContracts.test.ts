@@ -244,16 +244,17 @@ test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
   assert.match(sidebar, /全部文章[\s\S]*全部标签/);
 });
 
-test('主页技术星图固定四个真实分类并分离整卡与近期文章交互', () => {
+test('主页技术星图固定五个真实分类并分离整卡与近期文章交互', () => {
   const constants = readSource('consts.ts');
   const atlas = readSource('components/home/TopicAtlas.astro');
   const categoryPage = readSource('pages/blog/category/[...slug].astro');
   const list = readSource('components/blog/BlogList.astro');
 
-  assert.match(constants, /DIR1_ORDER:\s*string\[\]\s*=\s*\['AI\/Agent协作与开发', '电控', '电源', '其他'\]/);
+  assert.match(constants, /DIR1_ORDER:\s*string\[\]\s*=\s*\['AI\/Agent协作与开发', '电控', '电源', '学习笔记', '其他'\]/);
   assert.match(atlas, /import controlPlatform from '\.\.\/\.\.\/assets\/topics\/control-platform\.png'/);
   assert.match(atlas, /class="codex-emblem"/);
   assert.match(atlas, /class="control-art"/);
+  assert.match(atlas, /class="study-emblem"/);
   assert.match(atlas, /format: 'avif'/);
   assert.match(atlas, /format: 'webp'/);
   assert.match(atlas, /class="topic-card-link"[\s\S]*blogCategoryPath\(topic\.name\)/);
@@ -475,7 +476,9 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(constants, /'AI\/Agent协作与开发': \['Agent 工具链', 'Codex 故障排查'\]/);
   assert.match(constants, /'电控': \['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'\]/);
   assert.match(constants, /'电源': \[\]/);
+  assert.match(constants, /'学习笔记': \[\]/);
   assert.match(constants, /'其他': \['站点指南'\]/);
+  assert.match(list, /if \(\/学习\|笔记\/.test\(name\)\) return 'study'/);
   assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, displayIndex\)\}/);
   assert.match(list, /<DirectoryCategoryHeader/);
   assert.match(list, /<details class="directory-subsection" data-directory-accordion data-state="closed">/);
@@ -487,6 +490,7 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(categoryHeader, /data-visual=\{visual\}/);
   assert.match(categoryHeader, /visual === 'window'/);
   assert.match(categoryHeader, /visual === 'network'/);
+  assert.match(categoryHeader, /visual === 'study'/);
   assert.match(categoryHeader, /directory-category-mark/);
   assert.match(row, /class="directory-post-order"/);
   assert.match(row, /class="directory-post-level">三级文章/);

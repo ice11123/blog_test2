@@ -40,10 +40,11 @@ if (sort === 'oldest') {
 
 let orderedData: Array<[string, Array<[string, CollectionEntry<'blog'>[]]>]> = [];
 
-function resolveCategoryVisual(name: string, index: number): 'window' | 'network' | 'circuit' | 'power' | 'library' {
+function resolveCategoryVisual(name: string, index: number): 'window' | 'network' | 'circuit' | 'power' | 'study' | 'library' {
   if (/AI|Agent/i.test(name)) return 'network';
   if (/电控|控制|嵌入式/.test(name)) return 'circuit';
   if (/电源|功率/.test(name)) return 'power';
+  if (/学习|笔记/.test(name)) return 'study';
   if (/博客|演示|站点/.test(name)) return 'window';
   return index % 2 === 0 ? 'library' : 'window';
 }
@@ -151,6 +152,10 @@ if (sort === 'dir' || sort === 'overview') {
     --directory-accent: #c8753f;
   }
 
+  .directory-section[data-visual='study'] {
+    --directory-accent: #4f6f9f;
+  }
+
   :global([data-theme='dark']) .directory-section[data-visual='network'] {
     --directory-accent: #aeb9ff;
   }
@@ -165,6 +170,10 @@ if (sort === 'dir' || sort === 'overview') {
 
   :global([data-theme='dark']) .directory-section[data-visual='power'] {
     --directory-accent: #f0a36d;
+  }
+
+  :global([data-theme='dark']) .directory-section[data-visual='study'] {
+    --directory-accent: #9bb9eb;
   }
 
   .directory-subsection-stack {
