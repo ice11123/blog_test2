@@ -12,8 +12,8 @@ tags: ["高等数学", "学习笔记", "总索引", "考研数学"]
 
 <span id="高数笔记总索引" class="article-top-anchor" aria-hidden="true"></span>
 
-> **蓝笔补充｜网页导航**
-> 点击章节入口即可跳转到对应文章和知识点；浏览器后退可回到本索引。
+> **蓝笔补充｜导航说明**
+> 本页只使用 Obsidian 原生双链，不把链接放进表格。阅读视图中直接单击；实时预览或编辑视图中使用 `Ctrl + 单击`。
 
 ## 1．考研数学一复习入口
 
@@ -116,6 +116,9 @@ tags: ["高等数学", "学习笔记", "总索引", "考研数学"]
 - <a href="/blog_test2/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/03-review-outline-chapters-1-2/">第 1—2 章数学一知识结构复习提纲</a>
 - <a href="/blog_test2/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/01-limits-and-sequences/">第 1—2 章扫描整理笔记</a>
 - <a href="/blog_test2/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/02-single-variable-differential-calculus/">第 3—7 章扫描整理笔记</a>
+- 扫描笔记转换规范
+- 第 1—2 章原 PDF
+- 第 3—7 章原 PDF
 
-> **编辑说明｜原稿资料**
-> 逐页原稿和必要图示均作为独立图片资源按需打开，不参与文章首屏加载。
+> **编辑说明**
+> `临时文件` 文件夹保存原稿页图和正文引用的必要裁图。正常复习只需从本索引进入，不要删除该文件夹。

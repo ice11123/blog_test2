@@ -31,15 +31,15 @@ test('把 Obsidian 双链、页锚点和图片转换为 blog2 可访问链接且
   assert.match(decoded, /02-single-variable-differential-calculus\/#41-基本求导公式/);
   assert.doesNotMatch(converted, /\/notes\/calculus\/pdfs\//);
   assert.match(converted, /\/blog_test2\/notes\/calculus\/images\/chapters-1-2\//);
-  assert.match(converted, /<figure class="source-page-preview" data-source-page="1">/);
-  assert.match(converted, /<img[^>]+alt="高数原稿第 1 页"[^>]+loading="lazy"[^>]+decoding="async"/);
+  assert.match(decoded, /> \[查看原稿第 1 页\]\([^\r\n]+原稿-第01页\.webp\)/);
+  assert.doesNotMatch(converted, /source-page-preview|alt="高数原稿第 1 页"/);
   assert.match(converted, /<span id="page-01" class="source-page-anchor"/);
-  assert.match(converted, /点击查看原尺寸/);
-  assert.match(converted, /<\/figure>\n\n#### 1\. 极限的定义/);
+  assert.match(converted, /<img[^>]+alt="函数图"[^>]+loading="lazy"[^>]+decoding="async"/);
+  assert.match(converted, /<span id="page-01"[^>]*><\/span>\n\n#### 1\. 极限的定义/);
   assert.doesNotMatch(converted, /\[\[/);
 });
 
-test('把编辑器专用提示改成网页阅读提示且不吞掉下一行', () => {
+test('只转换网站不支持的语法，不擅自改写原 Markdown 文案', () => {
   const source = `# 高数笔记总索引
 
 > [!blue-ink] 导航说明
@@ -53,7 +53,7 @@ test('把编辑器专用提示改成网页阅读提示且不吞掉下一行', ()
     currentSource: '00-高数笔记索引',
   });
 
-  assert.match(converted, /网页导航/);
-  assert.match(converted, /按需打开/);
-  assert.doesNotMatch(converted, /Obsidian|编辑视图|临时文件|｜>/);
+  assert.match(converted, /本页只使用 Obsidian 原生双链，编辑视图中使用 Ctrl 单击。/);
+  assert.match(converted, /`临时文件` 文件夹保存原稿页图。/);
+  assert.doesNotMatch(converted, /网页导航|按需打开/);
 });

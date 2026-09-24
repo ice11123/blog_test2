@@ -14,12 +14,12 @@ tags: ["高等数学", "极限", "连续", "数列极限", "学习笔记"]
 
 <a href="/blog_test2/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/00-calculus-index/">← 返回高数笔记总索引</a>
 
-> 来源：13 页手写扫描笔记；需要核对笔迹时，可打开各节末尾的对应原稿页图。
+> 来源：打开扫描 PDF
 >
 > 本文由 13 页手写扫描笔记转写而成。正文和常规公式已转换为可搜索的 Markdown/LaTeX；手绘图、涂改以及密集推导保留在对应原稿页图中。配色沿用原稿：蓝色用于章节、方法和补充，红色只用于订正、警示及重点图像，正文保持黑色。
 
-> [!tip] 网页导航
-> 点击本文目录、正文链接或右侧目录即可跳转；浏览器后退可返回原位置。
+> [!tip] Obsidian 导航
+> 阅读视图中可直接单击本文链接；编辑或实时预览模式中请按住 `Ctrl` 再单击。
 
 > [!note] 原稿星级
 > <span class="priority-star">★</span>、<span class="priority-star">★★</span>、<span class="priority-star">★★★</span> 均按扫描原稿的位置和数量保留，红色仅用于显示原作者标出的重点层级。
@@ -51,16 +51,11 @@ tags: ["高等数学", "极限", "连续", "数列极限", "学习笔记"]
 
 ### 一、极限的定义及性质
 
-<!-- 原稿第 1 页 -->
+<!-- 原PDF第 1 页 -->
+
+> [查看原稿第 1 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-01" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="1">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 1 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC01%E9%A1%B5.webp" alt="高数原稿第 1 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 1 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 1. 极限的定义
 
@@ -159,16 +154,11 @@ e^{v\ln u}\sim e^{v(u-1)}.
 $$
 
 
-<!-- 原稿第 2 页 -->
+<!-- 原PDF第 2 页 -->
+
+> [查看原稿第 2 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-02" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="2">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 2 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC02%E9%A1%B5.webp" alt="高数原稿第 2 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 2 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 5. 无穷小相关运算提示
 
@@ -250,16 +240,11 @@ $$
    若在某个去心邻域内 $f(x)\le g(x)$，且两者极限分别为 $A$、$B$，则 $A\le B$。
 
 
-<!-- 原稿第 3 页 -->
+<!-- 原PDF第 3 页 -->
+
+> [查看原稿第 3 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-03" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="3">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 3 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC03%E9%A1%B5.webp" alt="高数原稿第 3 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 3 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 7. 左极限与右极限
 
@@ -275,16 +260,11 @@ $$
 
 ### 二、极限计算与方法
 
-<!-- 原稿第 4 页 -->
+<!-- 原PDF第 4 页 -->
+
+> [查看原稿第 4 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-04" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="4">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 4 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC04%E9%A1%B5.webp" alt="高数原稿第 4 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 4 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 1. 洛必达法则
 
@@ -370,16 +350,11 @@ $$
 > 本页末尾有一段被划去的“综合例题”演算。为避免把废弃步骤误写成结论，不将其并入正文；原始内容完整保留在原稿页图中。
 
 
-<!-- 原稿第 5 页 -->
+<!-- 原PDF第 5 页 -->
+
+> [查看原稿第 5 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-05" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="5">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 5 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC05%E9%A1%B5.webp" alt="高数原稿第 5 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 5 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 4. 泰勒展开
 
@@ -496,16 +471,11 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%9B%BE-%E7%AC%AC05%E9%A1%B5-%E5%87%BD%E6%95%B0%E9%AB%98%E9%98%B6%E5%85%B3%E7%B3%BB.webp" alt="函数在零点附近的高阶关系图" loading="lazy" decoding="async">
 
-<!-- 原稿第 6 页 -->
+<!-- 原PDF第 6 页 -->
+
+> [查看原稿第 6 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-06" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="6">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 6 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC06%E9%A1%B5.webp" alt="高数原稿第 6 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 6 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 5. 展开原则
 
@@ -571,16 +541,11 @@ $$
 - $v\ln u\to+\infty$，则 $u^v\to+\infty$。
 
 
-<!-- 原稿第 7 页 -->
+<!-- 原PDF第 7 页 -->
+
+> [查看原稿第 7 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-07" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="7">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 7 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC07%E9%A1%B5.webp" alt="高数原稿第 7 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 7 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 9. 常见极限不存在的情形
 
@@ -631,16 +596,11 @@ $$
 
 ### 一、数列及其极限
 
-<!-- 原稿第 8 页 -->
+<!-- 原PDF第 8 页 -->
+
+> [查看原稿第 8 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-08" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="8">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 8 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC08%E9%A1%B5.webp" alt="高数原稿第 8 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 8 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 1. 数列
 
@@ -720,16 +680,11 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%9B%BE-%E7%AC%AC08%E9%A1%B5-%E9%87%8D%E8%A6%81%E6%95%B0%E5%88%97.webp" alt="两个重要数列的单调性与极限" loading="lazy" decoding="async">
 
-<!-- 原稿第 9 页 -->
+<!-- 原PDF第 9 页 -->
+
+> [查看原稿第 9 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-09" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="9">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 9 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC09%E9%A1%B5.webp" alt="高数原稿第 9 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 9 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 5. 数列极限的定义
 
@@ -790,16 +745,11 @@ $$
 
 ### 二、数列极限的法则与计算
 
-<!-- 原稿第 10 页 -->
+<!-- 原PDF第 10 页 -->
+
+> [查看原稿第 10 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-10" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="10">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 10 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC10%E9%A1%B5.webp" alt="高数原稿第 10 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 10 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 1. 海涅（归结）定理
 
@@ -892,16 +842,11 @@ $$
    在正数并满足相应大小关系时，可通过分子、分母分别放缩得到比值的上下界；原稿给出的示意见页图。
 
 
-<!-- 原稿第 11 页 -->
+<!-- 原PDF第 11 页 -->
+
+> [查看原稿第 11 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-11" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="11">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 11 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC11%E9%A1%B5.webp" alt="高数原稿第 11 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 11 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 4. 常见函数性质与不等式
 
@@ -992,16 +937,11 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%9B%BE-%E7%AC%AC11%E9%A1%B5-%E5%87%BD%E6%95%B0%E6%AF%94%E8%BE%83.webp" alt="三角函数、反三角函数及指数对数函数比较图" loading="lazy" decoding="async">
 
-<!-- 原稿第 12 页 -->
+<!-- 原PDF第 12 页 -->
+
+> [查看原稿第 12 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-12" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="12">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 12 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC12%E9%A1%B5.webp" alt="高数原稿第 12 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 12 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 6. 单调有界准则
 
@@ -1104,16 +1044,11 @@ $$
 > 使用 Stolz 定理时必须核对分母数列的严格单调性及对应条件。差商极限不存在时，不能简单据此断定原比值极限不存在；Stolz 定理在这里不能反向使用。
 
 
-<!-- 原稿第 13 页 -->
+<!-- 原PDF第 13 页 -->
+
+> [查看原稿第 13 页](/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp) · <a href="#%E7%9B%AE%E5%BD%95">返回目录</a>
 
 <span id="page-13" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="13">
-  <a href="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp" target="_blank" rel="noopener" aria-label="打开高数原稿第 13 页原尺寸图片">
-    <img src="/blog_test2/notes/calculus/images/chapters-1-2/%E5%8E%9F%E7%A8%BF-%E7%AC%AC13%E9%A1%B5.webp" alt="高数原稿第 13 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 13 页 · 点击查看原尺寸</figcaption>
-</figure>
 
 #### 8. 两个趋于同一极限的数列：收敛速度
 

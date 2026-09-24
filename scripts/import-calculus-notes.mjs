@@ -134,73 +134,15 @@ function escapeHtmlAttribute(value) {
   return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
-function sourcePagePreview(rawPath, pageNumber) {
-  const src = publicAssetUrl(rawPath);
-  if (!src) return '';
-  const page = Number.parseInt(pageNumber, 10);
-  const anchor = `page-${String(page).padStart(2, '0')}`;
-  return `<span id="${anchor}" class="source-page-anchor" aria-hidden="true"></span>
-
-<figure class="source-page-preview" data-source-page="${page}">
-  <a href="${src}" target="_blank" rel="noopener" aria-label="打开高数原稿第 ${page} 页原尺寸图片">
-    <img src="${src}" alt="高数原稿第 ${page} 页" width="1400" height="2100" loading="lazy" decoding="async">
-  </a>
-  <figcaption>原稿第 ${page} 页 · 点击查看原尺寸</figcaption>
-</figure>`;
-}
-
-function adaptEditorialCopyForWeb(body, currentSource) {
-  if (currentSource === '00-高数笔记索引') {
-    body = body
-      .replace(
-        /> \[!blue-ink\] 导航说明\r?\n> .*?(?:\r?\n|$)/,
-        '> [!blue-ink] 网页导航\n> 点击章节入口即可跳转到对应文章和知识点；浏览器后退可回到本索引。\n',
-      )
-      .replace(/^- \[\[扫描笔记转 Markdown 要点\|扫描笔记转换规范\]\]\r?\n/m, '')
-      .replace(/^- \[\[原PDF\/[^\]]+\.pdf\|[^\]]+\]\]\r?\n/gm, '')
-      .replace(
-        /> \[!editor-note\]\r?\n> .*?(?:\r?\n|$)/,
-        '> [!editor-note] 原稿资料\n> 逐页原稿和必要图示均作为独立图片资源按需打开，不参与文章首屏加载。\n',
-      );
-  }
-
-  if (currentSource === '01高数_1-2章_极限与连续') {
-    body = body
-      .replace(
-        /> 来源：\[\[原PDF\/[^\]]+\.pdf\|打开扫描 PDF\]\]/,
-        '> 来源：13 页手写扫描笔记；需要核对笔迹时，可打开各节末尾的对应原稿页图。',
-      )
-      .replace(
-        /> \[!tip\] Obsidian 导航\r?\n> .*?(?:\r?\n|$)/,
-        '> [!tip] 网页导航\n> 点击本文目录、正文链接或右侧目录即可跳转；浏览器后退可返回原位置。\n',
-      );
-  }
-
-  if (currentSource === '02高数_3-7章_一元微分') {
-    body = body.replace(
-      /^原 PDF：\[\[原PDF\/[^\]]+\.pdf\|打开扫描 PDF\]\]\r?$/m,
-      '原稿说明：需要核对笔迹时，可打开各节末尾的对应原稿页图。',
-    );
-  }
-  return body;
-}
-
 export function convertNoteBody(source, { currentSource }) {
   let body = source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
-  body = adaptEditorialCopyForWeb(body, currentSource);
-  body = body.replace(/<!--\s*原PDF第\s*(\d+)\s*页\s*-->/g, '<!-- 原稿第 $1 页 -->');
-
-  body = body.replace(
-    /(?:^> \[!source-note\]-?\s*原稿第\s*\d+\s*页\s*\r?\n)?^> \[(?:查看|打开)原稿第\s*(\d+)\s*页\]\(([^)\r\n]+)\)(?:\s*·\s*\[\[#目录\|返回目录\]\])?[ \t]*\r?\n\r?\n^\^page-(\d+)[ \t]*$/gm,
-    (_match, labelPage, target, anchorPage) => sourcePagePreview(target, anchorPage || labelPage),
-  );
 
   body = body.replace(/^#\s+(.+)$/m, (_match, title) => {
     const id = headingId(title);
     return `<span id="${escapeHtmlAttribute(id)}" class="article-top-anchor" aria-hidden="true"></span>`;
   });
 
-  body = body.replace(/^\^page-(\d+)\s*$/gm, '<span id="page-$1" class="source-page-anchor" aria-hidden="true"></span>');
+  body = body.replace(/^\^page-(\d+)[ \t]*$/gm, '<span id="page-$1" class="source-page-anchor" aria-hidden="true"></span>');
 
   body = body.replace(/^> \[!([^\]]+)\](?:[ \t]+([^\r\n]+))?$/gim, (match, type, title = '') => {
     const label = CUSTOM_CALLOUT_LABELS.get(type.toLowerCase());

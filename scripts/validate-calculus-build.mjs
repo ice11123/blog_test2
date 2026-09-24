@@ -9,8 +9,8 @@ const ARTICLE_SLUGS = [
   '02-single-variable-differential-calculus',
   '03-review-outline-chapters-1-2',
 ];
-const EXPECTED_SOURCE_PAGE_COUNTS = new Map([
-  ['01-limits-and-sequences', 13],
+const EXPECTED_SOURCE_PAGE_LINK_COUNTS = new Map([
+  ['01-limits-and-sequences', 26],
   ['02-single-variable-differential-calculus', 26],
 ]);
 
@@ -21,6 +21,11 @@ function decodeHtml(value) {
     .replaceAll('&#39;', "'")
     .replaceAll('&lt;', '<')
     .replaceAll('&gt;', '>');
+}
+
+function getAttributeValues(html, attribute) {
+  const pattern = new RegExp(`\\b${attribute}=(?:"([^"]+)"|'([^']+)'|([^\\s>]+))`, 'g');
+  return [...html.matchAll(pattern)].map((match) => decodeHtml(match[1] || match[2] || match[3]));
 }
 
 function routeToFile(distRoot, pathname) {
@@ -52,14 +57,21 @@ export async function validateCalculusBuild(distRoot) {
     await assertFile(sourceFile, errors);
     if (errors.some((message) => message.endsWith(sourceFile))) continue;
     const html = await getHtml(sourceFile);
-    const expectedSourcePages = EXPECTED_SOURCE_PAGE_COUNTS.get(slug);
-    if (expectedSourcePages) {
-      const sourcePagePreviews = [...html.matchAll(/data-source-page=(?:"\d+"|\d+)/g)].length;
-      if (sourcePagePreviews !== expectedSourcePages) {
-        errors.push(`原稿页预览数量错误：${slug} 应为 ${expectedSourcePages}，实际为 ${sourcePagePreviews}`);
+    const expectedSourcePageLinks = EXPECTED_SOURCE_PAGE_LINK_COUNTS.get(slug);
+    if (expectedSourcePageLinks) {
+      const sourcePageImages = [...html.matchAll(/<img\b[^>]+(?:%E5%8E%9F%E7%A8%BF-|原稿-)[^>]*>/gi)].length;
+      const sourcePageLinks = getAttributeValues(html, 'href')
+        .map((reference) => decodeURIComponent(reference))
+        .filter((reference) => /\/原稿-第\d+页\.webp$/u.test(decodeURIComponent(new URL(reference, 'https://example.invalid').pathname)))
+        .length;
+      if (sourcePageImages !== 0) {
+        errors.push(`原稿页不应作为正文大图显示：${slug} 实际发现 ${sourcePageImages} 张`);
+      }
+      if (sourcePageLinks !== expectedSourcePageLinks) {
+        errors.push(`原稿页链接数量错误：${slug} 应为 ${expectedSourcePageLinks}，实际为 ${sourcePageLinks}`);
       }
     }
-    const references = [...html.matchAll(/\b(?:href|src)="([^"]+)"/g)].map((match) => decodeHtml(match[1]));
+    const references = [...getAttributeValues(html, 'href'), ...getAttributeValues(html, 'src')];
 
     for (const reference of references) {
       if (!reference.startsWith(BASE_PATH)) continue;
