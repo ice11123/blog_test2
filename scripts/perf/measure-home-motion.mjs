@@ -128,8 +128,30 @@ async function resetPage(page, url, variant) {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   });
   await page.waitForFunction(() => window.scrollX === 0 && window.scrollY === 0);
-  if (variant === 'disableWaves') {
+  const variants = new Set(variant.split(',').map((entry) => entry.trim()).filter(Boolean));
+  if (variants.has('disableWaves')) {
     await page.addStyleTag({ content: '.cover-wave-layer { animation: none !important; }' });
+  }
+  if (variants.has('noScrollLock')) {
+    await page.addStyleTag({
+      content: `
+        html[data-home-cover-motion-active='true'],
+        html[data-home-cover-expanded='true'] {
+          overflow-y: auto !important;
+          scrollbar-gutter: stable !important;
+        }
+      `,
+    });
+  }
+  if (variants.has('cullOffscreenDrawer')) {
+    await page.evaluate(() => {
+      const candidates = document.querySelectorAll('.topic-card, .recent-section, .home-info-strip');
+      for (const candidate of candidates) {
+        if (candidate instanceof HTMLElement && candidate.getBoundingClientRect().top >= window.innerHeight) {
+          candidate.style.visibility = 'hidden';
+        }
+      }
+    });
   }
   await page.waitForSelector('[data-home-cover][data-state="collapsed"]');
   await page.locator('[data-home-hero-photo]').evaluate((image) => image.decode().catch(() => {}));

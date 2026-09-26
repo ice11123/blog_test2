@@ -7,7 +7,9 @@ const arg = (name, fallback) => process.argv.find((value) => value.startsWith(`-
 const baseUrl = arg('url', 'http://127.0.0.1:4331/blog_test2/');
 const output = resolve(arg('output', 'artifacts/performance/blog-directory'));
 const directoryUrl = new URL('blog/', baseUrl).href;
-const categoryUrl = new URL('blog/category/AI~2FAgent%E5%8D%8F%E4%BD%9C%E4%B8%8E%E5%BC%80%E5%8F%91/', baseUrl).href;
+const categoryPath = arg('category-path', 'blog/category/AI~2FAgent%E5%8D%8F%E4%BD%9C%E4%B8%8E%E5%BC%80%E5%8F%91/');
+const categoryUrl = new URL(categoryPath, baseUrl).href;
+const expectedLevelTwo = arg('expected-level-two', '');
 const proxy = arg('proxy', '');
 
 let playwright;
@@ -71,6 +73,7 @@ try {
     const categoryMetrics = await page.evaluate(() => ({
       sections: document.querySelectorAll('.directory-section').length,
       levelTwoLabels: document.querySelectorAll('.directory-subsection-label').length,
+      levelTwoNames: [...document.querySelectorAll('.directory-subsection-name')].map((node) => node.textContent?.trim()),
       accordions: document.querySelectorAll('[data-directory-accordion]').length,
       openAccordions: document.querySelectorAll('[data-directory-accordion][open]').length,
       rows: document.querySelectorAll('.directory-post').length,
@@ -82,6 +85,7 @@ try {
     }));
     assert.equal(categoryMetrics.sections, 1, '一级分类页只应展开当前分类');
     assert.ok(categoryMetrics.levelTwoLabels >= 1, '一级分类页应展示二级目录');
+    if (expectedLevelTwo) assert.ok(categoryMetrics.levelTwoNames.includes(expectedLevelTwo), `应展示二级分类“${expectedLevelTwo}”`);
     assert.equal(categoryMetrics.accordions, categoryMetrics.levelTwoLabels, '每个二级分类都应是独立折叠组');
     assert.equal(categoryMetrics.openAccordions, 0, '二级分类默认应全部收起');
     assert.ok(categoryMetrics.rows > 0, '一级分类页应展示完整文章列表');
@@ -143,4 +147,4 @@ try {
   await browser.close();
 }
 
-console.log(JSON.stringify({ directoryUrl, report }, null, 2));
+console.log(JSON.stringify({ directoryUrl, categoryUrl, report }, null, 2));

@@ -104,7 +104,7 @@ const topics = presentations.map((topic) => {
 
   <div class="topic-grid">
     {topics.map((topic) => (
-      <article class:list={['topic-card', `topic-${topic.visual}`, `topic-${topic.size}`]} data-topic={topic.visual}>
+      <article class:list={['topic-card', `topic-${topic.visual}`, `topic-${topic.size}`]} data-topic={topic.visual} data-home-motion-cull>
         <a class="topic-card-link" href={blogCategoryPath(topic.name)} aria-label={`进入${topic.name}分类`}></a>
 
         <div class="topic-copy">

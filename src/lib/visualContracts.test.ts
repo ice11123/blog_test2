@@ -476,7 +476,7 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(constants, /'AI\/Agent协作与开发': \['Agent 工具链', 'Codex 故障排查'\]/);
   assert.match(constants, /'电控': \['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'\]/);
   assert.match(constants, /'电源': \[\]/);
-  assert.match(constants, /'学习笔记': \[\]/);
+  assert.match(constants, /'学习笔记': \['高等数学笔记'\]/);
   assert.match(constants, /'其他': \['站点指南'\]/);
   assert.match(list, /if \(\/学习\|笔记\/.test\(name\)\) return 'study'/);
   assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, displayIndex\)\}/);
@@ -499,6 +499,35 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(accordion, /duration = Math\.round\(Math\.max\(90, fullDuration \* distanceRatio\)\)/);
   assert.match(accordion, /cubic-bezier\(0\.23, 1, 0\.32, 1\)/);
   assert.doesNotMatch(list, /max-height/);
+});
+
+test('高等数学文章归入明确的二级分类', () => {
+  const importer = readSource('../scripts/import-calculus-notes.mjs');
+  const noteRoot = join(srcRoot, 'content', 'blog', '学习笔记');
+  const notes = readdirSync(noteRoot)
+    .filter((name) => name.endsWith('.md'))
+    .map((name) => readFileSync(join(noteRoot, name), 'utf8'));
+
+  assert.match(importer, /const SUBCATEGORY = '高等数学笔记'/);
+  assert.match(importer, /dir2: "\$\{SUBCATEGORY\}"/);
+  assert.equal(notes.length, 4);
+  for (const note of notes) assert.match(note, /^dir2: "高等数学笔记"$/m);
+});
+
+test('壁纸抽屉在进入视口前跳过远端模块绘制且保留键盘访问', () => {
+  const home = readSource('pages/index.astro');
+  const topics = readSource('components/home/TopicAtlas.astro');
+  const recent = readSource('components/home/RecentPosts.astro');
+  const motion = readSource('scripts/home-hero-motion.ts');
+
+  assert.match(topics, /data-home-motion-cull/);
+  assert.match(recent, /data-home-motion-cull/);
+  assert.match(home, /class="home-info-strip"[^>]*data-home-motion-cull/);
+  assert.match(home, /data-home-motion-offscreen='true'/);
+  assert.match(motion, /cullOffscreenDrawerContent/);
+  assert.match(motion, /restoreDrawerContent/);
+  assert.match(motion, /handleKeyboardReveal/);
+  assert.match(motion, /KEYBOARD_REVEAL_KEYS\.has\(event\.key\)/);
 });
 
 test('一级分类页展开二级目录与完整文章且不伪造页面日期', () => {

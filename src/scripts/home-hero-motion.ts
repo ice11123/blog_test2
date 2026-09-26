@@ -29,6 +29,7 @@ const TIMELINE_DURATION = 1000;
 const WHEEL_GESTURE_IDLE_MS = 120;
 const TOGGLE_EXPAND_MS = 280;
 const TOGGLE_COLLAPSE_MS = 240;
+const KEYBOARD_REVEAL_KEYS = new Set(['Tab', 'End', 'PageDown', 'ArrowDown', ' ']);
 const DRAWER_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
 function cubicBezierCoordinate(t: number, first: number, second: number): number {
@@ -149,6 +150,7 @@ function initHomeHeroMotion() {
   let geometryMeasureFrame: number | undefined;
   let progressFrame: number | undefined;
   let wheelListening = false;
+  const motionCullCandidates = [...drawer.querySelectorAll<HTMLElement>('[data-home-motion-cull]')];
 
   const documentElement = document.documentElement;
   const previousOverscrollBehavior = documentElement.style.overscrollBehaviorY;
@@ -226,6 +228,37 @@ function initHomeHeroMotion() {
   const updateWaves = () => {
     const shouldRun = coverIsVisible && state === 'collapsed' && !document.hidden && !reduceMotion.matches;
     drawer.dataset.wavesVisible = String(shouldRun);
+  };
+
+  const restoreDrawerContent = () => {
+    for (const element of motionCullCandidates) delete element.dataset.homeMotionOffscreen;
+  };
+
+  const cullOffscreenDrawerContent = () => {
+    // 抽屉展开只会继续向下运动；初始视口下方的模块不可能在动画中出现。
+    // 暂停这些子树的绘制可避免浏览器把整张长主页栅格化为一个巨型合成层。
+    for (const element of motionCullCandidates) {
+      if (element.getBoundingClientRect().top >= window.innerHeight + 96) {
+        element.dataset.homeMotionOffscreen = 'true';
+      } else {
+        delete element.dataset.homeMotionOffscreen;
+      }
+    }
+  };
+
+  const restoreVisibleDrawerContent = () => {
+    for (const element of motionCullCandidates) {
+      if (element.getBoundingClientRect().top < window.innerHeight + 96) {
+        delete element.dataset.homeMotionOffscreen;
+      }
+    }
+  };
+
+  const handleKeyboardReveal = (event: KeyboardEvent) => {
+    if (state !== 'collapsed') return;
+    const revealsOffscreenContent = KEYBOARD_REVEAL_KEYS.has(event.key)
+      || (event.ctrlKey && event.key.toLowerCase() === 'f');
+    if (revealsOffscreenContent) restoreDrawerContent();
   };
 
   const commitHighResolution = () => {
@@ -446,6 +479,7 @@ function initHomeHeroMotion() {
     const blueprint = cachedMotionBlueprint ?? measureMotionBlueprint();
     cachedMotionBlueprint = blueprint;
     if (motionTracks.length === 0) createTimelines(blueprint);
+    cullOffscreenDrawerContent();
     if (stableCleanupTimer !== undefined) window.clearTimeout(stableCleanupTimer);
     stableCleanupTimer = undefined;
     setElementUnavailable(drawer, false);
@@ -498,7 +532,13 @@ function initHomeHeroMotion() {
         setElementUnavailable(footer, true);
       }
       setMotionLayerHints(false);
-      if (target === 0) releaseHighResolution();
+      if (target === 0) {
+        // 收起态不保留带 transform 的暂停 WAAPI。否则长抽屉会持续成为一个
+        // 数千像素高的合成层，恢复视口外内容时仍会整层重绘。
+        disposeTimelines();
+        releaseHighResolution();
+        cullOffscreenDrawerContent();
+      }
     };
     if (dragAnimations.length === 0 && settleAnimations.length === 0) finalizeStableState();
     else stableCleanupTimer = window.setTimeout(finalizeStableState, 48);
@@ -773,6 +813,10 @@ function initHomeHeroMotion() {
   // 阅读正文时释放阻塞式滚轮监听，让浏览器直接滚动。
   const syncWheelListener = () => {
     const needed = desktopWheel.matches && (state !== 'collapsed' || window.scrollY <= 1);
+    if (state === 'collapsed') {
+      if (window.scrollY <= 1) cullOffscreenDrawerContent();
+      else restoreVisibleDrawerContent();
+    }
     if (needed === wheelListening) return;
     wheelListening = needed;
     if (needed) document.addEventListener('wheel', handleWheel, { passive: false });
@@ -808,6 +852,15 @@ function initHomeHeroMotion() {
     updateWaves();
   });
   coverObserver.observe(source);
+  const motionCullObserver = new IntersectionObserver((entries) => {
+    if (state !== 'collapsed') return;
+    for (const entry of entries) {
+      if (entry.isIntersecting && entry.target instanceof HTMLElement) {
+        delete entry.target.dataset.homeMotionOffscreen;
+      }
+    }
+  }, { rootMargin: '96px 0px' });
+  for (const element of motionCullCandidates) motionCullObserver.observe(element);
   const themeObserver = new MutationObserver(syncHeroTheme);
   themeObserver.observe(documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
@@ -817,6 +870,7 @@ function initHomeHeroMotion() {
   heroImage.addEventListener('load', handleHeroLoad);
   syncHeroTheme();
   if (heroImage.complete) handleHeroLoad();
+  cullOffscreenDrawerContent();
   toggle.addEventListener('click', handleToggle);
   document.addEventListener('touchstart', handleTouchStart, { passive: true });
   document.addEventListener('touchend', handleTouchEnd);
@@ -826,6 +880,7 @@ function initHomeHeroMotion() {
   document.addEventListener('pointerup', handlePenFinish);
   document.addEventListener('pointercancel', handlePenFinish);
   document.addEventListener('keydown', handleKeydown);
+  document.addEventListener('keydown', handleKeyboardReveal, true);
   document.addEventListener('wheel', observeNativeWheel, { passive: true });
   window.addEventListener('scroll', syncWheelListener, { passive: true });
   desktopWheel.addEventListener('change', syncWheelListener);
@@ -838,7 +893,9 @@ function initHomeHeroMotion() {
     cancelHighResolutionRequest();
     layoutObserver.disconnect();
     coverObserver.disconnect();
+    motionCullObserver.disconnect();
     themeObserver.disconnect();
+    restoreDrawerContent();
     disposeTimelines();
     if (layoutUpdateFrame !== undefined) window.cancelAnimationFrame(layoutUpdateFrame);
     if (geometryMeasureFrame !== undefined) window.cancelAnimationFrame(geometryMeasureFrame);
@@ -879,6 +936,7 @@ function initHomeHeroMotion() {
     document.removeEventListener('pointerup', handlePenFinish);
     document.removeEventListener('pointercancel', handlePenFinish);
     document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('keydown', handleKeyboardReveal, true);
     document.removeEventListener('wheel', handleWheel);
     document.removeEventListener('wheel', observeNativeWheel);
     window.removeEventListener('scroll', syncWheelListener);

@@ -55,7 +55,9 @@ class ElementStub {
 
 function mountHeroRuntime() {
   const frames = new Map();
+  const timers = new Map();
   let frameId = 0;
+  let timerId = 0;
   let writes = 0;
   let animationsCreated = 0;
   let guardCalls = 0;
@@ -91,7 +93,9 @@ function mountHeroRuntime() {
     innerHeight: 900, innerWidth: 1200, scrollY: 0,
     matchMedia: query => query.includes('hover') ? desktop : media,
     requestAnimationFrame(callback) { frames.set(++frameId, callback); return frameId; },
-    cancelAnimationFrame(id) { frames.delete(id); }, setTimeout() { return 1; }, clearTimeout() {},
+    cancelAnimationFrame(id) { frames.delete(id); },
+    setTimeout(callback) { timers.set(++timerId, callback); return timerId; },
+    clearTimeout(id) { timers.delete(id); },
   });
   class Observer { observe() {} disconnect() {} }
   loadRuntime('../src/scripts/home-hero-motion.ts', {
@@ -105,7 +109,8 @@ function mountHeroRuntime() {
   const flush = () => { const callbacks = [...frames.values()]; frames.clear(); callbacks.forEach(callback => callback(16)); };
   flush();
   writes = 0;
-  return { document, window, nodes, frames, flush, writes: () => writes, animationsCreated: () => animationsCreated, guards: () => guardCalls,
+  const flushTimers = () => { const callbacks = [...timers.values()]; timers.clear(); callbacks.forEach(callback => callback()); };
+  return { document, window, nodes, frames, flush, flushTimers, writes: () => writes, animationsCreated: () => animationsCreated, guards: () => guardCalls,
     wheel(deltaY) { return document.fire('wheel', { deltaY, deltaX: 0, deltaMode: 0 }); } };
 }
 
@@ -127,13 +132,16 @@ test('同帧滚轮突发只提交一次最新动画进度，下一帧可反向',
   assert.equal(hero.writes() - previous, 6);
 });
 
-test('稳定态快速切换复用同一组可拖动时间线', () => {
+test('稳定收起后释放长抽屉时间线，下一次展开按需重建', () => {
   const hero = mountHeroRuntime();
   const toggle = hero.nodes.get('[data-home-cover-toggle]');
   toggle.fire('click', { detail: 0 });
+  hero.flushTimers();
   const createdAfterFirstToggle = hero.animationsCreated();
-  for (let index = 0; index < 8; index++) toggle.fire('click', { detail: 0 });
-  assert.equal(hero.animationsCreated(), createdAfterFirstToggle);
+  toggle.fire('click', { detail: 0 });
+  hero.flushTimers();
+  toggle.fire('click', { detail: 0 });
+  assert.equal(hero.animationsCreated(), createdAfterFirstToggle * 2);
 });
 
 test('离开首页取消尚未提交的手势帧并移除监听', () => {

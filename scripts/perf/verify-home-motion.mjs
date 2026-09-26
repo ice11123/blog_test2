@@ -44,6 +44,29 @@ try {
     const sidebar = width > 999 ? await page.locator('[data-persistent-sidebar]').boundingBox() : null;
     await page.screenshot({ path: join(output, `${width}-light-collapsed.png`) });
 
+    const initialCull = await page.evaluate(() => {
+      const candidates = [...document.querySelectorAll('[data-home-motion-cull]')];
+      const hidden = candidates.filter((node) => node.getAttribute('data-home-motion-offscreen') === 'true');
+      const hiddenInViewport = hidden.filter((node) => {
+        const rect = node.getBoundingClientRect();
+        return rect.bottom >= 0 && rect.top <= window.innerHeight;
+      });
+      return { candidates: candidates.length, hidden: hidden.length, hiddenInViewport: hiddenInViewport.length };
+    });
+    assert.ok(initialCull.candidates > 0 && initialCull.hidden > 0, '稳定首屏应跳过视口外主页模块绘制');
+    assert.equal(initialCull.hiddenInViewport, 0, '视口内模块不得被性能优化隐藏');
+
+    const lastCullCandidate = page.locator('[data-home-motion-cull]').last();
+    await lastCullCandidate.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(150);
+    assert.notEqual(
+      await lastCullCandidate.getAttribute('data-home-motion-offscreen'),
+      'true',
+      '模块接近视口时必须恢复绘制',
+    );
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await page.waitForFunction(() => window.scrollY <= 1);
+
     if (width > 999) {
       // 鼠标停在顶栏，验证全局滚轮入口，而非图片坐标命中。
       await page.mouse.move(720, 30);

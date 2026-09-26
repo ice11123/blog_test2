@@ -204,7 +204,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
     <TopicAtlas posts={allPosts} />
     <RecentPosts posts={recentPosts} />
 
-    <section class="home-info-strip" aria-labelledby="site-info-title">
+    <section class="home-info-strip" aria-labelledby="site-info-title" data-home-motion-cull>
       <header class="info-strip-heading">
         <div>
           <p class="section-kicker">SITE NOTES</p>
@@ -504,6 +504,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
   .home-content-layout { position: relative; z-index: 4; width: min(1080px, calc(100% - 48px)); margin: 40px auto 0; }
   .home-main-column { min-width: 0; }
   .home-drawer { position: relative; z-index: 4; display: flow-root; min-width: 0; background: var(--canvas); }
+  .home-drawer :global([data-home-motion-offscreen='true']) { visibility: hidden; }
   .info-fold > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
 
   .home-info-strip {

@@ -7,6 +7,7 @@ import sharp from 'sharp';
 
 const SITE_BASE = '/blog_test2';
 const CATEGORY = '学习笔记';
+const SUBCATEGORY = '高等数学笔记';
 
 const ARTICLE_MAP = new Map([
   ['00-高数笔记索引', '00-calculus-index'],
@@ -188,7 +189,7 @@ updatedDate: "2026-09-24"
 author: "离子怪"
 sourceUrl: "${sourceUrl}"
 dir1: "${CATEGORY}"
-dir2: ""
+dir2: "${SUBCATEGORY}"
 tags: [${article.tags.map((tag) => `"${tag}"`).join(', ')}]
 ---
 

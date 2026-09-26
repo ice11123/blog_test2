@@ -23,7 +23,7 @@ export const DIR2_ORDER: Record<string, string[]> = {
   'AI/Agent协作与开发': ['Agent 工具链', 'Codex 故障排查'],
   '电控': ['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'],
   '电源': [],
-  '学习笔记': [],
+  '学习笔记': ['高等数学笔记'],
   '其他': ['站点指南'],
 };
 

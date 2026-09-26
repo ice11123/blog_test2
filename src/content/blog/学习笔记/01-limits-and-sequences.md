@@ -6,7 +6,7 @@ updatedDate: "2026-09-24"
 author: "离子怪"
 sourceUrl: "https://github.com/ice11123/blog_test2/blob/main/src/content/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/01-limits-and-sequences.md"
 dir1: "学习笔记"
-dir2: ""
+dir2: "高等数学笔记"
 tags: ["高等数学", "极限", "连续", "数列极限", "学习笔记"]
 ---
 

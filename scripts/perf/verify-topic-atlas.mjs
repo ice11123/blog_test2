@@ -48,8 +48,8 @@ try {
         overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
       }));
 
-      assert.deepEqual(metrics.names, ['AI/Agent协作与开发', '电控', '电源', '其他']);
-      assert.equal(metrics.cardLinks.length, 4);
+      assert.deepEqual(metrics.names, ['AI/Agent协作与开发', '电控', '电源', '学习笔记', '其他']);
+      assert.equal(metrics.cardLinks.length, 5);
       assert.ok(metrics.cardLinks.every((href) => href?.includes('/blog/category/')));
       assert.ok(metrics.recentLinks.every((href) => href?.includes('/blog/') && !href.includes('/category/')));
       assert.equal(metrics.codexMarks, 1);
