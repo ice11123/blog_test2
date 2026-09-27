@@ -1,4 +1,4 @@
-import { access, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -8,10 +8,24 @@ const ARTICLE_SLUGS = [
   '01-limits-and-sequences',
   '02-single-variable-differential-calculus',
   '03-review-outline-chapters-1-2',
+  '04-single-variable-integral-calculus',
+  '05-multivariable-differential-calculus',
+  '06-double-integrals',
+  '07-differential-equations',
+  '08-infinite-series',
+  '09-analytic-geometry-vector-analysis',
+  '10-multivariable-integrals-field-theory',
 ];
 const EXPECTED_SOURCE_PAGE_LINK_COUNTS = new Map([
   ['01-limits-and-sequences', 26],
   ['02-single-variable-differential-calculus', 26],
+  ['04-single-variable-integral-calculus', 28],
+  ['05-multivariable-differential-calculus', 8],
+  ['06-double-integrals', 5],
+  ['07-differential-equations', 10],
+  ['08-infinite-series', 14],
+  ['09-analytic-geometry-vector-analysis', 9],
+  ['10-multivariable-integrals-field-theory', 17],
 ]);
 
 function decodeHtml(value) {
@@ -46,6 +60,15 @@ async function assertFile(pathname, errors) {
 export async function validateCalculusBuild(distRoot) {
   const errors = [];
   const htmlCache = new Map();
+
+  const calculusFiles = await readdir(path.join(distRoot, 'notes', 'calculus'), {
+    recursive: true,
+    withFileTypes: true,
+  });
+  const publishedPdfs = calculusFiles.filter((entry) => entry.isFile() && /\.pdf$/i.test(entry.name));
+  if (publishedPdfs.length > 0) {
+    errors.push(`高数专题不应发布 PDF：${publishedPdfs.map((entry) => entry.name).join('、')}`);
+  }
 
   async function getHtml(file) {
     if (!htmlCache.has(file)) htmlCache.set(file, await readFile(file, 'utf8'));

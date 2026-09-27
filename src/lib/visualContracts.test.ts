@@ -510,7 +510,7 @@ test('高等数学文章归入明确的二级分类', () => {
 
   assert.match(importer, /const SUBCATEGORY = '高等数学笔记'/);
   assert.match(importer, /dir2: "\$\{SUBCATEGORY\}"/);
-  assert.equal(notes.length, 4);
+  assert.equal(notes.length, 11);
   for (const note of notes) assert.match(note, /^dir2: "高等数学笔记"$/m);
 });
 

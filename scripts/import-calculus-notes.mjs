@@ -13,7 +13,26 @@ const ARTICLE_MAP = new Map([
   ['00-高数笔记索引', '00-calculus-index'],
   ['01高数_1-2章_极限与连续', '01-limits-and-sequences'],
   ['02高数_3-7章_一元微分', '02-single-variable-differential-calculus'],
+  ['03高数_8-11章_一元积分', '04-single-variable-integral-calculus'],
+  ['04高数_13章_多元微分', '05-multivariable-differential-calculus'],
+  ['05高数_14章_二重积分', '06-double-integrals'],
+  ['06高数_15章_微分方程', '07-differential-equations'],
+  ['07高数_16章_无穷级数', '08-infinite-series'],
+  ['08高数_17章_空间解析几何与向量分析', '09-analytic-geometry-vector-analysis'],
+  ['09高数_18章_多元积分与场论', '10-multivariable-integrals-field-theory'],
   ['复习提纲_1-2章', '03-review-outline-chapters-1-2'],
+]);
+
+const ASSET_GROUPS = new Map([
+  ['高数笔记_1-2章(1)_assets', 'chapters-1-2'],
+  ['高数_3-7章_一元微分_assets', 'chapters-3-7'],
+  ['高数_8-11章_一元积分_assets', 'chapters-8-11'],
+  ['高数_第13章_多元微分_assets', 'chapter-13'],
+  ['高数_第14章_二重积分_assets', 'chapter-14'],
+  ['高数_第15章_微分方程_assets', 'chapter-15'],
+  ['高数_第16章_无穷级数_assets', 'chapter-16'],
+  ['高数_第17章_空间解析几何与向量分析_assets', 'chapter-17'],
+  ['高数_第18章_多元积分与场论_assets', 'chapter-18'],
 ]);
 
 const ARTICLES = [
@@ -21,8 +40,10 @@ const ARTICLES = [
     source: '00-高数笔记索引.md',
     slug: '00-calculus-index',
     title: '高等数学学习笔记总索引',
-    description: '高等数学第 1—7 章的学习导航，连接极限、连续、数列极限、一元微分、复习提纲与逐页原稿。',
+    description: '高等数学第 1—11 章及第 13—18 章的学习导航，连接一元微积分、多元微积分、微分方程、无穷级数与复习提纲。',
     tags: ['高等数学', '学习笔记', '总索引', '考研数学'],
+    pubDate: '2026-09-24',
+    updatedDate: '2026-09-27',
   },
   {
     source: '01高数_1-2章_极限与连续.md',
@@ -30,6 +51,7 @@ const ARTICLES = [
     title: '高等数学第 1—2 章：函数极限与数列极限',
     description: '由 13 页手写笔记整理而成，涵盖极限定义、计算方法、连续性、数列极限、递推数列与核心易错点。',
     tags: ['高等数学', '极限', '连续', '数列极限', '学习笔记'],
+    pubDate: '2026-09-24',
   },
   {
     source: '02高数_3-7章_一元微分.md',
@@ -37,6 +59,7 @@ const ARTICLES = [
     title: '高等数学第 3—7 章：一元函数微分学',
     description: '由 26 页手写笔记整理而成，系统梳理导数、微分、函数性态、中值定理、泰勒公式与证明方法。',
     tags: ['高等数学', '导数', '微分', '中值定理', '泰勒公式'],
+    pubDate: '2026-09-24',
   },
   {
     source: '复习提纲_1-2章.md',
@@ -44,6 +67,63 @@ const ARTICLES = [
     title: '高等数学第 1—2 章：数学一复习提纲',
     description: '面向考研数学一的极限与连续复习提纲，提供知识结构、方法选择、必背结论、易错点与速查入口。',
     tags: ['高等数学', '考研数学一', '复习提纲', '极限', '数列极限'],
+    pubDate: '2026-09-24',
+  },
+  {
+    source: '03高数_8-11章_一元积分.md',
+    slug: '04-single-variable-integral-calculus',
+    title: '高等数学第 8—11 章：一元积分学',
+    description: '由 28 页手写笔记整理而成，涵盖积分概念与性质、积分计算、几何应用、积分中值定理与积分不等式。',
+    tags: ['高等数学', '一元积分', '定积分', '反常积分', '学习笔记'],
+    pubDate: '2026-09-27',
+  },
+  {
+    source: '04高数_13章_多元微分.md',
+    slug: '05-multivariable-differential-calculus',
+    title: '高等数学第 13 章：多元函数微分学',
+    description: '由 8 页手写笔记整理而成，涵盖多元函数极限、偏导数、全微分、复合与隐函数求导及条件极值。',
+    tags: ['高等数学', '多元函数', '多元微分', '偏导数', '极值'],
+    pubDate: '2026-09-27',
+  },
+  {
+    source: '05高数_14章_二重积分.md',
+    slug: '06-double-integrals',
+    title: '高等数学第 14 章：二重积分',
+    description: '由 5 页手写笔记整理而成，涵盖二重积分的概念、性质、对称性、累次积分、极坐标与一般换元。',
+    tags: ['高等数学', '二重积分', '极坐标', '换元法', '学习笔记'],
+    pubDate: '2026-09-27',
+  },
+  {
+    source: '06高数_15章_微分方程.md',
+    slug: '07-differential-equations',
+    title: '高等数学第 15 章：微分方程',
+    description: '由 10 页手写笔记整理而成，涵盖一阶微分方程、高阶线性微分方程、微分算子法与 Euler 方程。',
+    tags: ['高等数学', '微分方程', '线性微分方程', 'Euler方程', '学习笔记'],
+    pubDate: '2026-09-27',
+  },
+  {
+    source: '07高数_16章_无穷级数.md',
+    slug: '08-infinite-series',
+    title: '高等数学第 16 章：无穷级数',
+    description: '由 14 页手写笔记整理而成，涵盖数项级数判敛、幂级数、求和函数、Taylor 展开与 Fourier 级数。',
+    tags: ['高等数学', '无穷级数', '幂级数', 'Fourier级数', '学习笔记'],
+    pubDate: '2026-09-27',
+  },
+  {
+    source: '08高数_17章_空间解析几何与向量分析.md',
+    slug: '09-analytic-geometry-vector-analysis',
+    title: '高等数学第 17 章：空间解析几何与向量分析',
+    description: '由 9 页手写笔记整理而成，涵盖向量代数、空间直线与平面、曲线曲面、方向导数、梯度、散度与旋度。',
+    tags: ['高等数学', '空间解析几何', '向量分析', '梯度', '旋度'],
+    pubDate: '2026-09-27',
+  },
+  {
+    source: '09高数_18章_多元积分与场论.md',
+    slug: '10-multivariable-integrals-field-theory',
+    title: '高等数学第 18 章：多元积分与场论',
+    description: '由 17 页手写笔记整理而成，涵盖三重积分、曲线积分、曲面积分及 Green、Gauss、Stokes 公式。',
+    tags: ['高等数学', '三重积分', '曲线积分', '曲面积分', '场论'],
+    pubDate: '2026-09-27',
   },
 ];
 
@@ -92,11 +172,7 @@ function publicAssetUrl(rawPath) {
 
   if (/\.pdf$/i.test(filename)) return null;
 
-  const group = normalized.includes('高数笔记_1-2章(1)_assets')
-    ? 'chapters-1-2'
-    : normalized.includes('高数_3-7章_一元微分_assets')
-      ? 'chapters-3-7'
-      : null;
+  const group = [...ASSET_GROUPS].find(([sourceDirectory]) => normalized.includes(sourceDirectory))?.[1] ?? null;
   if (!group || !/\.(?:png|jpe?g|webp)$/i.test(filename)) return null;
 
   const webpName = filename.replace(/\.(?:png|jpe?g|webp)$/i, '.webp');
@@ -137,6 +213,9 @@ function escapeHtmlAttribute(value) {
 
 export function convertNoteBody(source, { currentSource }) {
   let body = source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+
+  // Markdown 的行尾双空格是显式换行语义；转成 HTML 后既保留显示结果，也避免生成文件含尾随空白。
+  body = body.replace(/[ \t]{2,}$/gm, '<br>');
 
   body = body.replace(/^#\s+(.+)$/m, (_match, title) => {
     const id = headingId(title);
@@ -184,8 +263,8 @@ function frontmatterFor(article) {
   return `---
 title: "${article.title}"
 description: "${article.description}"
-pubDate: "2026-09-24"
-updatedDate: "2026-09-24"
+pubDate: "${article.pubDate}"
+updatedDate: "${article.updatedDate ?? article.pubDate}"
 author: "离子怪"
 sourceUrl: "${sourceUrl}"
 dir1: "${CATEGORY}"
@@ -197,13 +276,8 @@ tags: [${article.tags.map((tag) => `"${tag}"`).join(', ')}]
 }
 
 async function convertImages(sourceRoot, publicRoot) {
-  const groups = [
-    ['高数笔记_1-2章(1)_assets', 'chapters-1-2'],
-    ['高数_3-7章_一元微分_assets', 'chapters-3-7'],
-  ];
-
   let converted = 0;
-  for (const [sourceDirectory, outputDirectory] of groups) {
+  for (const [sourceDirectory, outputDirectory] of ASSET_GROUPS) {
     const inputRoot = path.join(sourceRoot, '临时文件', sourceDirectory);
     const outputRoot = path.join(publicRoot, 'images', outputDirectory);
     await mkdir(outputRoot, { recursive: true });

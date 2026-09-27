@@ -46,7 +46,8 @@ test('只转换网站不支持的语法，不擅自改写原 Markdown 文案', (
 > 本页只使用 Obsidian 原生双链，编辑视图中使用 Ctrl 单击。
 
 > [!editor-note]
-> \`临时文件\` 文件夹保存原稿页图。
+> \`临时文件\` 文件夹保存原稿页图。${'  '}
+> 下一行仍属于同一说明。
 `;
 
   const converted = convertNoteBody(source, {
@@ -55,5 +56,32 @@ test('只转换网站不支持的语法，不擅自改写原 Markdown 文案', (
 
   assert.match(converted, /本页只使用 Obsidian 原生双链，编辑视图中使用 Ctrl 单击。/);
   assert.match(converted, /`临时文件` 文件夹保存原稿页图。/);
+  assert.match(converted, /文件夹保存原稿页图。<br>\n> 下一行仍属于同一说明。/);
+  assert.doesNotMatch(converted, /[ \t]+$/m);
   assert.doesNotMatch(converted, /网页导航|按需打开/);
+});
+
+test('新增章节的双链、局部裁图和原稿链接使用各自的站点路径', () => {
+  const source = `# 高数第 18 章：多元积分与场论
+
+[[00-高数笔记索引|← 返回高数笔记总索引]]
+[[04高数_13章_多元微分#13.1.2 多元函数极限|回顾多元函数极限]]
+[[原PDF/高数_第18章_多元积分与场论.pdf|打开扫描 PDF]]
+
+![[临时文件/高数_第18章_多元积分与场论_assets/第18章-Green公式与挖洞.png|760]]
+
+> [打开原稿第 1 页](./临时文件/高数_第18章_多元积分与场论_assets/原稿-第01页.jpg)
+`;
+
+  const converted = convertNoteBody(source, {
+    currentSource: '09高数_18章_多元积分与场论',
+  });
+  const decoded = decodeURIComponent(converted);
+
+  assert.match(decoded, /00-calculus-index\//);
+  assert.match(decoded, /05-multivariable-differential-calculus\/#1312-多元函数极限/);
+  assert.match(decoded, /\/notes\/calculus\/images\/chapter-18\/第18章-Green公式与挖洞\.webp/);
+  assert.match(decoded, /\/notes\/calculus\/images\/chapter-18\/原稿-第01页\.webp/);
+  assert.doesNotMatch(converted, /\.pdf/i);
+  assert.doesNotMatch(converted, /\[\[/);
 });
