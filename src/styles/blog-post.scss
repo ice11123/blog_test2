@@ -154,6 +154,84 @@
 
   }
 
+  /* 高数笔记沿用原始 Obsidian 手写稿的颜色语义，不影响其他文章。 */
+  .gaoshu-handwritten {
+    --gaoshu-blue: #1f56a8;
+    --gaoshu-blue-strong: #163f80;
+    --gaoshu-blue-rgb: 31, 86, 168;
+    --gaoshu-red: #c62828;
+    --gaoshu-red-rgb: 198, 40, 40;
+    --gaoshu-amber-rgb: 202, 138, 4;
+    --gaoshu-neutral-rgb: 100, 116, 139;
+
+    > :is(h2, h3) { color: var(--gaoshu-blue); }
+    > h4 { color: var(--gaoshu-blue-strong); }
+    > h2 { border-bottom-color: rgba(var(--gaoshu-blue-rgb), .32); }
+    > h3 { border-bottom: 1px solid rgba(var(--gaoshu-blue-rgb), .32); padding-bottom: .18em; }
+
+    a { color: var(--gaoshu-blue); }
+    strong { color: var(--gaoshu-blue-strong); }
+    li::marker { color: var(--gaoshu-blue); font-weight: 700; }
+    .priority-star {
+      color: var(--gaoshu-red);
+      font-weight: 800;
+      letter-spacing: .08em;
+      white-space: nowrap;
+      text-shadow: 0 0 .01px currentColor;
+    }
+
+    .calculus-callout {
+      --calculus-callout-rgb: var(--gaoshu-blue-rgb);
+      margin: 1.1rem 0;
+      padding: .8rem 1rem;
+      color: var(--foreground);
+      background: rgba(var(--calculus-callout-rgb), .055);
+      border-left-color: rgb(var(--calculus-callout-rgb));
+      border-radius: 0 8px 8px 0;
+    }
+    .calculus-callout > .calculus-callout-label {
+      margin: 0 0 .28rem;
+      color: rgb(var(--calculus-callout-rgb));
+      font-size: .95em;
+    }
+    .calculus-callout > .calculus-callout-label strong { color: inherit; }
+    .calculus-callout > :last-child { margin-bottom: 0; }
+    .calculus-callout-red { --calculus-callout-rgb: var(--gaoshu-red-rgb); }
+    .calculus-callout-amber { --calculus-callout-rgb: var(--gaoshu-amber-rgb); }
+    .calculus-callout-neutral { --calculus-callout-rgb: var(--gaoshu-neutral-rgb); }
+    .calculus-callout-red strong { color: var(--gaoshu-red); }
+
+    blockquote:not(.calculus-callout) {
+      background: rgba(var(--gaoshu-blue-rgb), .055);
+      border-left-color: var(--gaoshu-blue);
+    }
+    table { border-top: 2px solid var(--gaoshu-blue); }
+    th {
+      color: var(--gaoshu-blue-strong);
+      background: rgba(var(--gaoshu-blue-rgb), .12);
+    }
+    tr:nth-child(even) td { background: rgba(var(--gaoshu-blue-rgb), .035); }
+    hr { border-top-color: rgba(var(--gaoshu-blue-rgb), .45); }
+    img {
+      border: 1px solid rgba(var(--gaoshu-blue-rgb), .35);
+      box-shadow: 0 4px 16px rgba(var(--gaoshu-blue-rgb), .12);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .gaoshu-handwritten a:hover { color: var(--gaoshu-red); }
+  }
+
+  html[data-theme='dark'] .gaoshu-handwritten {
+    --gaoshu-blue: #78adff;
+    --gaoshu-blue-strong: #a9caff;
+    --gaoshu-blue-rgb: 120, 173, 255;
+    --gaoshu-red: #ff7777;
+    --gaoshu-red-rgb: 255, 119, 119;
+    --gaoshu-amber-rgb: 250, 204, 21;
+    --gaoshu-neutral-rgb: 148, 163, 184;
+  }
+
   .article-header {
     width: 100%;
     box-sizing: border-box;

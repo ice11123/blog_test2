@@ -14,7 +14,7 @@ tags: ["高等数学", "一元积分", "定积分", "反常积分", "学习笔�
 
 <a href="/blog_test2/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/00-calculus-index/">← 返回高数笔记总索引</a>
 
-> **蓝笔补充｜使用说明**
+> [!blue-ink] 使用说明
 > 本文由 28 页手写扫描笔记转写而成。正文和常规公式已转换为可搜索的 Markdown/LaTeX；几何图形与多色示意仅保留必要局部裁图。每一页均提供原稿入口，便于核对。
 
 > 来源：打开第 8—11 章扫描 PDF
@@ -83,7 +83,7 @@ $$
 
 因此不定积分定义为
 
-> **核心公式｜不定积分**
+> [!key-formula] 不定积分
 > $$
 > \int f(x)\,dx=F(x)+C.
 > $$
@@ -106,7 +106,7 @@ $$
 - 若 $f$ 有原函数，则 $f$ 具有 Darboux 性质：即使不连续，也不能出现第一类跳跃间断；
 - 导函数可以不连续，但其不连续通常表现为振荡型第二类间断。
 
-> **重点订正｜不能反推**
+> [!red-ink] 不能反推
 > “存在原函数”不能推出“函数连续”。真正能推出的是导函数具有介值性。
 
 若 $f$ 可导，则 $f'$ 可能不连续；但若 $f'(x_0)$ 存在，则 $f$ 在 $x_0$ 连续。
@@ -138,7 +138,7 @@ $$
 
 存在，并且与分割及取点方式无关，则称 $f$ 在 $[a,b]$ 上 Riemann 可积，并定义
 
-> **核心公式｜Riemann 定积分**
+> [!key-formula] Riemann 定积分
 > $$
 > \int_a^b f(x)\,dx
 > =\lim_{\lambda\to0}\sum_{i=1}^{n}f(\xi_i)\Delta x_i.
@@ -179,7 +179,7 @@ $$
 
 必要条件：
 
-> **核心公式｜可积必有界**
+> [!key-formula] 可积必有界
 > 若 $f$ 在 $[a,b]$ 上 Riemann 可积，则 $f$ 在 $[a,b]$ 上有界。
 
 反之不成立；仅有界不能保证可积。
@@ -255,7 +255,7 @@ $$
 
 若 $f$ 在 $[a,b]$ 上连续，则存在 $\xi\in[a,b]$，使
 
-> **核心公式**
+> [!key-formula]
 > $$
 > \int_a^b f(x)\,dx=f(\xi)(b-a).
 > $$
@@ -367,7 +367,7 @@ $$
 
 若内部 $c\in(a,b)$ 是瑕点，必须拆成 $[a,c)$ 与 $(c,b]$ 两段分别判断。
 
-> **重点订正｜反常积分与 Cauchy 主值不同**
+> [!red-ink] 反常积分与 Cauchy 主值不同
 > 普通反常积分要求拆开的每一段分别收敛；对称截断得到的主值不能代替这一条件。
 
 ### 8.4.2 判敛方法
@@ -413,7 +413,7 @@ $$
 
 <span id="page-08" class="source-page-anchor" aria-hidden="true"></span>
 
-> **核心公式｜两个方向的临界指数相反**
+> [!key-formula] 两个方向的临界指数相反
 > $$
 > \int_0^1\frac{dx}{x^p}
 > \begin{cases}
@@ -598,7 +598,7 @@ $$
 
 若能识别 $u=g(x)$ 及其微分，则
 
-> **核心公式**
+> [!key-formula]
 > $$
 > \int f(g(x))g'(x)\,dx
 > =\int f(u)\,du.
@@ -697,7 +697,7 @@ $$
 
 <span class="priority-star">★</span>
 
-> **核心公式**
+> [!key-formula]
 > $$
 > \int u\,dv=uv-\int v\,du.
 > $$
@@ -800,7 +800,7 @@ $$
 
 若 $F$ 是连续函数 $f$ 在 $[a,b]$ 上的一个原函数，则
 
-> **核心公式**
+> [!key-formula]
 > $$
 > \int_a^b f(x)\,dx=F(b)-F(a).
 > $$
@@ -857,7 +857,7 @@ $$
 
 <span class="priority-star">★★</span> 区间再现公式：
 
-> **核心公式**
+> [!key-formula]
 > $$
 > \int_a^b f(x)\,dx
 > =\int_a^b f(a+b-x)\,dx.
@@ -932,7 +932,7 @@ $$
 
 且相关函数满足连续可导条件，则
 
-> **核心公式｜Leibniz 公式**
+> [!key-formula] Leibniz 公式
 > $$
 > F'(x)=f(\varphi_2(x))\varphi_2'(x)
 > -f(\varphi_1(x))\varphi_1'(x).
@@ -1100,7 +1100,7 @@ $$
 
 两条极径 $r_1(\theta)$、$r_2(\theta)$ 围成的面积为
 
-> **核心公式**
+> [!key-formula]
 > $$
 > S=\frac12\int_\alpha^\beta
 > \left|r_2^2(\theta)-r_1^2(\theta)\right|\,d\theta.
@@ -1150,7 +1150,7 @@ $$
 
 微元垂直于旋转轴。若绕 $x$ 轴旋转，外半径 $R(x)$、内半径 $r(x)$，则
 
-> **核心公式**
+> [!key-formula]
 > $$
 > dV=\pi\bigl(R^2(x)-r^2(x)\bigr)dx,
 > $$
@@ -1181,7 +1181,7 @@ $$
 
 微元平行于旋转轴。绕 $y$ 轴旋转时，柱壳半径为 $|x|$，高度为 $|f(x)-g(x)|$：
 
-> **核心公式**
+> [!key-formula]
 > $$
 > V=2\pi\int_a^b|x|\,|f(x)-g(x)|\,dx.
 > $$
@@ -1204,7 +1204,7 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-8-11/%E7%AC%AC10%E7%AB%A0-%E6%9F%B1%E5%A3%B3%E6%B3%95%E7%BB%95x%E8%BD%B4.webp" alt="第10章-柱壳法绕x轴" width="820" loading="lazy" decoding="async">
 
-> **蓝笔补充｜选法原则**
+> [!blue-ink] 选法原则
 > 垫片法的微元垂直旋转轴，柱壳法的微元平行旋转轴。优先选择不需要求反函数、分段较少的方向。
 
 ### 10.2.3 绕斜直线旋转
@@ -1231,7 +1231,7 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapters-8-11/%E7%AC%AC10%E7%AB%A0-%E7%BB%95%E6%96%9C%E7%9B%B4%E7%BA%BF%E6%97%8B%E8%BD%AC.webp" alt="第10章-绕斜直线旋转" width="560" loading="lazy" decoding="async">
 
-> **重点订正｜使用前先画图**
+> [!red-ink] 使用前先画图
 > 斜轴旋转公式依赖曲线与旋转轴的相对位置及是否重复覆盖。若题目区域跨越旋转轴，应先分区讨论，不能机械套式。
 
 ## 10.3 质心与弧长
@@ -1252,7 +1252,7 @@ $$
 
 质心坐标为
 
-> **核心公式**
+> [!key-formula]
 > $$
 > \bar x=\frac{\int_a^b x f(x)\,dx}{\int_a^b f(x)\,dx},
 > \qquad
@@ -1298,7 +1298,7 @@ $$
 
 曲线 $y=f(x)$ 绕 $x$ 轴旋转：
 
-> **核心公式**
+> [!key-formula]
 > $$
 > A=2\pi\int_a^b|f(x)|\sqrt{1+[f'(x)]^2}\,dx.
 > $$
@@ -1343,7 +1343,7 @@ $$
 
 若 $f,g$ 在 $[a,b]$ 上连续，且 $g$ 在 $[a,b]$ 上不变号，则存在 $\xi\in[a,b]$，使
 
-> **核心公式**
+> [!key-formula]
 > $$
 > \int_a^b f(x)g(x)\,dx
 > =f(\xi)\int_a^b g(x)\,dx.
@@ -1471,7 +1471,7 @@ $$
 \le\frac12\int_a^b|f'(t)|\,dt.
 $$
 
-> **重点订正｜不等式证明检查单**
+> [!red-ink] 不等式证明检查单
 > - 比较积分时，被积函数不等号是否在整个积分区间成立？
 > - 乘上权函数后是否保持同号？
 > - 反常积分比较时，比较函数的收敛性是否已经确认？

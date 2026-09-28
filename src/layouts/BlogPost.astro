@@ -17,6 +17,7 @@ const routePath = stripBase(Astro.url.pathname);
 const slugMatch = routePath.match(/^\/blog\/(.+)/);
 const currentSlug = slugMatch ? decodeURIComponent(slugMatch[1].replace(/\/+$/, '')) : '';
 const hasDistinctUpdate = Boolean(updatedDate && updatedDate.getTime() !== pubDate.getTime());
+const isCalculusNote = dir1 === '学习笔记' && dir2 === '高等数学笔记';
 ---
 
 <PublicLayout
@@ -57,7 +58,7 @@ const hasDistinctUpdate = Boolean(updatedDate && updatedDate.getTime() !== pubDa
 				</div>
 				{tags.length > 0 && <div class="post-tags" aria-label="文章标签">{tags.map((tag) => <a href={withBase(`/blog/tag/${encodeURIComponent(tag)}/`)} class="tag-pill">#{tag}</a>)}</div>}
 			</header>}
-			<div class="prose article-content">
+			<div class:list={['prose', 'article-content', { 'gaoshu-handwritten': isCalculusNote }]}>
 				<slot />
 			</div>
 		</div>

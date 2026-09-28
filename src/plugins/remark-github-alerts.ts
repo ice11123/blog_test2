@@ -23,6 +23,16 @@ const ALERT_ICONS: Record<string, string> = {
   caution: '🚫',
 };
 
+const CALCULUS_CALLOUTS: Record<string, { label: string; tone: string }> = {
+  'blue-ink': { label: '蓝笔补充', tone: 'blue' },
+  'key-formula': { label: '核心公式', tone: 'blue' },
+  'red-ink': { label: '重点订正', tone: 'red' },
+  'graph-memory': { label: '图像记忆', tone: 'red' },
+  danger: { label: '易错警示', tone: 'red' },
+  'editor-note': { label: '编辑说明', tone: 'amber' },
+  'source-note': { label: '来源说明', tone: 'neutral' },
+};
+
 export function remarkGithubAlerts() {
   return (tree: any) => {
     transform(tree);
@@ -34,6 +44,10 @@ function transform(node: any) {
   if (node.children) {
     const newChildren: any[] = [];
     for (const child of node.children) {
+      if (transformCalculusCallout(child)) {
+        newChildren.push(child);
+        continue;
+      }
       if (isAlertBlockquote(child)) {
         const html = buildAlertHtml(child);
         if (html) {
@@ -46,6 +60,50 @@ function transform(node: any) {
     }
     node.children = newChildren;
   }
+}
+
+function transformCalculusCallout(node: any): boolean {
+  if (node.type !== 'blockquote' || !node.children?.length) return false;
+  const firstParagraph = node.children[0];
+  if (firstParagraph.type !== 'paragraph' || !firstParagraph.children?.length) return false;
+  const firstText = firstParagraph.children[0];
+  if (firstText.type !== 'text') return false;
+
+  const match = firstText.value.match(/^\[!([a-z-]+)\][+-]?(?:[ \t]+([^\r\n]*))?(?:\r?\n([\s\S]*))?$/i);
+  if (!match) return false;
+  const calloutType = match[1].toLowerCase();
+  const definition = CALCULUS_CALLOUTS[calloutType];
+  if (!definition) return false;
+
+  const explicitTitle = (match[2] || '').trim();
+  const label = explicitTitle && explicitTitle !== definition.label
+    ? `${definition.label}｜${explicitTitle}`
+    : definition.label;
+  const labelParagraph = {
+    type: 'paragraph',
+    data: { hProperties: { className: ['calculus-callout-label'] } },
+    children: [{ type: 'strong', children: [{ type: 'text', value: label }] }],
+  };
+
+  const trailingText = match[3] || '';
+  if (trailingText) {
+    firstText.value = trailingText;
+  } else {
+    firstParagraph.children.shift();
+  }
+
+  const hasBody = firstParagraph.children.length > 0;
+  node.children = hasBody
+    ? [labelParagraph, firstParagraph, ...node.children.slice(1)]
+    : [labelParagraph, ...node.children.slice(1)];
+  node.data = {
+    ...(node.data || {}),
+    hProperties: {
+      ...(node.data?.hProperties || {}),
+      className: ['calculus-callout', `calculus-callout-${calloutType}`, `calculus-callout-${definition.tone}`],
+    },
+  };
+  return true;
 }
 
 function isAlertBlockquote(node: any): boolean {

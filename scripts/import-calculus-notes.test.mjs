@@ -59,6 +59,9 @@ test('只转换网站不支持的语法，不擅自改写原 Markdown 文案', (
   assert.match(converted, /文件夹保存原稿页图。<br>\n> 下一行仍属于同一说明。/);
   assert.doesNotMatch(converted, /[ \t]+$/m);
   assert.doesNotMatch(converted, /网页导航|按需打开/);
+  assert.match(converted, /> \[!blue-ink\] 导航说明/);
+  assert.match(converted, /> \[!editor-note\]/);
+  assert.doesNotMatch(converted, /\*\*蓝笔补充/);
 });
 
 test('新增章节的双链、局部裁图和原稿链接使用各自的站点路径', () => {

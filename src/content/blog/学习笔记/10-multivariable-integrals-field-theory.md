@@ -14,7 +14,7 @@ tags: ["高等数学", "三重积分", "曲线积分", "曲面积分", "场论"]
 
 <a href="/blog_test2/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/00-calculus-index/">← 返回高数笔记总索引</a>
 
-> **蓝笔补充｜使用说明**
+> [!blue-ink] 使用说明
 > 本文由原扫描件第 75—91 页整理，共 17 页。正文与公式可搜索；积分区域、方向和投影关系保留必要局部裁图；每页均可打开对应原稿。
 
 > 来源：打开第 18 章扫描 PDF
@@ -162,7 +162,7 @@ $$
 
 则
 
-> **核心公式｜先一后二**
+> [!key-formula] 先一后二
 > $$
 > \iiint_\Omega f(x,y,z)\,dV
 > =
@@ -173,7 +173,7 @@ $$
 
 若区域更适合沿 $z$ 分层，令截面区域为 $D_z$，则
 
-> **核心公式｜先二后一**
+> [!key-formula] 先二后一
 > $$
 > \iiint_\Omega f(x,y,z)\,dV
 > =
@@ -183,7 +183,7 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapter-18/%E7%AC%AC18%E7%AB%A0-%E4%B8%89%E9%87%8D%E7%A7%AF%E5%88%86%E6%8A%95%E5%BD%B1%E6%B3%95.webp" alt="第18章-三重积分投影法" width="760" loading="lazy" decoding="async">
 
-> **蓝笔补充｜选法原则**
+> [!blue-ink] 选法原则
 > 有清晰上下曲面时优先“先一后二”；截面面积容易写或侧面复杂时可用“先二后一”。
 
 <a href="#%E6%80%BB%E5%AF%BC%E8%88%AA">返回总导航</a>
@@ -237,7 +237,7 @@ $$
 
 <img src="/blog_test2/notes/calculus/images/chapter-18/%E7%AC%AC18%E7%AB%A0-%E6%9F%B1%E9%9D%A2%E4%B8%8E%E7%90%83%E9%9D%A2%E5%9D%90%E6%A0%87.webp" alt="第18章-柱面与球面坐标" width="760" loading="lazy" decoding="async">
 
-> **重点订正｜两个 Jacobian**
+> [!red-ink] 两个 Jacobian
 > 柱面坐标不能漏 $r$；球面坐标不能漏 $r^2\sin\varphi$。
 
 ### 18.1.4 三重积分的一般换元

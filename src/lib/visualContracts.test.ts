@@ -161,7 +161,7 @@ test('文章页使用紧凑导语层级与独立正文版心', () => {
   assert.match(layout, /class="article-description"/);
   assert.match(layout, /class="article-meta"/);
   assert.match(layout, /class="post-author-link" href=\{withBase\('\/'\)\}/);
-  assert.match(layout, /class="prose article-content"/);
+  assert.match(layout, /class:list=\{\['prose', 'article-content'/);
   assert.match(layout, /查看源文件/);
   assert.doesNotMatch(layout, /class="post-meta" aria-label="文章信息"/);
   assert.match(styles, /\.article-header h1\s*\{[\s\S]*width:\s*100%[\s\S]*max-width:\s*none/);
@@ -546,6 +546,22 @@ test('高等数学文章归入明确的二级分类', () => {
   assert.match(importer, /dir2: "\$\{SUBCATEGORY\}"/);
   assert.equal(notes.length, 11);
   for (const note of notes) assert.match(note, /^dir2: "高等数学笔记"$/m);
+});
+
+test('高数笔记按原始手写稿恢复蓝笔与红笔颜色语义', () => {
+  const layout = readSource('layouts/BlogPost.astro');
+  const styles = readSource('styles/blog-post.scss');
+  const importer = readSource('../scripts/import-calculus-notes.mjs');
+
+  assert.match(layout, /isCalculusNote = dir1 === '学习笔记' && dir2 === '高等数学笔记'/);
+  assert.match(layout, /'gaoshu-handwritten': isCalculusNote/);
+  assert.match(styles, /--gaoshu-blue: #1f56a8/);
+  assert.match(styles, /--gaoshu-red: #c62828/);
+  assert.match(styles, /html\[data-theme='dark'\] \.gaoshu-handwritten[\s\S]*--gaoshu-blue: #78adff/);
+  assert.match(styles, /html\[data-theme='dark'\] \.gaoshu-handwritten[\s\S]*--gaoshu-red: #ff7777/);
+  assert.match(styles, /\.priority-star \{[\s\S]*color: var\(--gaoshu-red\)/);
+  assert.match(styles, /\.calculus-callout-red \{ --calculus-callout-rgb: var\(--gaoshu-red-rgb\)/);
+  assert.doesNotMatch(importer, /CUSTOM_CALLOUT_LABELS/);
 });
 
 test('壁纸抽屉在进入视口前跳过远端模块绘制且保留键盘访问', () => {

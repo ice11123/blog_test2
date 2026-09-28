@@ -127,15 +127,6 @@ const ARTICLES = [
   },
 ];
 
-const CUSTOM_CALLOUT_LABELS = new Map([
-  ['blue-ink', '蓝笔补充'],
-  ['key-formula', '核心公式'],
-  ['red-ink', '重点订正'],
-  ['graph-memory', '图像记忆'],
-  ['editor-note', '编辑说明'],
-  ['danger', '易错警示'],
-]);
-
 function encodePath(pathname) {
   return pathname.split('/').map((segment) => encodeURIComponent(segment)).join('/');
 }
@@ -223,12 +214,6 @@ export function convertNoteBody(source, { currentSource }) {
   });
 
   body = body.replace(/^\^page-(\d+)[ \t]*$/gm, '<span id="page-$1" class="source-page-anchor" aria-hidden="true"></span>');
-
-  body = body.replace(/^> \[!([^\]]+)\](?:[ \t]+([^\r\n]+))?$/gim, (match, type, title = '') => {
-    const label = CUSTOM_CALLOUT_LABELS.get(type.toLowerCase());
-    if (!label) return match;
-    return `> **${label}${title.trim() ? `｜${title.trim()}` : ''}**`;
-  });
 
   body = body.replace(/!\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_match, target, width = '') => {
     const src = publicAssetUrl(target);
