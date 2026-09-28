@@ -20,14 +20,20 @@ if (!window.__tocLoaded) {
   let previousActiveIndex = -1;
   let headingResizeObserver: ResizeObserver | null = null;
   let geometryRefreshFrame: number | null = null;
+  let tocScrollFrame: number | null = null;
   let scrollSpyHandler: (() => void) | null = null;
+  let tocScrollHandler: (() => void) | null = null;
+  let tocScrollElement: HTMLElement | null = null;
+  let tocSidebarElement: HTMLElement | null = null;
 
   document.addEventListener('astro:page-load', initToc);
   document.addEventListener('astro:before-swap', teardownToc);
 
   function initToc() {
     teardownToc();
-    if (!buildToc()) return;
+    const hasHeadings = buildToc();
+    setupTocScrollFeedback();
+    if (!hasHeadings) return;
 
     const article = document.querySelector<HTMLElement>('.blog-post-page');
     if (article) {
@@ -44,15 +50,23 @@ if (!window.__tocLoaded) {
 
   function teardownToc() {
     if (scrollSpyHandler) window.removeEventListener('scroll', scrollSpyHandler);
+    if (tocScrollHandler && tocScrollElement) {
+      tocScrollElement.removeEventListener('scroll', tocScrollHandler);
+    }
     window.removeEventListener('resize', scheduleGeometryRefresh);
     window.removeEventListener('load', scheduleGeometryRefresh);
     scrollSpyHandler = null;
+    tocScrollHandler = null;
+    tocScrollElement = null;
+    tocSidebarElement = null;
 
     headingResizeObserver?.disconnect();
     headingResizeObserver = null;
 
     if (geometryRefreshFrame !== null) cancelAnimationFrame(geometryRefreshFrame);
     geometryRefreshFrame = null;
+    if (tocScrollFrame !== null) cancelAnimationFrame(tocScrollFrame);
+    tocScrollFrame = null;
 
     headingElements.length = 0;
     tocItemElements.length = 0;
@@ -122,6 +136,7 @@ if (!window.__tocLoaded) {
     geometryRefreshFrame = requestAnimationFrame(() => {
       geometryRefreshFrame = null;
       updateActive();
+      scheduleTocScrollFeedback();
     });
   }
 
@@ -134,6 +149,41 @@ if (!window.__tocLoaded) {
 
     window.addEventListener('scroll', scrollSpyHandler, { passive: true });
     updateActive();
+  }
+
+  function setupTocScrollFeedback() {
+    tocScrollElement = document.querySelector<HTMLElement>('.article-toc-scroll');
+    tocSidebarElement = document.querySelector<HTMLElement>('[data-article-toc-sidebar]');
+    if (!tocScrollElement || !tocSidebarElement) return;
+
+    tocScrollHandler = scheduleTocScrollFeedback;
+    tocScrollElement.addEventListener('scroll', tocScrollHandler, { passive: true });
+    scheduleTocScrollFeedback();
+  }
+
+  function scheduleTocScrollFeedback() {
+    if (tocScrollFrame !== null) return;
+
+    tocScrollFrame = requestAnimationFrame(() => {
+      tocScrollFrame = null;
+      updateTocScrollFeedback();
+    });
+  }
+
+  function updateTocScrollFeedback() {
+    if (!tocScrollElement || !tocSidebarElement) return;
+
+    const edgeTolerance = 2;
+    const maxScrollTop = Math.max(0, tocScrollElement.scrollHeight - tocScrollElement.clientHeight);
+    const atStart = tocScrollElement.scrollTop <= edgeTolerance;
+    const atEnd = tocScrollElement.scrollTop >= maxScrollTop - edgeTolerance;
+
+    if (tocSidebarElement.dataset.scrollStart !== String(atStart)) {
+      tocSidebarElement.dataset.scrollStart = String(atStart);
+    }
+    if (tocSidebarElement.dataset.scrollEnd !== String(atEnd)) {
+      tocSidebarElement.dataset.scrollEnd = String(atEnd);
+    }
   }
 
   function updateActive() {

@@ -519,6 +519,22 @@ test('公共三栏建立独立高程且公式不产生纵向滚动条', () => {
   assert.doesNotMatch(article, /pre,\s*\n\s*table,\s*\n\s*\.expressive-code,\s*\n\s*\.katex-display,/);
 });
 
+test('文章目录隐藏重复滚动轨道并保留方向反馈与键盘可达性', () => {
+  const sidebar = readSource('components/layout/ArticleTocSidebar.astro');
+  const styles = readSource('styles/article-toc-sidebar.scss');
+  const toc = readSource('scripts/toc.ts');
+
+  assert.match(sidebar, /article-toc-scroll toc-area" tabindex="0"/);
+  assert.match(sidebar, /article-toc-scroll-fade-top/);
+  assert.match(sidebar, /article-toc-scroll-fade-bottom/);
+  assert.match(styles, /\.article-toc-scroll \{[\s\S]*scrollbar-width: none;/);
+  assert.match(styles, /\.article-toc-scroll::\-webkit-scrollbar \{[\s\S]*width: 0;/);
+  assert.match(styles, /data-scroll-start='false'/);
+  assert.match(styles, /data-scroll-end='false'/);
+  assert.match(toc, /addEventListener\('scroll', tocScrollHandler, \{ passive: true \}\)/);
+  assert.match(toc, /requestAnimationFrame[\s\S]*updateTocScrollFeedback/);
+});
+
 test('高等数学文章归入明确的二级分类', () => {
   const importer = readSource('../scripts/import-calculus-notes.mjs');
   const noteRoot = join(srcRoot, 'content', 'blog', '学习笔记');

@@ -29,7 +29,44 @@
     overflow-x: hidden;
     overflow-y: auto;
     padding: 28px 18px 32px;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .article-toc-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .article-toc-scroll:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: -3px;
+  }
+
+  .article-toc-scroll-fade {
+    position: absolute;
+    z-index: 3;
+    right: 0;
+    left: 0;
+    height: 32px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease;
+  }
+
+  .article-toc-scroll-fade-top {
+    top: 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, var(--canvas)), transparent);
+  }
+
+  .article-toc-scroll-fade-bottom {
+    bottom: 0;
+    background: linear-gradient(0deg, color-mix(in srgb, var(--surface) 74%, var(--canvas)), transparent);
+  }
+
+  .article-toc-sidebar[data-scroll-start='false'] .article-toc-scroll-fade-top,
+  .article-toc-sidebar[data-scroll-end='false'] .article-toc-scroll-fade-bottom {
+    opacity: 1;
   }
 
   .article-toc-kicker {
@@ -109,6 +146,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .article-toc-scroll-fade,
     .toc-area .position-indicator,
     #toc-list li button { transition: none; }
   }
