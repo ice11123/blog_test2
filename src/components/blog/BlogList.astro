@@ -28,6 +28,8 @@ function sortDirectoryPosts(list: CollectionEntry<'blog'>[]): CollectionEntry<'b
     a.data.pubDate,
     b.data.title,
     b.data.pubDate,
+    a.id,
+    b.id,
   ));
 }
 

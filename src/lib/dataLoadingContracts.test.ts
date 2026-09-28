@@ -55,7 +55,8 @@ test('TI 小车专题保持十篇顺序、统一芯片口径与总结结尾', ()
   const astroConfig = readFileSync(join(srcRoot, '..', 'astro.config.mjs'), 'utf8');
   assert.match(directory, /function sortDirectoryPosts/);
   assert.match(directory, /compareDirectoryPostMetadata/);
-  assert.match(ordering, /Number\(aOrder\) - Number\(bOrder\)/);
+  assert.match(ordering, /aOrder - bOrder/);
+  assert.match(ordering, /NUMBERED_SLUG_PREFIX/);
   assert.match(directory, /sort\?: 'time' \| 'oldest' \| 'dir' \| 'overview'/);
   assert.match(categoryPage, /<BlogList posts=\{filtered\} sort="oldest" \/>/);
   assert.match(astroConfig, /const tiCarRedirects = Object\.fromEntries\(tiCarArticleSlugs\.map/);

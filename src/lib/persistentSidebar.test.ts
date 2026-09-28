@@ -53,6 +53,25 @@ test('编号专题在侧栏按编号升序展示', () => {
   );
 });
 
+test('编号仅写在 slug 中的高数专题仍按学习顺序展示', () => {
+  const directory = buildArticleDirectory([
+    { title: '高等数学第 18 章：多元积分与场论', slug: '学习笔记/10-multivariable-integrals-field-theory', pubDate: new Date('2026-09-27'), dir1: '学习笔记', dir2: '高等数学笔记', tags: [] },
+    { title: '高等数学学习笔记总索引', slug: '学习笔记/00-calculus-index', pubDate: new Date('2026-09-24'), dir1: '学习笔记', dir2: '高等数学笔记', tags: [] },
+    { title: '高等数学第 8—11 章：一元积分学', slug: '学习笔记/04-single-variable-integral-calculus', pubDate: new Date('2026-09-27'), dir1: '学习笔记', dir2: '高等数学笔记', tags: [] },
+    { title: '高等数学第 1—2 章：函数极限与数列极限', slug: '学习笔记/01-limits-and-sequences', pubDate: new Date('2026-09-24'), dir1: '学习笔记', dir2: '高等数学笔记', tags: [] },
+  ]);
+
+  assert.deepEqual(
+    directory[0].subdirectories[0].posts.map((post) => post.slug),
+    [
+      '学习笔记/00-calculus-index',
+      '学习笔记/01-limits-and-sequences',
+      '学习笔记/04-single-variable-integral-calculus',
+      '学习笔记/10-multivariable-integrals-field-theory',
+    ],
+  );
+});
+
 test('标签目录按文章数倒序并对同数量标签稳定排序', () => {
   assert.deepEqual(buildTagDirectory(posts), [
     { name: 'Astro', count: 2 },

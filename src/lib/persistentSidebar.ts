@@ -31,7 +31,7 @@ export function computeSidebarStats(posts: SidebarPost[]): SidebarStats {
 }
 
 function byDirectoryOrder(a: SidebarPost, b: SidebarPost): number {
-  return compareDirectoryPostMetadata(a.title, a.pubDate, b.title, b.pubDate);
+  return compareDirectoryPostMetadata(a.title, a.pubDate, b.title, b.pubDate, a.slug, b.slug);
 }
 
 export function buildArticleDirectory(posts: SidebarPost[]): ArticleDirectorySection[] {
