@@ -11,6 +11,14 @@ interface Props {
 const { id, title, count, index, visual, href } = Astro.props;
 const order = String(index + 1).padStart(2, '0');
 const Container = href ? 'a' : 'div';
+const descriptions = {
+  window: '站点功能、使用方式与维护记录',
+  network: 'AI 工具、Agent 协作与开发实践',
+  circuit: '控制系统、传感器与嵌入式实践',
+  power: '电源设计、功率器件与工程记录',
+  study: '理论课程、推导过程与学习笔记',
+  library: '跨领域专题与长期知识整理',
+} satisfies Record<Props['visual'], string>;
 ---
 
 <header class="directory-section-header" data-visual={visual}>
@@ -53,11 +61,12 @@ const Container = href ? 'a' : 'div';
         )}
       </span>
       <div class="directory-section-copy">
-        <p class="directory-level-label"><span>{order}</span> 一级分类</p>
+        <p class="directory-level-label"><span>{order}</span><strong>一级分类</strong></p>
         <h2 id={id}>{title}</h2>
+        <p class="directory-section-description">{descriptions[visual]}</p>
       </div>
     </div>
-    <span class="directory-section-count"><strong>{count}</strong> 篇文章</span>
+    <span class="directory-section-count"><small>COLLECTION</small><span><strong>{count}</strong> 篇文章</span></span>
     {href && <span class="directory-section-arrow" aria-hidden="true">→</span>}
   </Container>
 </header>
@@ -66,11 +75,20 @@ const Container = href ? 'a' : 'div';
   .directory-section-header {
     position: relative;
     isolation: isolate;
-    min-height: 7rem;
+    min-height: 9.25rem;
     overflow: hidden;
     border-bottom: 1px solid color-mix(in srgb, var(--directory-accent) 24%, var(--border));
     background:
-      linear-gradient(110deg, color-mix(in srgb, var(--directory-accent) 14%, var(--surface)) 0%, var(--surface) 62%);
+      linear-gradient(115deg, color-mix(in srgb, var(--directory-accent) 18%, var(--surface)) 0%, color-mix(in srgb, var(--surface) 97%, var(--canvas)) 54%, var(--surface) 100%);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 58%, transparent),
+      inset 5px 0 0 color-mix(in srgb, var(--directory-accent) 82%, transparent);
+  }
+
+  :global([data-theme='dark']) .directory-section-header {
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 11%, transparent),
+      inset 5px 0 0 color-mix(in srgb, var(--directory-accent) 82%, transparent);
   }
 
   .directory-header-content {
@@ -80,8 +98,8 @@ const Container = href ? 'a' : 'div';
     align-items: center;
     justify-content: space-between;
     gap: 1.25rem;
-    min-height: 7rem;
-    padding: 1.3rem 1.5rem;
+    min-height: 9.25rem;
+    padding: 1.65rem 1.8rem;
     color: inherit;
     text-decoration: none;
   }
@@ -100,13 +118,13 @@ const Container = href ? 'a' : 'div';
   .directory-section-header::after {
     position: absolute;
     z-index: -1;
-    top: -2rem;
-    right: 4.5rem;
-    width: 14rem;
-    height: 10rem;
+    top: -2.6rem;
+    right: 4.75rem;
+    width: 18rem;
+    height: 13rem;
     border-radius: 50%;
     content: '';
-    opacity: 0.34;
+    opacity: 0.3;
     pointer-events: none;
   }
 
@@ -160,26 +178,29 @@ const Container = href ? 'a' : 'div';
   .directory-section-identity {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
     min-width: 0;
   }
 
   .directory-category-mark {
     display: grid;
     flex: none;
-    width: 3.8rem;
-    height: 3.8rem;
+    width: 4.5rem;
+    height: 4.5rem;
     place-items: center;
     border: 1px solid color-mix(in srgb, var(--directory-accent) 38%, transparent);
-    border-radius: 17px;
-    background: color-mix(in srgb, var(--directory-accent) 12%, var(--surface));
+    border-radius: 20px;
+    background:
+      linear-gradient(145deg, color-mix(in srgb, var(--directory-accent) 18%, var(--surface)), color-mix(in srgb, var(--surface) 96%, var(--canvas)));
     color: var(--directory-accent);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, white 58%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 64%, transparent),
+      0 10px 24px color-mix(in srgb, var(--directory-accent) 15%, transparent);
   }
 
   .directory-category-mark svg {
-    width: 2rem;
-    height: 2rem;
+    width: 2.25rem;
+    height: 2.25rem;
     fill: none;
     stroke: currentColor;
     stroke-linecap: round;
@@ -195,9 +216,9 @@ const Container = href ? 'a' : 'div';
     display: flex;
     align-items: center;
     gap: 0.45rem;
-    margin: 0 0 0.32rem;
+    margin: 0 0 0.45rem;
     color: var(--directory-accent);
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 760;
     letter-spacing: 0.12em;
     line-height: 1.2;
@@ -205,8 +226,8 @@ const Container = href ? 'a' : 'div';
 
   .directory-level-label span {
     display: inline-grid;
-    width: 1.65rem;
-    height: 1.3rem;
+    width: 1.8rem;
+    height: 1.4rem;
     place-items: center;
     border-radius: 999px;
     background: var(--directory-accent);
@@ -215,33 +236,64 @@ const Container = href ? 'a' : 'div';
     letter-spacing: 0.04em;
   }
 
+  .directory-level-label strong {
+    font: inherit;
+  }
+
   h2 {
     margin: 0;
     color: var(--text);
-    font-size: clamp(1.22rem, 2.3vw, 1.62rem);
-    line-height: 1.25;
+    font-size: clamp(1.65rem, 3vw, 2.15rem);
+    font-weight: 780;
+    letter-spacing: -0.035em;
+    line-height: 1.18;
     text-wrap: balance;
+  }
+
+  .directory-section-description {
+    max-width: 34rem;
+    margin: 0.55rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    line-height: 1.65;
   }
 
   .directory-section-count {
     position: relative;
     z-index: 1;
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.28rem;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 0.18rem;
     flex: none;
-    padding: 0.48rem 0.68rem;
+    min-width: 5.75rem;
+    padding: 0.65rem 0.78rem;
     border: 1px solid color-mix(in srgb, var(--directory-accent) 27%, transparent);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--surface) 84%, transparent);
     color: var(--gray);
     font-size: 0.7rem;
     white-space: nowrap;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 50%, transparent);
+  }
+
+  .directory-section-count small {
+    color: color-mix(in srgb, var(--directory-accent) 72%, var(--gray));
+    font-size: 0.52rem;
+    font-weight: 760;
+    letter-spacing: 0.12em;
+    line-height: 1;
+  }
+
+  .directory-section-count > span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.28rem;
   }
 
   .directory-section-count strong {
     color: var(--directory-accent);
-    font-size: 0.9rem;
+    font-size: 1.05rem;
   }
 
   .directory-section-arrow {
@@ -279,7 +331,7 @@ const Container = href ? 'a' : 'div';
     .directory-header-content {
       align-items: flex-start;
       min-height: 0;
-      padding: 1rem;
+      padding: 1.15rem 1rem 1.2rem 1.15rem;
     }
 
     .directory-section-header::after {
@@ -293,9 +345,9 @@ const Container = href ? 'a' : 'div';
     }
 
     .directory-category-mark {
-      width: 3rem;
-      height: 3rem;
-      border-radius: 14px;
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 15px;
     }
 
     .directory-category-mark svg {
@@ -304,11 +356,22 @@ const Container = href ? 'a' : 'div';
     }
 
     .directory-section-count {
-      padding: 0.34rem 0.5rem;
+      min-width: auto;
+      padding: 0.42rem 0.55rem;
     }
+
+    .directory-section-count small { display: none; }
 
     .directory-section-count strong {
       font-size: 0.8rem;
+    }
+
+    h2 { font-size: clamp(1.35rem, 7vw, 1.75rem); }
+
+    .directory-section-description {
+      margin-top: 0.4rem;
+      font-size: 0.7rem;
+      line-height: 1.5;
     }
 
     .directory-section-arrow {

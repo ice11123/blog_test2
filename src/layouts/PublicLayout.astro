@@ -59,20 +59,32 @@ const sidebarPosts = await getSidebarData();
 <style>
   .public-shell {
     min-height: 100vh;
-    background: var(--canvas);
+    background:
+      radial-gradient(circle at 56% 5%, color-mix(in srgb, var(--accent) 4%, transparent), transparent 34rem),
+      var(--canvas);
     font-family: var(--font-sans-zh);
   }
 
   .public-shell .public-main {
+    position: relative;
+    z-index: 0;
     flex: 1 1 auto;
     width: auto;
     min-width: 0;
+    min-height: calc(100dvh - 81px);
     max-width: none;
     margin: 0;
     padding: 0;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--surface-subtle) 20%, transparent), transparent 18rem);
+    box-shadow:
+      inset 1px 0 0 color-mix(in srgb, white 28%, transparent),
+      inset -1px 0 0 color-mix(in srgb, var(--border) 48%, transparent);
   }
 
   .public-layout-frame {
+    position: relative;
+    isolation: isolate;
     display: grid;
     grid-template-columns: 248px minmax(0, 1fr);
     align-items: start;
@@ -91,5 +103,9 @@ const sidebarPosts = await getSidebarData();
 
   @media (max-width: 1099.98px) {
     .public-layout-frame { display: block; }
+    .public-shell .public-main {
+      min-height: calc(100dvh - var(--public-header-height, 100px));
+      box-shadow: none;
+    }
   }
 </style>

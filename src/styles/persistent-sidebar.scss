@@ -1,14 +1,25 @@
 @layer components {
   .persistent-sidebar {
     position: sticky;
+    z-index: 2;
     top: 81px;
     align-self: start;
     width: 248px;
     height: calc(100dvh - 81px);
     box-sizing: border-box;
     color: var(--text-primary);
-    background: color-mix(in srgb, var(--surface) 52%, var(--canvas));
-    border-right: 1px solid var(--border);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--surface) 84%, var(--canvas)), color-mix(in srgb, var(--surface) 64%, var(--canvas)));
+    border-right: 1px solid color-mix(in srgb, var(--accent) 12%, var(--border));
+    box-shadow:
+      12px 0 30px color-mix(in srgb, var(--text-primary) 5%, transparent),
+      inset -1px 0 0 color-mix(in srgb, white 28%, transparent);
+  }
+
+  html[data-theme='dark'] .persistent-sidebar {
+    box-shadow:
+      14px 0 34px color-mix(in srgb, black 25%, transparent),
+      inset -1px 0 0 color-mix(in srgb, white 6%, transparent);
   }
 
   .persistent-sidebar-scroll {

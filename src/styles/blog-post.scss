@@ -20,10 +20,16 @@
     min-width: 0;
     margin: 40px auto 72px;
     background: var(--surface);
-    border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
-    border-radius: 18px;
+    border: 1px solid color-mix(in srgb, var(--accent) 12%, var(--border));
+    border-radius: 22px;
     box-shadow: 0 18px 52px color-mix(in srgb, var(--text-primary) 7%, transparent);
     overflow: clip;
+  }
+
+  html[data-theme='dark'] .blog-post-page {
+    box-shadow:
+      0 1px 0 color-mix(in srgb, white 7%, transparent) inset,
+      0 24px 64px color-mix(in srgb, black 32%, transparent);
   }
 
   .hero-image {
@@ -77,10 +83,26 @@
     pre,
     table,
     .expressive-code,
-    .katex-display,
     .mermaid {
       overflow-x: auto;
       overscroll-behavior-inline: contain;
+    }
+
+    .katex-display {
+      max-width: 100%;
+      padding-block: 0.4rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--accent) 38%, transparent) transparent;
+    }
+
+    .katex-display::-webkit-scrollbar { height: 5px; }
+    .katex-display::-webkit-scrollbar-track { background: transparent; }
+    .katex-display::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 34%, transparent);
     }
 
     table {
@@ -136,7 +158,11 @@
     width: 100%;
     box-sizing: border-box;
     padding: 40px clamp(34px, 6vw, 68px) 36px;
-    border-bottom: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+    background:
+      radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 19rem),
+      linear-gradient(180deg, color-mix(in srgb, var(--surface) 98%, var(--canvas)), var(--surface));
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 54%, transparent);
   }
 
   .article-breadcrumbs {
@@ -257,13 +283,33 @@
 
   /* 公共内容页仍复用这份按路由加载的基础标题样式。 */
   .public-content-page .title {
-    margin-bottom: 1em;
-    padding: 1em 0;
-    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.75rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
+    border-radius: 20px;
+    background:
+      radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 16rem),
+      color-mix(in srgb, var(--surface) 97%, var(--canvas));
+    box-shadow:
+      0 1px 0 color-mix(in srgb, white 54%, transparent) inset,
+      0 18px 46px color-mix(in srgb, var(--text-primary) 6%, transparent);
+    text-align: left;
+  }
+
+  .public-content-page .title::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: var(--accent);
+    content: '';
   }
 
   .public-content-page .title h1 {
-    margin: 0 0 .5em;
+    margin: 0 0 .35em;
     color: var(--foreground-light);
     overflow-wrap: anywhere;
   }
@@ -272,7 +318,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px 16px;
     margin: 22px 0 0;
   }

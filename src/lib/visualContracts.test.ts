@@ -492,6 +492,9 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(categoryHeader, /visual === 'network'/);
   assert.match(categoryHeader, /visual === 'study'/);
   assert.match(categoryHeader, /directory-category-mark/);
+  assert.match(categoryHeader, /directory-section-description/);
+  assert.match(categoryHeader, /COLLECTION/);
+  assert.match(list, /directory-subsection-preview/);
   assert.match(row, /class="directory-post-order"/);
   assert.match(row, /class="directory-post-level">三级文章/);
   assert.match(row, /--directory-accent/);
@@ -499,6 +502,21 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(accordion, /duration = Math\.round\(Math\.max\(90, fullDuration \* distanceRatio\)\)/);
   assert.match(accordion, /cubic-bezier\(0\.23, 1, 0\.32, 1\)/);
   assert.doesNotMatch(list, /max-height/);
+});
+
+test('公共三栏建立独立高程且公式不产生纵向滚动条', () => {
+  const shell = readSource('layouts/PublicLayout.astro');
+  const header = readSource('components/layout/Header.astro');
+  const leftRail = readSource('styles/persistent-sidebar.scss');
+  const rightRail = readSource('styles/article-toc-sidebar.scss');
+  const article = readSource('styles/blog-post.scss');
+
+  assert.match(shell, /public-main[\s\S]*min-height:[\s\S]*box-shadow:/);
+  assert.match(header, /header \{[^}]*box-shadow:/);
+  assert.match(leftRail, /\.persistent-sidebar \{[\s\S]*z-index: 2;[\s\S]*box-shadow:/);
+  assert.match(rightRail, /\.article-toc-sidebar \{[\s\S]*z-index: 2;[\s\S]*box-shadow:/);
+  assert.match(article, /\.katex-display \{[\s\S]*overflow-x: auto;[\s\S]*overflow-y: hidden;/);
+  assert.doesNotMatch(article, /pre,\s*\n\s*table,\s*\n\s*\.expressive-code,\s*\n\s*\.katex-display,/);
 });
 
 test('高等数学文章归入明确的二级分类', () => {
