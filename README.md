@@ -39,7 +39,7 @@ tags: ['标签']
 ## DIY 入口
 
 - `src/consts.ts`：站点名称、作者、GitHub 用户名和分类排序。
-- `src/styles/themes/`：六套主题颜色。
+- `src/styles/themes/`：亮色与暗色两套主题颜色。
 - `src/components/`：布局、博客卡片、搜索和 MDX 组件。
 - `src/content/blog/`：文章内容。
 - `astro.config.mjs`：域名与 GitHub Pages 子路径。
@@ -48,7 +48,7 @@ tags: ['标签']
 
 - 文件夹分类、标签和全文模糊搜索
 - 桌面常驻“个人 / 目录 / 标签目录”侧栏，文章页独立右侧标题目录；移动端通过左右边缘箭头按需展开同一套导航
-- 六套明暗主题
+- 亮色／暗色双主题与圆形切换过渡
 - KaTeX 数学公式、Mermaid 图表和代码高亮
 - RSS、Sitemap、robots.txt 和 JSON-LD
 - GitHub 数据组件及站点统计

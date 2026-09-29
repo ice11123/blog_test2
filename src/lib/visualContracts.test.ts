@@ -473,7 +473,7 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   const row = readSource('components/blog/DirectoryPostRow.astro');
   const accordion = readSource('scripts/directory-accordion.ts');
 
-  assert.match(constants, /'AI\/Agent协作与开发': \['Agent 工具链', 'Codex 故障排查'\]/);
+  assert.match(constants, /'AI\/Agent协作与开发': \['网站开发与维护', 'Agent 工具链', 'Codex 故障排查'\]/);
   assert.match(constants, /'电控': \['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'\]/);
   assert.match(constants, /'电源': \[\]/);
   assert.match(constants, /'学习笔记': \['高等数学笔记'\]/);
