@@ -13,6 +13,7 @@ import GitHubLanguages from '../components/github/GitHubLanguages.astro';
 import PublicStatus from '../components/home/PublicStatus.astro';
 import RecentPosts from '../components/home/RecentPosts.astro';
 import TopicAtlas from '../components/home/TopicAtlas.astro';
+import SoftwareShowcase from '../components/home/SoftwareShowcase.astro';
 import { withBase } from '../lib/urls';
 import maintenanceSource from '../content/maintenance.md?raw';
 import homeHeroImage from '../assets/home-hero.jpg';
@@ -202,6 +203,7 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
       <div class="home-content-layout">
         <div class="home-main-column">
     <TopicAtlas posts={allPosts} />
+    <SoftwareShowcase />
     <RecentPosts posts={recentPosts} />
 
     <section class="home-info-strip" aria-labelledby="site-info-title" data-home-motion-cull>

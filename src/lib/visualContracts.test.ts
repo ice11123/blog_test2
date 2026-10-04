@@ -7,6 +7,22 @@ import { fileURLToPath } from 'node:url';
 const srcRoot = fileURLToPath(new URL('..', import.meta.url));
 const sourceExtensions = new Set(['.astro', '.css', '.scss', '.ts']);
 
+test('软件作品位于技术星图下，整卡原生跳转且不增加运行时脚本', () => {
+  const home = readSource('pages/index.astro');
+  const showcase = readSource('components/home/SoftwareShowcase.astro');
+  assert.match(home, /<TopicAtlas[^>]*>\s*<SoftwareShowcase\s*\/>\s*<RecentPosts/);
+  assert.match(showcase, /https:\/\/github\.com\/ice11123\/Click-Clean/);
+  assert.match(showcase, /<a\s+class="software-card"\s+href=\{projectUrl\}/);
+  assert.equal((showcase.match(/<a\b/g) ?? []).length, 1, '作品卡片不应嵌套其他链接');
+  assert.match(showcase, /rel="noopener noreferrer"/);
+  assert.match(showcase, /aria-describedby="click-clean-description click-clean-destination"/);
+  assert.match(showcase, /模拟数据/);
+  assert.match(showcase, /loading="lazy"/);
+  assert.match(showcase, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.match(showcase, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.doesNotMatch(showcase, /<script|setInterval|requestAnimationFrame/);
+});
+
 function readSource(relativePath: string): string {
   return readFileSync(join(srcRoot, relativePath), 'utf8');
 }

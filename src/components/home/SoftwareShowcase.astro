@@ -1,0 +1,189 @@
+---
+import { Image } from 'astro:assets';
+import clickCleanMain from '../../assets/software/click-clean-main.png';
+import clickCleanIsland from '../../assets/software/click-clean-island.png';
+import clickCleanIcon from '../../assets/software/click-clean-icon.png';
+
+const projectUrl = 'https://github.com/ice11123/Click-Clean';
+---
+
+<section class="software-showcase" aria-labelledby="software-showcase-title" data-home-motion-cull>
+  <header class="software-heading">
+    <div>
+      <p class="software-kicker">INDEPENDENT SOFTWARE</p>
+      <h2 id="software-showcase-title">我的软件</h2>
+    </div>
+    <p>把想法做成可用的工具。</p>
+  </header>
+
+  <a
+    class="software-card"
+    href={projectUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-labelledby="click-clean-title"
+    aria-describedby="click-clean-description click-clean-destination"
+  >
+    <div class="software-preview">
+      <span class="preview-caption">DESIGNED &amp; BUILT BY 离子怪</span>
+      <div class="software-window">
+        <Image
+          src={clickCleanMain}
+          widths={[240, 360, 560]}
+          sizes="(max-width: 640px) 220px, 250px"
+          format="webp"
+          quality={88}
+          alt="Click-Clean 主窗口：内存状态、一键整理及历史入口，截图使用模拟数据"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div class="software-island" aria-hidden="true">
+        <Image src={clickCleanIsland} width={232} alt="" format="webp" loading="lazy" decoding="async" />
+        <span>桌面迷你岛</span>
+      </div>
+      <span class="preview-note">实际界面 · 模拟数据</span>
+    </div>
+
+    <div class="software-copy">
+      <div class="software-identity">
+        <Image src={clickCleanIcon} width={52} height={52} alt="" format="webp" loading="lazy" decoding="async" />
+        <div>
+          <span class="software-type">WINDOWS UTILITY / 开源作品</span>
+          <h3 id="click-clean-title">Click-Clean <span>即清</span></h3>
+        </div>
+      </div>
+      <p class="software-description" id="click-clean-description">
+        一款轻巧的 Windows 11 内存整理工具。<br class="desktop-break" />
+        让内存状态、一键整理与桌面快捷操作，集中在简洁的界面里。
+      </p>
+      <ul class="software-features" aria-label="主要功能">
+        <li>一键内存整理</li>
+        <li>桌面迷你岛</li>
+        <li>应用内更新</li>
+      </ul>
+      <div class="software-bottom">
+        <span class="software-platform">Windows 11 · x64</span>
+        <span class="software-cta" id="click-clean-destination">
+          查看项目 <span aria-hidden="true">↗</span>
+          <span class="sr-only">，在新标签页打开 GitHub，查看下载与源码</span>
+        </span>
+      </div>
+    </div>
+  </a>
+</section>
+
+<style>
+  .software-showcase { padding-bottom: 44px; min-inline-size: 0; }
+  .software-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+  .software-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
+  .software-heading h2 { margin: 0; color: var(--text-primary); font-size: 28px; line-height: 1.25; }
+  .software-heading > p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+  .software-card {
+    --window-rest-transform: rotate(-3deg) translateX(-16px);
+    display: grid;
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    min-inline-size: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: var(--surface);
+    color: var(--text-primary);
+    text-decoration: none;
+    box-shadow: 0 10px 32px color-mix(in srgb, var(--text-primary) 5%, transparent);
+    transition: transform 180ms var(--ease-out), border-color 160ms ease;
+  }
+  .software-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 5px; }
+  .software-card:active { transform: scale(.994); }
+  .software-preview {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-inline-size: 0;
+    min-height: 358px;
+    padding: 44px 26px 38px;
+    box-sizing: border-box;
+    border-right: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+    background:
+      radial-gradient(ellipse at 24% 24%, color-mix(in srgb, #5c81cf 12%, transparent), transparent 70%),
+      linear-gradient(145deg, var(--surface-subtle), var(--surface));
+  }
+  .preview-caption { position: absolute; top: 20px; left: 24px; color: var(--text-secondary); font-size: 9px; font-weight: 650; letter-spacing: .14em; }
+  .software-window {
+    width: 250px;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(53, 56, 66, .14);
+    border-radius: 11px;
+    background: #f4f1eb;
+    box-shadow: 0 18px 32px rgba(18, 28, 46, .15);
+    transform: var(--window-rest-transform);
+    transition: transform 200ms var(--ease-out);
+  }
+  .software-window :global(img) { display: block; width: 100%; height: auto; margin: 0; border-radius: 0; }
+  .software-island { position: absolute; right: 14px; bottom: 32px; display: grid; justify-items: center; gap: 0; transform: rotate(2deg); transition: transform 200ms var(--ease-out); }
+  .software-island :global(img) { display: block; width: 210px; height: auto; margin: 0; }
+  .software-island > span { color: var(--text-secondary); font-size: 10px; }
+  .preview-note { position: absolute; left: 24px; bottom: 16px; color: var(--text-secondary); font-size: 10px; }
+  .software-copy { display: flex; flex-direction: column; justify-content: center; min-inline-size: 0; padding: 36px; }
+  .software-identity { display: flex; align-items: center; gap: 14px; }
+  .software-identity :global(img) { flex: 0 0 auto; width: 52px; height: 52px; border-radius: 12px; }
+  .software-identity > div { min-inline-size: 0; }
+  .software-type { display: block; margin-bottom: 7px; color: var(--accent); font-size: 9px; font-weight: 750; letter-spacing: .1em; }
+  .software-identity h3 { margin: 0; color: var(--text-primary); font-size: clamp(23px, 2.35vw, 32px); line-height: 1.2; letter-spacing: -.035em; }
+  .software-identity h3 > span { display: inline-block; margin-left: 8px; color: var(--text-secondary); font-size: 16px; font-weight: 500; letter-spacing: 0; }
+  .software-description { margin: 24px 0 0; color: var(--text-secondary); font-size: 14px; line-height: 1.85; text-wrap: pretty; }
+  .software-features { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+  .software-features li { padding: 5px 9px; border: 1px solid color-mix(in srgb, var(--border) 65%, transparent); border-radius: 6px; color: var(--text-secondary); background: var(--surface-subtle); font-size: 11px; line-height: 1.5; }
+  .software-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 28px; padding-top: 20px; border-top: 1px solid color-mix(in srgb, var(--border) 65%, transparent); }
+  .software-platform { color: var(--text-secondary); font-size: 11px; }
+  .software-cta { display: inline-flex; align-items: center; gap: 18px; color: var(--accent); font-size: 13px; font-weight: 750; }
+  .software-cta > span[aria-hidden] { font-size: 21px; font-weight: 500; transition: transform 160ms var(--ease-out); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .software-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+    .software-card:hover .software-window { transform: rotate(-1deg) translate(-16px, -3px); }
+    .software-card:hover .software-island { transform: rotate(0deg) translateY(-2px); }
+    .software-card:hover .software-cta > span[aria-hidden] { transform: translate(2px, -2px); }
+  }
+  @media (max-width: 1100px) and (min-width: 641px) {
+    .software-card { --window-rest-transform: rotate(-3deg); }
+    .software-copy { padding: 28px; }
+    .software-preview { padding-inline: 18px; }
+    .software-card:hover .software-window { transform: rotate(-1deg) translateY(-3px); }
+    .desktop-break { display: none; }
+  }
+  @media (max-width: 640px) {
+    .software-showcase { padding-bottom: 32px; }
+    .software-heading { align-items: start; margin-bottom: 20px; }
+    .software-heading h2 { font-size: 24px; }
+    .software-heading > p { align-self: end; max-width: 140px; font-size: 12px; text-align: right; }
+    .software-card { grid-template-columns: minmax(0, 1fr); border-radius: 18px; }
+    .software-preview { min-height: 316px; padding: 40px 24px 32px; border-right: 0; border-bottom: 1px solid var(--border); }
+    .software-window { width: 220px; }
+    .software-island { right: 10px; bottom: 26px; }
+    .software-island :global(img) { width: 186px; }
+    .software-copy { padding: 24px; }
+    .software-identity { gap: 12px; }
+    .software-identity :global(img) { width: 44px; height: 44px; }
+    .software-identity h3 { font-size: 26px; }
+    .software-identity h3 > span { font-size: 14px; }
+    .software-description { margin-top: 20px; font-size: 13px; }
+    .desktop-break { display: none; }
+    .software-features { gap: 6px; margin-top: 14px; }
+    .software-features li { padding: 4px 7px; font-size: 10px; }
+    .software-bottom { margin-top: 22px; padding-top: 18px; }
+  }
+  @media (max-width: 350px) {
+    .software-copy { padding: 20px; }
+    .software-identity h3 { font-size: 22px; }
+    .software-type { font-size: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .software-card, .software-window, .software-island, .software-cta > span[aria-hidden] { transition: none; }
+    .software-card:hover, .software-card:active { transform: none; }
+    .software-card:hover .software-window { transform: var(--window-rest-transform); }
+    .software-card:hover .software-island { transform: rotate(2deg); }
+    .software-card:hover .software-cta > span[aria-hidden] { transform: none; }
+  }
+</style>
