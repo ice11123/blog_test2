@@ -16,6 +16,7 @@ yarn-error.log*
 # 性能原始追踪和截图留在本地，仓库保存测量脚本与精简结果。
 /artifacts/performance/**/*.trace.json.gz
 /artifacts/performance/**/*.png
+/artifacts/performance/**/trace.json
 /artifacts/performance/online/
 pnpm-debug.log*
 

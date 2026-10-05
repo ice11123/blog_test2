@@ -4,7 +4,16 @@ import {
   DEFAULT_ARTICLE_HEADING_OFFSET,
   findActiveHeadingIndex,
   headingScrollTarget,
+  readingProgress,
 } from './tocGeometry.ts';
+
+test('阅读进度使用缓存正文范围，短文和边界不会越界', () => {
+  assert.equal(readingProgress(0, 400, 2400, 800, 100), 0);
+  assert.equal(readingProgress(950, 400, 2400, 800, 100), .5);
+  assert.equal(readingProgress(1600, 400, 2400, 800, 100), 1);
+  assert.equal(readingProgress(3000, 400, 2400, 800, 100), 1);
+  assert.equal(readingProgress(400, 400, 450, 800, 100), 1);
+});
 
 test('长目录使用缓存定位，重合标题选择最后一个已越过基准线的章节', () => {
   const tops = Array.from({ length: 10000 }, (_, i) => i * 100);

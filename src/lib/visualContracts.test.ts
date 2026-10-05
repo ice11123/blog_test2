@@ -7,6 +7,22 @@ import { fileURLToPath } from 'node:url';
 const srcRoot = fileURLToPath(new URL('..', import.meta.url));
 const sourceExtensions = new Set(['.astro', '.css', '.scss', '.ts']);
 
+test('视觉阅读增强保持信息安全区、按需加载与唯一滚动扫描', () => {
+  const atlas = readSource('components/home/TopicAtlas.astro');
+  assert.match(atlas, /class="topic-intro"/);
+  assert.match(atlas, /\.topic-art\s*\{[^}]*clip-path:\s*inset\(0\)/);
+  assert.doesNotMatch(atlas, /width:\s*min\(142%/);
+  assert.match(readSource('components/layout/PersistentSidebar.astro'), /全站目录|data-tag-filter/);
+  assert.match(readSource('components/layout/ArticleTocSidebar.astro'), /本文目录/);
+  assert.match(readSource('scripts/article-images.ts'), /import\('\.\/image-viewer'\)/);
+  assert.match(readSource('scripts/image-viewer.ts'), /astro:before-swap/);
+  assert.match(readSource('scripts/image-viewer.ts'), /selected\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(readSource('scripts/toc.ts'), /readingProgress\(window\.scrollY/);
+  assert.match(readSource('components/blog/SearchModal.astro'), /data-search-status/);
+  assert.match(readSource('scripts/search.ts'), /data-search-retry/);
+  assert.match(readSource('layouts/PublicLayout.astro'), /display: block; isolation: auto/);
+});
+
 test('搜索静态索引按需加载、保护输入法且选择不重建列表', () => {
   const modal = readSource('components/blog/SearchModal.astro');
   const search = readSource('scripts/search.ts');
@@ -234,9 +250,11 @@ test('非首屏样式与搜索引擎按需加载', () => {
 
   assert.doesNotMatch(search, /^import Fuse\b/m);
   assert.match(search, /await import\(['"]fuse\.js['"]\)/);
-  assert.match(search, /void ensureFuse\(\)/);
-  assert.ok(search.indexOf("input.focus({ preventScroll: true })") < search.indexOf('void ensureFuse()'));
-  assert.match(search, /搜索功能加载失败，请稍后重试/);
+  assert.match(search, /void performSearch\(''\)/);
+  assert.match(search, /const searchEngine = await ensureFuse\(\)/);
+  assert.ok(search.indexOf("input.focus({ preventScroll: true })") < search.indexOf("void performSearch('')"));
+  assert.match(search, /搜索索引加载失败，请检查网络后重试/);
+  assert.match(search, /function handleRetry/);
 });
 
 test('顶部栏背景全宽且导航内容保持居中约束', () => {
@@ -549,6 +567,15 @@ test('公共三栏建立独立高程且公式不产生纵向滚动条', () => {
   assert.match(rightRail, /\.article-toc-sidebar \{[\s\S]*z-index: 2;[\s\S]*box-shadow:/);
   assert.match(article, /\.katex-display \{[\s\S]*overflow-x: auto;[\s\S]*overflow-y: hidden;/);
   assert.doesNotMatch(article, /pre,\s*\n\s*table,\s*\n\s*\.expressive-code,\s*\n\s*\.katex-display,/);
+});
+
+test('降低动态模式同时覆盖移动抽屉的关闭和高优先级打开选择器', () => {
+  const styles = readSource('styles/mobile-sidebars.scss');
+  const reduced = styles.slice(styles.indexOf('@media (prefers-reduced-motion: reduce)'));
+  assert.match(reduced, /html\[data-mobile-sidebar='left'\] \.persistent-sidebar/);
+  assert.match(reduced, /html\[data-mobile-sidebar='right'\] \.article-toc-sidebar/);
+  assert.match(reduced, /html\[data-mobile-sidebar\] \.mobile-sidebar-backdrop/);
+  assert.match(reduced, /transition: none/);
 });
 
 test('文章目录隐藏重复滚动轨道并保留方向反馈与键盘可达性', () => {

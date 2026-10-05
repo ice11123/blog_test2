@@ -155,6 +155,9 @@
     .article-toc-sidebar,
     .mobile-sidebar-toggle,
     .mobile-sidebar-toggle svg,
-    .mobile-sidebar-backdrop { transition: none; }
+    .mobile-sidebar-backdrop,
+    html[data-mobile-sidebar='left'] .persistent-sidebar,
+    html[data-mobile-sidebar='right'] .article-toc-sidebar,
+    html[data-mobile-sidebar] .mobile-sidebar-backdrop { transition: none; }
   }
 }

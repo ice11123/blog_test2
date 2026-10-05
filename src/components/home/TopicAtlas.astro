@@ -103,6 +103,7 @@ const topics = presentations.map((topic) => {
         <a class="topic-card-link" href={blogCategoryPath(topic.name)} aria-label={`进入${topic.name}分类`}></a>
 
         <div class="topic-copy">
+          <div class="topic-intro">
           <div class="topic-meta">
             <span class="topic-index">{topic.index}</span>
             <span>{topic.eyebrow}</span>
@@ -110,6 +111,7 @@ const topics = presentations.map((topic) => {
           </div>
           <h3>{topic.name}</h3>
           <p class="topic-summary">{topic.summary}</p>
+          </div>
 
           <div class="topic-recent">
             <span class="topic-recent-label">RECENT SIGNALS</span>
@@ -273,16 +275,20 @@ const topics = presentations.map((topic) => {
     position: relative;
     z-index: 2;
     align-self: stretch;
-    width: min(63%, 480px);
+    width: 100%;
+    box-sizing: border-box;
     min-width: 0;
     padding: 28px;
     pointer-events: none;
   }
 
   .topic-compact .topic-copy {
-    width: min(68%, 340px);
     padding: 24px;
   }
+
+  /* 信息与素材分属独立区域；近期入口使用整行，不进入 3D 舞台。 */
+  .topic-intro { width: 64%; min-height: 170px; }
+  .topic-compact .topic-intro { width: 61%; }
 
   .topic-meta {
     display: flex;
@@ -294,6 +300,7 @@ const topics = presentations.map((topic) => {
     font-weight: 760;
     letter-spacing: .12em;
   }
+  .topic-meta > span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .topic-index {
     display: grid;
@@ -425,16 +432,16 @@ const topics = presentations.map((topic) => {
   .topic-art {
     position: absolute;
     z-index: 1;
-    top: 50%;
-    right: 0;
-    width: 42%;
-    height: 100%;
+    top: 22px;
+    right: 12px;
+    width: 31%;
+    height: 170px;
+    clip-path: inset(0);
     pointer-events: none;
-    transform: translateY(-50%);
     transform-style: preserve-3d;
   }
 
-  .topic-compact .topic-art { width: 48%; }
+  .topic-compact .topic-art { width: 32%; }
 
   .codex-emblem,
   .power-emblem,
@@ -491,7 +498,7 @@ const topics = presentations.map((topic) => {
     position: absolute;
     top: 52%;
     right: -12%;
-    width: min(142%, 430px);
+    width: 124%;
     max-width: none;
     height: auto;
     filter: drop-shadow(0 22px 24px color-mix(in srgb, #031b35 28%, transparent));
@@ -630,9 +637,10 @@ const topics = presentations.map((topic) => {
 
     .topic-card { min-height: 312px; }
     .topic-copy,
-    .topic-compact .topic-copy { width: 72%; padding: 22px; }
+    .topic-compact .topic-copy { width: 100%; padding: 22px; }
     .topic-art,
-    .topic-compact .topic-art { width: 42%; opacity: .82; }
+    .topic-compact .topic-art { width: 31%; }
+    .topic-intro, .topic-compact .topic-intro { width: 63%; min-height: 180px; }
     .topic-summary { font-size: 12px; }
     .topic-recent time { display: none; }
   }
@@ -647,7 +655,7 @@ const topics = presentations.map((topic) => {
     .topic-archive { grid-column: 1; }
     .topic-card { min-height: 286px; border-radius: 18px; }
     .topic-copy,
-    .topic-compact .topic-copy { width: 72%; padding: 20px; }
+    .topic-compact .topic-copy { width: 100%; padding: 20px; }
     .topic-copy h3,
     .topic-compact .topic-copy h3 { margin-top: 12px; font-size: 24px; }
     .topic-summary { margin-top: 8px; -webkit-line-clamp: 2; }
@@ -656,13 +664,13 @@ const topics = presentations.map((topic) => {
     .topic-recent time { display: none; }
     .topic-enter { margin-top: 12px; }
     .topic-art,
-    .topic-compact .topic-art { right: -2%; width: 40%; opacity: .72; }
-    .codex-emblem svg { width: 170px; }
+    .topic-compact .topic-art { top: 28px; right: 10px; width: 30%; height: 150px; }
+    .codex-emblem svg { width: 95%; }
     .codex-emblem > span { right: 6%; bottom: 16%; }
-    .control-art img { right: -45%; width: 280px; }
-    .power-emblem svg { width: 190px; }
+    .control-art img { right: -12%; width: 124%; }
+    .power-emblem svg { width: 96%; }
     .power-emblem > span { right: 0; }
-    .study-emblem svg { width: 190px; }
+    .study-emblem svg { width: 96%; }
     .study-emblem > span { right: 0; font-size: 17px; }
     .archive-sheet { width: 92px; height: 124px; }
     .archive-number { right: -2%; font-size: 70px; }
@@ -670,10 +678,10 @@ const topics = presentations.map((topic) => {
 
   @media (max-width: 390px) {
     .topic-copy,
-    .topic-compact .topic-copy { width: 78%; padding: 18px; }
+    .topic-compact .topic-copy { width: 100%; padding: 18px; }
     .topic-meta > span:nth-child(2) { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .topic-art,
-    .topic-compact .topic-art { width: 34%; opacity: .6; }
+    .topic-compact .topic-art { width: 30%; }
   }
 
   @media (prefers-reduced-motion: reduce) {

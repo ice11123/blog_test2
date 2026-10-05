@@ -26,8 +26,13 @@ const { version } = await getSearchIndex();
         <Icon name="close" />
       </button>
     </div>
-    <ul id="search-results" class="search-results" role="listbox" aria-label="搜索结果" aria-live="polite">
+    <div class="search-status-area">
+      <p data-search-status role="status">输入标题、正文关键词或标签，查找文章。</p>
+      <button type="button" data-search-retry hidden>重新加载</button>
+    </div>
+    <ul id="search-results" class="search-results" role="listbox" aria-label="搜索结果">
     </ul>
+    <footer class="search-help"><span><kbd>↑</kbd><kbd>↓</kbd> 选择</span><span><kbd>Enter</kbd> 打开</span><span><kbd>Esc</kbd> 关闭</span></footer>
   </div>
 </dialog>
 
@@ -35,7 +40,8 @@ const { version } = await getSearchIndex();
 
 <style>
   .search-modal {
-    background: var(--background);
+    background: var(--surface-overlay);
+    box-shadow: var(--elevation-overlay);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 0;
@@ -93,6 +99,7 @@ const { version } = await getSearchIndex();
   }
 
   .search-input {
+    min-width: 0;
     flex: 1;
     background: transparent;
     border: none;
@@ -101,6 +108,14 @@ const { version } = await getSearchIndex();
     outline: none;
     font-family: inherit;
   }
+
+  .search-status-area { padding: 12px 20px; font-size: 13px; color: var(--text-secondary); }
+  .search-status-area p { margin: 0; }
+  .search-status-area button { margin-top: 10px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; color: var(--accent); background: var(--surface); cursor: pointer; }
+  .search-status-area button[hidden] { display: none; }
+  .search-status-area button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .search-help { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin: 0; padding: 10px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-secondary); }
+  .search-help kbd { padding: 2px 4px; border: 1px solid var(--border); border-radius: 4px; margin-right: 3px; }
 
   .search-input::placeholder {
     color: var(--foreground-dark);

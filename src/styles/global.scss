@@ -25,6 +25,12 @@
   --success: var(--alert-tip);
   --warning: var(--alert-warning);
   --danger: var(--alert-caution);
+  /* 层级语义复用基础色；装饰卡片仍保留各自的 3D 高程。 */
+  --surface-navigation: color-mix(in srgb, var(--surface) 84%, var(--canvas));
+  --surface-content: var(--surface);
+  --surface-overlay: var(--surface);
+  --elevation-content: 0 16px 40px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  --elevation-overlay: 0 20px 60px color-mix(in srgb, var(--text-primary) 22%, transparent);
 
   /* GitHub 提示块颜色（暗色默认） */
   --alert-note: #539bf5;

@@ -102,7 +102,8 @@ const sidebarPosts = await getSidebarData();
   }
 
   @media (max-width: 1099.98px) {
-    .public-layout-frame { display: block; }
+    /* 移动抽屉必须与 body 下的遮罩共用层叠上下文，不能困在桌面隔离层中。 */
+    .public-layout-frame { display: block; isolation: auto; }
     .public-shell .public-main {
       min-height: calc(100dvh - var(--public-header-height, 100px));
       box-shadow: none;

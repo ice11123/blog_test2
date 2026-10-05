@@ -14,7 +14,7 @@ const { entries } = Astro.props;
 ---
 
 <section class="recent-section" aria-labelledby="recent-title" data-home-motion-cull>
-  <HomeSectionHeading id="recent-title" title="近期文章" eyebrow="RECENT WRITING">
+  <HomeSectionHeading id="recent-title" title="近期更新" eyebrow="RECENT UPDATES">
     <a class="section-link" href={withBase('/blog/')}>查看全部文章 <span aria-hidden="true">→</span></a>
   </HomeSectionHeading>
 
@@ -66,11 +66,15 @@ const { entries } = Astro.props;
   .section-link { color: var(--accent); font-size: 14px; font-weight: 650; }
   .section-link:focus-visible, .home-post-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
   .recent-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-  .home-post-card { min-width: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+  .home-post-card { min-width: 0; overflow: hidden; background: var(--surface-content); border: 1px solid var(--border); border-radius: 16px; }
   .home-post-card { display: flex; flex-direction: column; }
   .series-entry-label { display: -webkit-box; overflow: hidden; margin-top: 7px; color: var(--text-secondary); font-size: 11px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
-  .recent-series-link { display: flex; justify-content: space-between; gap: 12px; margin-top: auto; padding: 12px 22px; border-top: 1px solid var(--border); color: var(--accent); background: var(--surface-subtle); font-size: 11px; text-decoration: none; }
+  .recent-series-link { display: flex; justify-content: space-between; gap: 12px; margin-top: auto; padding: 12px 22px; border-top: 1px solid var(--border); color: var(--accent); background: var(--surface-subtle); font-size: 11px; text-decoration: none; transition: color 150ms ease, background-color 150ms ease, transform 120ms var(--ease-out); }
+  .recent-series-link:active, .home-post-link:active { transform: scale(.985); }
+  .home-post-link { transition: background-color 150ms ease, transform 120ms var(--ease-out); }
   .recent-series-link:focus-visible { outline: 2px solid var(--focus); outline-offset: -3px; }
+  .recent-series-link:focus-visible, .home-post-link:focus-visible { transition: none; }
+  .recent-series-link:focus-visible:active, .home-post-link:focus-visible:active { transform: none; }
   .home-post-link { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; gap: 16px; flex: 1; padding: 22px; box-sizing: border-box; color: inherit; text-decoration: none; }
   .home-post-media { position: relative; width: 48px; height: 64px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--border) 65%, transparent); border-radius: 10px; background: var(--surface-subtle); }
   .home-post-media :global(img) { width: 100%; height: 100%; object-fit: cover; border-radius: 0; transition: transform 220ms cubic-bezier(.23,1,.32,1); }
@@ -90,6 +94,8 @@ const { entries } = Astro.props;
   .home-empty p { margin: 8px 0 16px; font-size: 16px; }
 
   @media (hover: hover) and (pointer: fine) {
+    .recent-series-link:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+    .home-post-link:hover { background: color-mix(in srgb, var(--accent) 4%, var(--surface)); }
     .home-post-card { transition: transform 180ms cubic-bezier(.23,1,.32,1), border-color 180ms ease, box-shadow 180ms ease; }
     .home-post-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 12px 32px color-mix(in srgb, var(--text-primary) 9%, transparent); }
     .home-post-card:hover .home-post-media :global(img) { transform: scale(1.025); }
@@ -119,6 +125,7 @@ const { entries } = Astro.props;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .home-post-card, .home-post-media :global(img) { transition-duration: 0ms; }
+    .home-post-card, .home-post-media :global(img), .recent-series-link, .home-post-link { transition-duration: 0ms; }
+    .recent-series-link:active, .home-post-link:active, .home-post-card:hover { transform: none; }
   }
 </style>

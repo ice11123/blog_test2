@@ -1,0 +1,99 @@
+{
+  "browser": "154.0.4258.53",
+  "cpu": 4,
+  "variant": "flex",
+  "rounds": [
+    {
+      "start": 1810.699999999255,
+      "end": 2192.10000000149,
+      "action": "open",
+      "count": 29,
+      "maxMs": 166.60000000000014,
+      "p95Ms": 11.200000000000273,
+      "longTasks": [
+        {
+          "start": 1796.300000000745,
+          "duration": 171
+        }
+      ]
+    },
+    {
+      "start": 2378,
+      "end": 2569.800000000745,
+      "action": "close",
+      "count": 36,
+      "maxMs": 5.600000000000364,
+      "p95Ms": 5.600000000000364,
+      "longTasks": []
+    },
+    {
+      "start": 2748.300000000745,
+      "end": 2986.60000000149,
+      "action": "open",
+      "count": 36,
+      "maxMs": 22.199999999999818,
+      "p95Ms": 11.200000000000273,
+      "longTasks": []
+    },
+    {
+      "start": 3184.39999999851,
+      "end": 3386.800000000745,
+      "action": "close",
+      "count": 34,
+      "maxMs": 11.099999999999909,
+      "p95Ms": 11.099999999999909,
+      "longTasks": []
+    },
+    {
+      "start": 3581,
+      "end": 3819.60000000149,
+      "action": "open",
+      "count": 39,
+      "maxMs": 16.59999999999991,
+      "p95Ms": 11.200000000000273,
+      "longTasks": []
+    },
+    {
+      "start": 4037.60000000149,
+      "end": 4233.60000000149,
+      "action": "close",
+      "count": 34,
+      "maxMs": 11.100000000000364,
+      "p95Ms": 11.099999999999909,
+      "longTasks": []
+    }
+  ],
+  "timeline": {
+    "Layout": {
+      "count": 210,
+      "totalMs": 266.025,
+      "maxMs": 136.35
+    },
+    "Paint": {
+      "count": 688,
+      "totalMs": 379.693,
+      "maxMs": 4.293
+    },
+    "UpdateLayoutTree": {
+      "count": 304,
+      "totalMs": 145.957,
+      "maxMs": 7.878
+    },
+    "FunctionCall": {
+      "count": 744,
+      "totalMs": 255.318,
+      "maxMs": 146.386
+    },
+    "EventDispatch": {
+      "count": 71,
+      "totalMs": 185.451,
+      "maxMs": 149.398
+    }
+  },
+  "budget": {
+    "maxFrameMs": 33,
+    "p95FrameMs": 16.7,
+    "animationLongTasks": 0
+  },
+  "withinBudget": false
+}

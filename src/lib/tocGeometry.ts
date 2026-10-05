@@ -1,5 +1,10 @@
 export const DEFAULT_ARTICLE_HEADING_OFFSET = 104;
 
+export function readingProgress(scrollY: number, start: number, end: number, viewportHeight: number, offset = 0): number {
+  const distance = Math.max(1, end - viewportHeight - (start - offset));
+  return Math.max(0, Math.min(1, (scrollY - start + offset) / distance));
+}
+
 function safeOffset(offset: number): number {
   return Number.isFinite(offset) && offset >= 0 ? offset : DEFAULT_ARTICLE_HEADING_OFFSET;
 }

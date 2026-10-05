@@ -51,6 +51,7 @@ const activeTag = decodePathPart(tagMatch?.[1]);
 <aside id="persistent-site-sidebar" class="persistent-sidebar" data-persistent-sidebar data-default-tab={initialTab} aria-label="站点侧栏">
   <div class="persistent-sidebar-scroll">
     <div class="sidebar-segments" role="tablist" aria-label="侧栏内容">
+      <span class="sidebar-active-track" aria-hidden="true"></span>
       <button id="sidebar-tab-profile" type="button" role="tab" data-sidebar-tab="profile" aria-label="个人" aria-selected={initialTab === 'profile' ? 'true' : 'false'} aria-controls="sidebar-panel-profile" tabindex={initialTab === 'profile' ? 0 : -1}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z M4.5 21a7.5 7.5 0 0 1 15 0" /></svg>
         <span>个人</span>
@@ -99,7 +100,7 @@ const activeTag = decodePathPart(tagMatch?.[1]);
 
     <section id="sidebar-panel-catalog" class="sidebar-panel-content catalog-panel" role="tabpanel" aria-labelledby="sidebar-tab-catalog" hidden={initialTab !== 'catalog'}>
       <div class="sidebar-panel-heading">
-        <div><p>按分类浏览</p><h2>文章目录</h2></div>
+        <div><p>按分类浏览</p><h2>全站目录</h2></div>
         <span>{stats.totalArticles}</span>
       </div>
       <a class:list={['directory-all-link', { current: currentPath === '/blog/' }]} href={withBase('/blog/')} aria-current={currentPath === '/blog/' ? 'page' : undefined}>
@@ -145,9 +146,13 @@ const activeTag = decodePathPart(tagMatch?.[1]);
       <a class:list={['directory-all-link', { current: currentPath.startsWith('/blog/tags') }]} href={withBase('/blog/tags/')} aria-current={currentPath.startsWith('/blog/tags') ? 'page' : undefined}>
         <span>全部标签</span><small>{stats.totalTags}</small>
       </a>
-      <nav class="tag-directory" aria-label="标签目录">
+      <label class="sidebar-tag-filter">筛选标签
+        <input type="search" data-tag-filter placeholder="输入标签名称" aria-controls="sidebar-tag-list" autocomplete="off" />
+      </label>
+      <p class="sidebar-tag-count" data-tag-count role="status">{tagDirectory.length} 个标签</p>
+      <nav id="sidebar-tag-list" class="tag-directory" aria-label="标签目录">
         {tagDirectory.map((tag) => (
-          <a class:list={{ current: tag.name === activeTag }} href={withBase(`/blog/tag/${encodeURIComponent(tag.name)}/`)} aria-current={tag.name === activeTag ? 'page' : undefined}>
+          <a data-tag-name={tag.name} class:list={{ current: tag.name === activeTag }} href={withBase(`/blog/tag/${encodeURIComponent(tag.name)}/`)} aria-current={tag.name === activeTag ? 'page' : undefined}>
             <span>{tag.name}</span><small>{tag.count}</small>
           </a>
         ))}

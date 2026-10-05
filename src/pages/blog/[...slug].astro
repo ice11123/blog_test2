@@ -6,15 +6,17 @@ import JsonLd from '../../components/blog/JsonLd.astro';
 import { resolveDirs } from '../../lib/utils';
 import { SITE_AUTHOR } from '../../consts';
 import { blogPostPath, withBase } from '../../lib/urls';
+import { seriesNeighbors } from '../../lib/seriesNavigation';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
+	const seriesPosts = posts.map(post => ({ slug: post.id, title: post.data.title, pubDate: post.data.pubDate, ...resolveDirs(post) }));
 	return posts.map((post) => ({
 		params: { slug: post.id },
-		props: post,
+		props: { ...post, seriesNavigation: seriesNeighbors(seriesPosts, post.id) },
 	}));
 }
-type Props = CollectionEntry<'blog'>;
+type Props = CollectionEntry<'blog'> & { seriesNavigation: ReturnType<typeof seriesNeighbors> };
 
 const post = Astro.props;
 const { Content } = await render(post);
@@ -73,7 +75,7 @@ const breadcrumbLd = {
 };
 ---
 
-<BlogPost {...post.data} dir1={dir1} dir2={dir2}>
+<BlogPost {...post.data} dir1={dir1} dir2={dir2} seriesNavigation={post.seriesNavigation}>
 	<JsonLd slot="head" data={blogPostingLd} />
 	<JsonLd slot="head" data={breadcrumbLd} />
 

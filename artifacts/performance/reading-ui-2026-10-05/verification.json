@@ -1,0 +1,385 @@
+{
+  "baseUrl": "http://127.0.0.1:4337/blog_test2/",
+  "browser": "154.0.4258.53",
+  "layout": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 26.921875,
+          "verticalGap": 25
+        },
+        {
+          "name": "control",
+          "gap": 24,
+          "verticalGap": 21
+        },
+        {
+          "name": "power",
+          "gap": 24,
+          "verticalGap": 21
+        },
+        {
+          "name": "study",
+          "gap": 26.921875,
+          "verticalGap": 25
+        },
+        {
+          "name": "archive",
+          "gap": 49.75,
+          "verticalGap": 25
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 26.921875,
+          "verticalGap": 25
+        },
+        {
+          "name": "control",
+          "gap": 24,
+          "verticalGap": 21
+        },
+        {
+          "name": "power",
+          "gap": 24,
+          "verticalGap": 21
+        },
+        {
+          "name": "study",
+          "gap": 26.921875,
+          "verticalGap": 25
+        },
+        {
+          "name": "archive",
+          "gap": 49.75,
+          "verticalGap": 25
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 1100,
+      "theme": "light",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 19.6875,
+          "verticalGap": 25.15625
+        },
+        {
+          "name": "control",
+          "gap": 16.78125,
+          "verticalGap": 21
+        },
+        {
+          "name": "power",
+          "gap": 16.765625,
+          "verticalGap": 21
+        },
+        {
+          "name": "study",
+          "gap": 19.6875,
+          "verticalGap": 25
+        },
+        {
+          "name": "archive",
+          "gap": 37.34375,
+          "verticalGap": 25
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 1100,
+      "theme": "dark",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 19.6875,
+          "verticalGap": 25.15625
+        },
+        {
+          "name": "control",
+          "gap": 16.78125,
+          "verticalGap": 21
+        },
+        {
+          "name": "power",
+          "gap": 16.765625,
+          "verticalGap": 21
+        },
+        {
+          "name": "study",
+          "gap": 19.6875,
+          "verticalGap": 25
+        },
+        {
+          "name": "archive",
+          "gap": 37.34375,
+          "verticalGap": 25
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 23.890625,
+          "verticalGap": 25
+        },
+        {
+          "name": "control",
+          "gap": 20.96875,
+          "verticalGap": 21
+        },
+        {
+          "name": "power",
+          "gap": 20.96875,
+          "verticalGap": 21
+        },
+        {
+          "name": "study",
+          "gap": 23.890625,
+          "verticalGap": 25
+        },
+        {
+          "name": "archive",
+          "gap": 44.5625,
+          "verticalGap": 25
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 23.890625,
+          "verticalGap": 25
+        },
+        {
+          "name": "control",
+          "gap": 20.96875,
+          "verticalGap": 21
+        },
+        {
+          "name": "power",
+          "gap": 20.96875,
+          "verticalGap": 21
+        },
+        {
+          "name": "study",
+          "gap": 23.890625,
+          "verticalGap": 25
+        },
+        {
+          "name": "archive",
+          "gap": 44.5625,
+          "verticalGap": 25
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "control",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "power",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "study",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "archive",
+          "gap": 19.609375,
+          "verticalGap": 34
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "control",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "power",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "study",
+          "gap": 19.609375,
+          "verticalGap": 34
+        },
+        {
+          "name": "archive",
+          "gap": 19.609375,
+          "verticalGap": 34
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "control",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "power",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "study",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "archive",
+          "gap": 14.703125,
+          "verticalGap": 34
+        }
+      ],
+      "errors": []
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "geometry": [
+        {
+          "name": "codex",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "control",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "power",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "study",
+          "gap": 14.703125,
+          "verticalGap": 34
+        },
+        {
+          "name": "archive",
+          "gap": 14.703125,
+          "verticalGap": 34
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "interactions": {
+    "tags": true,
+    "keyboardTabs": true,
+    "searchFailureRetry": true,
+    "searchEmpty": true,
+    "imageZoomFocusScrollRestore": true,
+    "routeCleanup": true,
+    "actualAstroNavigation": true,
+    "imageFailureRetry": true,
+    "reducedMotion": true,
+    "runtimeErrors": []
+  },
+  "directoryPerformance": {
+    "cpu": 4,
+    "max": 105.6,
+    "p95": 11.199999999999989,
+    "longTasks": [
+      {
+        "start": 160.80000000074506,
+        "duration": 110
+      }
+    ],
+    "withinBudget": false
+  },
+  "subject": {
+    "baseCommit": "aeee1e6b9453e57bef39ce73cdccd1ddf2da7ecd",
+    "kind": "local-uncommitted-worktree",
+    "changedSourceSha256": "2d4658cf1868cb1e8ce764472e5bbd6ff88e367f39665f13710d8a0313b61fb6",
+    "sources": [
+      "package.json",
+      "src/components/blog/SearchModal.astro",
+      "src/components/blog/SeriesReadingNav.astro",
+      "src/components/home/RecentPosts.astro",
+      "src/components/home/TopicAtlas.astro",
+      "src/components/layout/ArticleTocSidebar.astro",
+      "src/components/layout/PersistentSidebar.astro",
+      "src/content/maintenance.md",
+      "src/layouts/BlogPost.astro",
+      "src/layouts/PublicLayout.astro",
+      "src/lib/persistentSidebar.test.ts",
+      "src/lib/persistentSidebar.ts",
+      "src/lib/seriesNavigation.test.ts",
+      "src/lib/seriesNavigation.ts",
+      "src/lib/tocGeometry.test.ts",
+      "src/lib/tocGeometry.ts",
+      "src/lib/visualContracts.test.ts",
+      "src/pages/blog/[...slug].astro",
+      "src/scripts/article-images.ts",
+      "src/scripts/image-viewer.ts",
+      "src/scripts/mobile-sidebars.ts",
+      "src/scripts/persistent-sidebar.ts",
+      "src/scripts/search.ts",
+      "src/scripts/toc.ts",
+      "src/styles/blog-post.scss",
+      "src/styles/global.scss",
+      "src/styles/mobile-sidebars.scss",
+      "src/styles/persistent-sidebar.scss"
+    ]
+  }
+}

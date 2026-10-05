@@ -98,13 +98,13 @@ function openModal(source: SearchOpenSource): void {
   modal.showModal();
   input.setAttribute('aria-expanded', 'true');
   input.focus({ preventScroll: true });
-  void ensureFuse();
 
   // Clear previous state
   input.value = '';
   results = [];
   selectedIndex = -1;
-  renderResults();
+  composing = false;
+  void performSearch('');
 }
 
 function closeModal(): void {
@@ -150,26 +150,44 @@ function buildPostUrl(slug: string): string {
 async function performSearch(query: string): Promise<void> {
   const generation = ++searchGeneration;
   const normalizedQuery = query.trim();
-  if (!normalizedQuery) {
-    results = [];
-    selectedIndex = -1;
-    renderResults();
-    return;
-  }
+  results = [];
+  selectedIndex = -1;
+  if (!fuse) renderSearchState('loading');
 
   const searchEngine = await ensureFuse();
   const input = getInput();
   if (!input || input.value.trim() !== normalizedQuery || generation !== searchGeneration || !getModal()?.open) return;
 
   if (!searchEngine) {
-    const list = getResultsList();
-    if (list) list.innerHTML = '<li class="search-no-results">搜索功能加载失败，请稍后重试</li>';
+    renderSearchState('error');
     return;
   }
 
   results = searchEngine.search(normalizedQuery, { limit: 40 });
   selectedIndex = -1;
   renderResults();
+}
+
+function renderSearchState(state: 'idle' | 'loading' | 'empty' | 'error' | 'results'): void {
+  const modal = getModal();
+  const status = modal?.querySelector<HTMLElement>('[data-search-status]');
+  const retry = modal?.querySelector<HTMLButtonElement>('[data-search-retry]');
+  const list = getResultsList();
+  const messages = {
+    idle: '输入标题、正文关键词或标签，查找文章。',
+    loading: '正在加载搜索索引…',
+    empty: '没有找到相关文章，试试其他关键词。',
+    error: '搜索索引加载失败，请检查网络后重试。',
+    results: `找到 ${results.length} 条结果`,
+  };
+  if (status) status.textContent = messages[state];
+  if (retry) retry.hidden = state !== 'error';
+  if (modal) modal.dataset.searchState = state;
+  list?.setAttribute('aria-busy', String(state === 'loading'));
+  if (state !== 'results') {
+    if (list) list.innerHTML = '';
+    getInput()?.removeAttribute('aria-activedescendant');
+  }
 }
 
 // ---- Render results ----
@@ -181,14 +199,14 @@ function renderResults(): void {
   const hasQuery = input && input.value.trim().length > 0;
 
   if (!hasQuery) {
-    list.innerHTML = '';
-    input?.removeAttribute('aria-activedescendant');
+    renderSearchState('idle');
     return;
   }
 
   if (results.length === 0) {
-    list.innerHTML = '<li class="search-no-results">没有找到相关文章</li>';
+    renderSearchState('empty');
   } else {
+    renderSearchState('results');
     list.innerHTML = results
       .map((r, i) => {
         const item = r.item;
@@ -296,6 +314,9 @@ function handleTriggerClick(): void {
 function handleInput(e: Event): void {
   if (debounceTimer) clearTimeout(debounceTimer);
   updateSelection(-1);
+  searchGeneration++;
+  results = [];
+  if (getResultsList()) getResultsList()!.innerHTML = '';
   if (composing || (e as InputEvent).isComposing) return;
   debounceTimer = setTimeout(() => {
     void performSearch((e.target as HTMLInputElement).value);
@@ -325,6 +346,9 @@ function init(): void {
   const input = getInput();
   const triggerBtn = document.getElementById('search-trigger-btn');
   const closeBtn = document.getElementById('search-close-btn');
+  const retryBtn = modal?.querySelector<HTMLButtonElement>('[data-search-retry]');
+  retryBtn?.removeEventListener('click', handleRetry);
+  retryBtn?.addEventListener('click', handleRetry);
 
   // Search trigger button
   if (triggerBtn) {
@@ -361,6 +385,11 @@ function init(): void {
   // Global shortcut
   document.removeEventListener('keydown', handleGlobalKeydown);
   document.addEventListener('keydown', handleGlobalKeydown);
+}
+
+function handleRetry(): void {
+  getInput()?.focus({ preventScroll: true });
+  void performSearch(getInput()?.value ?? '');
 }
 
 function handleModalBackdropClick(e: MouseEvent): void {

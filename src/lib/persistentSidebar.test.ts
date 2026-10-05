@@ -5,6 +5,7 @@ import {
   buildArticleDirectory,
   buildTagDirectory,
   computeSidebarStats,
+  matchesTagFilter,
 } from './persistentSidebar.ts';
 
 const posts: SidebarPost[] = [
@@ -13,6 +14,14 @@ const posts: SidebarPost[] = [
   { title: 'C', slug: 'c', pubDate: new Date('2026-08-02'), dir1: '开发', dir2: '工具', tags: ['工具'] },
   { title: 'D', slug: 'd', pubDate: new Date('2026-07-01'), dir1: '随笔', dir2: '', tags: [] },
 ];
+
+test('标签过滤保留完整名称并忽略大小写、首尾空格和全角字符', () => {
+  assert.equal(matchesTagFilter('GitHub Actions', ' github '), true);
+  assert.equal(matchesTagFilter('MSPM0G35XX', 'ｍｓｐｍ'), true);
+  assert.equal(matchesTagFilter('高等数学', '数学'), true);
+  assert.equal(matchesTagFilter('高等数学', '电控'), false);
+  assert.equal(matchesTagFilter('GitHub Pages', ''), true);
+});
 
 test('侧栏统计按一级分类和去重标签计算', () => {
   assert.deepEqual(computeSidebarStats(posts), {

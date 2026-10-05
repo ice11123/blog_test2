@@ -25,6 +25,7 @@ function initMobileSidebars() {
   const toggles = Array.from(controls.querySelectorAll<HTMLButtonElement>('[data-mobile-sidebar-toggle]'));
   const backdrop = controls.querySelector<HTMLButtonElement>('[data-mobile-sidebar-backdrop]');
   const status = controls.querySelector<HTMLElement>('[data-mobile-sidebar-status]');
+  const readingToggle = document.querySelector<HTMLButtonElement>('[data-reading-toc]');
   const abortController = new AbortController();
   const { signal } = abortController;
   let returnFocus: HTMLButtonElement | null = null;
@@ -57,6 +58,7 @@ function initMobileSidebars() {
     const mobile = media.matches;
     siteSidebar.inert = mobile && openName !== 'left';
     if (rightDrawer) rightDrawer.inert = mobile && openName !== 'right';
+    readingToggle?.setAttribute('aria-expanded', String(mobile && openName === 'right'));
 
     toggles.forEach((toggle) => {
       const name = toggle.dataset.mobileSidebarToggle as SidebarName;
@@ -105,6 +107,7 @@ function initMobileSidebars() {
       if (name) open(name, toggle);
     }, { signal });
   });
+  readingToggle?.addEventListener('click', () => open('right', readingToggle), { signal });
 
   backdrop?.addEventListener('click', () => close({ restoreFocus: true }), { signal });
   document.addEventListener('keydown', (event) => {

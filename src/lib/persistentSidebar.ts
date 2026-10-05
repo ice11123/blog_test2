@@ -22,6 +22,11 @@ export interface TagDirectoryEntry {
   count: number;
 }
 
+export function matchesTagFilter(name: string, query: string): boolean {
+  const normalize = (value: string) => value.normalize('NFKC').trim().toLocaleLowerCase();
+  return normalize(name).includes(normalize(query));
+}
+
 export function computeSidebarStats(posts: SidebarPost[]): SidebarStats {
   return {
     totalArticles: posts.length,

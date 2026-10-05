@@ -8,10 +8,13 @@ import { blogCategoryPath, stripBase, withBase } from '../lib/urls';
 import blogPostCss from '../styles/blog-post.scss?url';
 import katexCss from 'katex/dist/katex.min.css?url';
 import { SITE_AUTHOR, TARGET_REPOSITORY } from '../consts';
+import SeriesReadingNav from '../components/blog/SeriesReadingNav.astro';
+import type { SeriesNavigation } from '../lib/seriesNavigation';
 
 type BlogData = CollectionEntry<'blog'>['data'];
-type Props = Omit<BlogData, 'tags'> & { tags?: string[]; sidebarsExpanded?: boolean; hidePageHeader?: boolean };
+type Props = Omit<BlogData, 'tags'> & { tags?: string[]; sidebarsExpanded?: boolean; hidePageHeader?: boolean; seriesNavigation?: SeriesNavigation };
 const { title, description, pubDate, updatedDate, author = SITE_AUTHOR, sourceUrl = `https://github.com/${TARGET_REPOSITORY}`, heroImage, dir1, dir2, tags = [], hidePageHeader = false } = Astro.props;
+const { seriesNavigation = null } = Astro.props;
 
 const routePath = stripBase(Astro.url.pathname);
 const slugMatch = routePath.match(/^\/blog\/(.+)/);
@@ -34,6 +37,11 @@ const sourceLabel = /\/(?:blob|raw)\//.test(new URL(sourceUrl).pathname) ? '本�
 	<link slot="head" rel="stylesheet" href={blogPostCss} />
 	<link slot="head" rel="stylesheet" href={katexCss} />
 	<slot name="head" slot="head" />
+  <div class="mobile-reading-bar" data-reading-bar>
+    <button type="button" data-reading-toc aria-label="打开本文目录" aria-expanded="false" aria-controls="article-toc-sidebar"><span data-reading-section>{title}</span><span aria-hidden="true">☷</span></button>
+    <span data-reading-percent aria-label="阅读进度">0%</span>
+    <span class="reading-progress-track" aria-hidden="true"><i data-reading-progress></i></span>
+  </div>
 	<article class="blog-post-page">
 		{!hidePageHeader && heroImage && (
 			<figure class="hero-image"><Image width={1200} height={560} src={heroImage} alt="" loading="eager" fetchpriority="high" /></figure>
@@ -46,7 +54,7 @@ const sourceLabel = /\/(?:blob|raw)\//.test(new URL(sourceUrl).pathname) ? '本�
 					{dir1 && <><span aria-hidden="true">/</span><a href={blogCategoryPath(dir1)}>{dir1}</a></>}
 					{dir1 && dir2 && <><span aria-hidden="true">/</span><a href={blogCategoryPath(dir1, dir2)}>{dir2}</a></>}
 				</nav>
-				<div class="article-kicker"><span>{dir2 || dir1 || '文章'}</span><span aria-hidden="true">·</span><FormattedDate date={pubDate} /></div>
+				<div class="article-kicker"><span>{dir2 || dir1 || '文章'}</span></div>
 				<h1>{title}</h1>
 				<p class="article-description">{description}</p>
 				<div class="article-meta" aria-label="文章信息">
@@ -64,7 +72,9 @@ const sourceLabel = /\/(?:blob|raw)\//.test(new URL(sourceUrl).pathname) ? '本�
 				<slot />
 			</div>
 		</div>
+    <SeriesReadingNav navigation={seriesNavigation} />
 	</article>
 	<script src="../scripts/toc"></script>
 	<script src="../scripts/mermaid"></script>
+  <script src="../scripts/article-images"></script>
 </PublicLayout>

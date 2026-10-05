@@ -1,0 +1,29 @@
+---
+import type { SeriesNavigation } from '../../lib/seriesNavigation';
+import { blogCategoryPath, blogPostPath } from '../../lib/urls';
+interface Props { navigation: SeriesNavigation }
+const { navigation } = Astro.props;
+---
+{navigation && <nav class="series-reading-nav" aria-label="系列阅读导航">
+  <div class="series-reading-heading"><a href={blogCategoryPath(navigation.dir1, navigation.name)}>{navigation.name} · 完整目录</a><span>{navigation.position} / {navigation.total}</span></div>
+  <div class="series-reading-links">
+    {navigation.previous ? <a href={blogPostPath(navigation.previous.slug)} rel="prev"><small>← 上一篇</small><strong>{navigation.previous.title}</strong></a> : <p>已到系列起点</p>}
+    {navigation.next ? <a href={blogPostPath(navigation.next.slug)} rel="next"><small>下一篇 →</small><strong>{navigation.next.title}</strong></a> : <p>已到系列末篇</p>}
+  </div>
+</nav>}
+<style>
+  .series-reading-nav { padding: 24px clamp(22px, 4vw, 48px); border-top: 1px solid var(--border); background: var(--surface-subtle); }
+  .series-reading-heading { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 14px; font-size: 12px; color: var(--text-secondary); }
+  .series-reading-heading a { color: var(--accent); }
+  .series-reading-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .series-reading-links a { display: grid; gap: 8px; padding: 16px; color: var(--text-primary); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: transform 120ms var(--ease-out), border-color 150ms ease, background-color 150ms ease; }
+  .series-reading-links small { color: var(--accent); font-size: 11px; }
+  .series-reading-links strong { font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+  .series-reading-links p { margin: 0; padding: 16px; color: var(--text-secondary); font-size: 12px; }
+  .series-reading-links a:active { transform: scale(.985); }
+  .series-reading-nav a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; transition: none; }
+  .series-reading-links a:focus-visible:active { transform: none; }
+  @media (hover: hover) and (pointer: fine) { .series-reading-links a:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, var(--surface)); transform: translateY(-2px); } }
+  @media (max-width: 480px) { .series-reading-links { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .series-reading-links a { transition: none; } .series-reading-links a:hover, .series-reading-links a:active { transform: none; } }
+</style>

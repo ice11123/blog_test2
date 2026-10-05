@@ -3,6 +3,7 @@ import {
   DEFAULT_ARTICLE_HEADING_OFFSET,
   findActiveHeadingIndex,
   headingScrollTarget,
+  readingProgress,
 } from '../lib/tocGeometry';
 
 declare global {
@@ -33,17 +34,30 @@ if (!window.__tocLoaded) {
   let tocScrollHandler: (() => void) | null = null;
   let tocScrollElement: HTMLElement | null = null;
   let tocSidebarElement: HTMLElement | null = null;
+  let readingBar: HTMLElement | null = null;
+  let readingLabel: HTMLElement | null = null;
+  let readingPercent: HTMLElement | null = null;
+  let readingTrack: HTMLElement | null = null;
+  let articleStart = 0;
+  let articleEnd = 0;
+  let viewportHeight = 0;
+  let articleTitle = '';
 
   document.addEventListener('astro:page-load', initToc);
   document.addEventListener('astro:before-swap', teardownToc);
 
   function initToc() {
     teardownToc();
-    const hasHeadings = buildToc();
+    buildToc();
     setupTocScrollFeedback();
-    if (!hasHeadings) return;
 
     const article = document.querySelector<HTMLElement>('.blog-post-page');
+    if (!article) return;
+    readingBar = document.querySelector<HTMLElement>('[data-reading-bar]');
+    readingLabel = readingBar?.querySelector<HTMLElement>('[data-reading-section]') ?? null;
+    readingPercent = readingBar?.querySelector<HTMLElement>('[data-reading-percent]') ?? null;
+    readingTrack = readingBar?.querySelector<HTMLElement>('[data-reading-progress]') ?? null;
+    articleTitle = readingLabel?.textContent ?? '';
     articleElement = article;
     if (article) {
       headingResizeObserver = new ResizeObserver(scheduleGeometryRefresh);
@@ -60,6 +74,7 @@ if (!window.__tocLoaded) {
       observeBlocks();
       const header = document.getElementById('site-header');
       if (header) headingResizeObserver.observe(header);
+      if (readingBar) headingResizeObserver.observe(readingBar);
       // 相同总高度的内容重排也会改变标题位置，不能只观察文章外框。
       // 不把图表内部每帧的 style/class 更新当成正文重排，尺寸变化由 ResizeObserver 兜底。
       contentObserver = new MutationObserver(records => {
@@ -97,6 +112,10 @@ if (!window.__tocLoaded) {
     tocScrollHandler = null;
     tocScrollElement = null;
     tocSidebarElement = null;
+    readingBar = null;
+    readingLabel = null;
+    readingPercent = null;
+    readingTrack = null;
     tocArea = null;
     indicator = null;
     contentObserver?.disconnect();
@@ -175,6 +194,17 @@ if (!window.__tocLoaded) {
   function refreshGeometry() {
     headingTops = headingElements.map(({ element }) => documentTop(element));
     headingOffset = getHeadingScrollOffset();
+    const offsetValue = `${headingOffset}px`;
+    if (articleElement && articleElement.style.getPropertyValue('--article-heading-offset') !== offsetValue) {
+      articleElement.style.setProperty('--article-heading-offset', offsetValue);
+    }
+    const prose = articleElement?.querySelector<HTMLElement>('.prose');
+    if (prose) {
+      const rect = prose.getBoundingClientRect();
+      articleStart = rect.top + window.scrollY;
+      articleEnd = rect.bottom + window.scrollY;
+    }
+    viewportHeight = window.innerHeight;
   }
 
   function documentTop(element: HTMLElement): number {
@@ -184,6 +214,11 @@ if (!window.__tocLoaded) {
   function getHeadingScrollOffset(): number {
     const article = document.querySelector<HTMLElement>('.blog-post-page');
     if (!article) return DEFAULT_ARTICLE_HEADING_OFFSET;
+    if (window.matchMedia('(max-width: 1099.98px)').matches) {
+      const headerHeight = document.getElementById('site-header')?.getBoundingClientRect().height ?? 100;
+      const barHeight = readingBar?.getBoundingClientRect().height ?? 0;
+      return headerHeight + barHeight + 16;
+    }
 
     const rawOffset = getComputedStyle(article).getPropertyValue('--article-heading-offset');
     const parsedOffset = Number.parseFloat(rawOffset);
@@ -257,6 +292,12 @@ if (!window.__tocLoaded) {
       window.scrollY,
       headingOffset,
     );
+    const progress = readingProgress(window.scrollY, articleStart, articleEnd, viewportHeight, headingOffset);
+    if (readingTrack) readingTrack.style.transform = `scaleX(${progress})`;
+    const percent = `${Math.round(progress * 100)}%`;
+    if (readingPercent && readingPercent.textContent !== percent) readingPercent.textContent = percent;
+    const label = headingElements[activeIndex]?.element.textContent?.trim() || articleTitle;
+    if (readingLabel && readingLabel.textContent !== label) readingLabel.textContent = label;
 
     if (activeIndex !== previousActiveIndex) {
       const previous = tocItemElements[previousActiveIndex];
