@@ -2,27 +2,25 @@
 import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
 import FormattedDate from '../blog/FormattedDate.astro';
-import { blogPostPath, withBase } from '../../lib/urls';
+import { blogCategoryPath, blogPostPath, withBase } from '../../lib/urls';
+import HomeSectionHeading from './HomeSectionHeading.astro';
+import { selectRecentSeries } from '../../lib/recentSeries';
 
 interface Props {
-  posts: CollectionEntry<'blog'>[];
+  entries: ReturnType<typeof selectRecentSeries<CollectionEntry<'blog'>>>;
 }
 
-const { posts } = Astro.props;
+const { entries } = Astro.props;
 ---
 
 <section class="recent-section" aria-labelledby="recent-title" data-home-motion-cull>
-  <header class="section-heading">
-    <div>
-      <p class="section-kicker">RECENT WRITING</p>
-      <h2 id="recent-title">近期文章</h2>
-    </div>
+  <HomeSectionHeading id="recent-title" title="近期文章" eyebrow="RECENT WRITING">
     <a class="section-link" href={withBase('/blog/')}>查看全部文章 <span aria-hidden="true">→</span></a>
-  </header>
+  </HomeSectionHeading>
 
-  {posts.length > 0 ? (
-    <div class="recent-list" data-count={posts.length}>
-      {posts.map((post, index) => (
+  {entries.length > 0 ? (
+    <div class="recent-list" data-count={entries.length}>
+      {entries.map(({ post, count, seriesName, latestDate }, index) => (
         <article class="home-post-card">
           <a class="home-post-link" href={blogPostPath(post.id)}>
             <div class="home-post-media">
@@ -35,9 +33,10 @@ const { posts } = Astro.props;
             <div class="home-post-copy">
               <div class="post-meta-line">
                 <span>{post.data.dir1 || '未分类'}</span>
-                <time datetime={post.data.pubDate.toISOString()}><FormattedDate date={post.data.pubDate} /></time>
+                <time datetime={latestDate.toISOString()}>{seriesName && '更新于 '}<FormattedDate date={latestDate} /></time>
               </div>
-              <h3>{post.data.title}</h3>
+              <h3>{seriesName || post.data.title}</h3>
+              {seriesName && <span class="series-entry-label">系列入口 · {post.data.title}</span>}
               <p>{post.data.description.replace(/<[^>]+>/g, '')}</p>
               <div class="post-footer">
                 <div class="post-tags" aria-label="文章标签">
@@ -47,6 +46,9 @@ const { posts } = Astro.props;
               </div>
             </div>
           </a>
+          {seriesName && <a class="recent-series-link" href={blogCategoryPath(post.data.dir1 ?? '', seriesName)}>
+            <span>共 {count} 篇 · 按顺序阅读</span><span>完整目录 →</span>
+          </a>}
         </article>
       ))}
     </div>
@@ -61,14 +63,15 @@ const { posts } = Astro.props;
 
 <style>
   .recent-section { padding: 0 0 40px; }
-  .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
-  .section-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
-  .section-heading h2 { margin: 0; color: var(--text-primary); font-size: 28px; line-height: 1.25; }
   .section-link { color: var(--accent); font-size: 14px; font-weight: 650; }
   .section-link:focus-visible, .home-post-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
   .recent-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .home-post-card { min-width: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
-  .home-post-link { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; gap: 16px; height: 100%; padding: 22px; box-sizing: border-box; color: inherit; text-decoration: none; }
+  .home-post-card { display: flex; flex-direction: column; }
+  .series-entry-label { display: -webkit-box; overflow: hidden; margin-top: 7px; color: var(--text-secondary); font-size: 11px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+  .recent-series-link { display: flex; justify-content: space-between; gap: 12px; margin-top: auto; padding: 12px 22px; border-top: 1px solid var(--border); color: var(--accent); background: var(--surface-subtle); font-size: 11px; text-decoration: none; }
+  .recent-series-link:focus-visible { outline: 2px solid var(--focus); outline-offset: -3px; }
+  .home-post-link { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; gap: 16px; flex: 1; padding: 22px; box-sizing: border-box; color: inherit; text-decoration: none; }
   .home-post-media { position: relative; width: 48px; height: 64px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--border) 65%, transparent); border-radius: 10px; background: var(--surface-subtle); }
   .home-post-media :global(img) { width: 100%; height: 100%; object-fit: cover; border-radius: 0; transition: transform 220ms cubic-bezier(.23,1,.32,1); }
   .home-post-sequence { display: grid; place-items: center; width: 100%; height: 100%; color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
@@ -107,8 +110,6 @@ const { posts } = Astro.props;
 
   @media (max-width: 640px) {
     .recent-section { padding-bottom: 32px; }
-    .section-heading { align-items: flex-start; }
-    .section-heading h2 { font-size: 24px; }
     .section-link { align-self: end; flex-shrink: 0; margin: 0; font-size: 12px; }
     .recent-list { grid-template-columns: 1fr; gap: 12px; }
     .home-post-link { display: block; position: relative; padding: 18px; }

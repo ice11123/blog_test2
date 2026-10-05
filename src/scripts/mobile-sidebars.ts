@@ -28,6 +28,20 @@ function initMobileSidebars() {
   const abortController = new AbortController();
   const { signal } = abortController;
   let returnFocus: HTMLButtonElement | null = null;
+  const unavailableBeforeOpen = new Map<HTMLElement, boolean>();
+  const pageContent = Array.from(document.querySelectorAll<HTMLElement>('main.public-main, body > footer'));
+
+  function restorePageContent() {
+    for (const [element, previous] of unavailableBeforeOpen) element.inert = previous;
+    unavailableBeforeOpen.clear();
+  }
+
+  function focusDrawer(name: SidebarName) {
+    const drawer = drawerFor(name);
+    const target = drawer?.querySelector<HTMLElement>('[aria-current], [role="tab"][aria-selected="true"]')
+      ?? drawer?.querySelector<HTMLElement>('button:not([disabled]), a[href], [tabindex="0"]');
+    target?.focus({ preventScroll: true });
+  }
 
   controls.dataset.mobileSidebarReady = 'true';
   toggles.forEach((toggle) => { toggle.disabled = false; });
@@ -60,6 +74,7 @@ function initMobileSidebars() {
     const openName = document.documentElement.getAttribute(ROOT_ATTRIBUTE) as SidebarName | null;
     document.documentElement.removeAttribute(ROOT_ATTRIBUTE);
     syncAvailability(null);
+    restorePageContent();
     if (announce && openName && status) status.textContent = openName === 'left' ? '站点侧栏已收起' : '文章目录已收起';
     if (restoreFocus && returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
     returnFocus = null;
@@ -76,6 +91,11 @@ function initMobileSidebars() {
     returnFocus = trigger;
     document.documentElement.setAttribute(ROOT_ATTRIBUTE, name);
     syncAvailability(name);
+    for (const element of pageContent) {
+      if (!unavailableBeforeOpen.has(element)) unavailableBeforeOpen.set(element, element.inert);
+      element.inert = true;
+    }
+    focusDrawer(name);
     if (status) status.textContent = name === 'left' ? '站点侧栏已展开' : '文章目录已展开';
   }
 
@@ -88,14 +108,27 @@ function initMobileSidebars() {
 
   backdrop?.addEventListener('click', () => close({ restoreFocus: true }), { signal });
   document.addEventListener('keydown', (event) => {
+    if (event.isComposing || document.querySelector('dialog[open]')) return;
     if (event.key === 'Escape' && document.documentElement.hasAttribute(ROOT_ATTRIBUTE)) {
       event.preventDefault();
       close({ restoreFocus: true });
     }
+    const name = document.documentElement.getAttribute(ROOT_ATTRIBUTE) as SidebarName | null;
+    if (event.key !== 'Tab' || !media.matches || !name || document.querySelector('dialog[open]')) return;
+    // 顶栏仍可用；焦点只在顶栏、当前抽屉和展开控件之间循环。
+    const scopes = [siteHeader, drawerFor(name), controls];
+    const focusable = scopes.flatMap(scope => scope ? Array.from(scope.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, [tabindex="0"]')) : [])
+      .filter(element => element.tabIndex >= 0 && element.getClientRects().length > 0 && getComputedStyle(element).visibility !== 'hidden' && !element.closest('[inert]'));
+    if (!focusable.length) return;
+    const current = focusable.indexOf(document.activeElement as HTMLElement);
+    const next = current < 0 ? (event.shiftKey ? focusable.length - 1 : 0)
+      : (current + (event.shiftKey ? -1 : 1) + focusable.length) % focusable.length;
+    event.preventDefault();
+    focusable[next].focus({ preventScroll: true });
   }, { signal });
 
-  rightDrawer?.addEventListener('click', (event) => {
-    if (media.matches && (event.target as Element).closest('#toc-list button')) close({ announce: false });
+  document.addEventListener('blog:heading-navigation', () => {
+    if (media.matches) close({ announce: false });
   }, { signal });
 
   const resizeObserver = new ResizeObserver(updateHeaderHeight);
@@ -112,6 +145,7 @@ function initMobileSidebars() {
   teardownCurrentPage = () => {
     abortController.abort();
     resizeObserver.disconnect();
+    restorePageContent();
     document.documentElement.removeAttribute(ROOT_ATTRIBUTE);
     document.documentElement.style.removeProperty('--public-header-height');
     siteSidebar.inert = false;

@@ -1,5 +1,6 @@
 ---
 import { getImage } from 'astro:assets';
+import HomeSectionHeading from './HomeSectionHeading.astro';
 import type { CollectionEntry } from 'astro:content';
 import controlPlatform from '../../assets/topics/control-platform.png';
 import { DIR1_ORDER } from '../../consts';
@@ -94,13 +95,7 @@ const topics = presentations.map((topic) => {
 ---
 
 <section class="topic-atlas" aria-labelledby="topic-atlas-title">
-  <header class="topic-atlas-heading">
-    <div>
-      <p>KNOWLEDGE CONSTELLATION</p>
-      <h2 id="topic-atlas-title">技术星图</h2>
-    </div>
-    <p>沿着主题进入，查看正在生长的学习路径与工程记录。</p>
-  </header>
+  <HomeSectionHeading id="topic-atlas-title" title="技术星图" eyebrow="KNOWLEDGE CONSTELLATION" description="沿着主题进入，查看正在生长的学习路径与工程记录。" />
 
   <div class="topic-grid">
     {topics.map((topic) => (
@@ -208,39 +203,6 @@ const topics = presentations.map((topic) => {
   .topic-atlas {
     padding: 4px 0 52px;
   }
-
-  .topic-atlas-heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 32px;
-    margin-bottom: 26px;
-  }
-
-  .topic-atlas-heading > div > p {
-    margin: 0 0 10px;
-    color: var(--accent);
-    font-size: 11px;
-    font-weight: 760;
-    letter-spacing: .16em;
-  }
-
-  .topic-atlas-heading h2 {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: 30px;
-    line-height: 1.15;
-  }
-
-  .topic-atlas-heading > p {
-    max-width: 420px;
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 13px;
-    line-height: 1.75;
-    text-align: right;
-  }
-
   .topic-grid {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -677,9 +639,6 @@ const topics = presentations.map((topic) => {
 
   @media (max-width: 680px) {
     .topic-atlas { padding-bottom: 38px; }
-    .topic-atlas-heading { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-    .topic-atlas-heading h2 { font-size: 25px; }
-    .topic-atlas-heading > p { max-width: 34rem; text-align: left; }
     .topic-grid { grid-template-columns: minmax(0, 1fr); gap: 13px; }
     .topic-codex,
     .topic-control,

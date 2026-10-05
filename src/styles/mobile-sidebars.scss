@@ -48,7 +48,7 @@
       position: fixed;
       z-index: 1103;
       top: auto;
-      bottom: 24px;
+      bottom: max(24px, env(safe-area-inset-bottom));
       display: grid;
       width: 23px;
       height: 42px;
@@ -76,6 +76,16 @@
       border-right: 0;
       border-radius: 11px 0 0 11px;
     }
+
+    /* 可见把手保持纤细，只扩大命中区域，不挤占正文布局。 */
+    .mobile-sidebar-toggle::before {
+      content: '';
+      position: absolute;
+      inset-block: -1px;
+      width: 44px;
+    }
+    .mobile-sidebar-toggle-left::before { left: 0; }
+    .mobile-sidebar-toggle-right::before { right: 0; }
 
     .mobile-sidebar-toggle svg {
       width: 16px;

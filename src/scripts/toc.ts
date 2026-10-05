@@ -18,6 +18,14 @@ if (!window.__tocLoaded) {
 
   let ticking = false;
   let previousActiveIndex = -1;
+  let headingTops: number[] = [];
+  let headingOffset = DEFAULT_ARTICLE_HEADING_OFFSET;
+  let contentObserver: MutationObserver | null = null;
+  let articleElement: HTMLElement | null = null;
+  let activeFrame: number | null = null;
+  let tocArea: HTMLElement | null = null;
+  let indicator: HTMLElement | null = null;
+  let generation = 0;
   let headingResizeObserver: ResizeObserver | null = null;
   let geometryRefreshFrame: number | null = null;
   let tocScrollFrame: number | null = null;
@@ -36,19 +44,49 @@ if (!window.__tocLoaded) {
     if (!hasHeadings) return;
 
     const article = document.querySelector<HTMLElement>('.blog-post-page');
+    articleElement = article;
     if (article) {
       headingResizeObserver = new ResizeObserver(scheduleGeometryRefresh);
       headingResizeObserver.observe(article);
+      const prose = article.querySelector('.prose');
+      const blocks = new Set<Element>();
+      const observeBlocks = () => {
+        blocks.forEach(block => { if (!article.contains(block)) { headingResizeObserver?.unobserve(block); blocks.delete(block); } });
+        article.querySelectorAll('.prose > *').forEach(block => {
+          if (!blocks.has(block)) headingResizeObserver?.observe(block);
+          blocks.add(block);
+        });
+      };
+      observeBlocks();
+      const header = document.getElementById('site-header');
+      if (header) headingResizeObserver.observe(header);
+      // 相同总高度的内容重排也会改变标题位置，不能只观察文章外框。
+      // 不把图表内部每帧的 style/class 更新当成正文重排，尺寸变化由 ResizeObserver 兜底。
+      contentObserver = new MutationObserver(records => {
+        if (records.some(record => record.type === 'childList' && record.target === prose)) observeBlocks();
+        const needsRefresh = records.some(record => {
+          if (record.type === 'childList') return record.target === prose;
+          return record.attributeName === 'open' || record.attributeName === 'hidden'
+            || record.target === article || record.target === prose || blocks.has(record.target as Element);
+        });
+        if (needsRefresh) scheduleGeometryRefresh();
+      });
+      contentObserver.observe(article, { childList: true, subtree: true, attributes: true, attributeFilter: ['open', 'hidden', 'class', 'style'] });
+      article.addEventListener('load', scheduleGeometryRefresh, true);
+      article.addEventListener('toggle', scheduleGeometryRefresh, true);
     }
 
     window.addEventListener('resize', scheduleGeometryRefresh, { passive: true });
     window.addEventListener('load', scheduleGeometryRefresh, { once: true });
-    document.fonts?.ready.then(() => scheduleGeometryRefresh());
+    const mountedGeneration = generation;
+    document.fonts?.ready.then(() => { if (generation === mountedGeneration) scheduleGeometryRefresh(); });
 
+    refreshGeometry();
     setupScrollSpy();
   }
 
   function teardownToc() {
+    generation++;
     if (scrollSpyHandler) window.removeEventListener('scroll', scrollSpyHandler);
     if (tocScrollHandler && tocScrollElement) {
       tocScrollElement.removeEventListener('scroll', tocScrollHandler);
@@ -59,6 +97,13 @@ if (!window.__tocLoaded) {
     tocScrollHandler = null;
     tocScrollElement = null;
     tocSidebarElement = null;
+    tocArea = null;
+    indicator = null;
+    contentObserver?.disconnect();
+    contentObserver = null;
+    articleElement?.removeEventListener('load', scheduleGeometryRefresh, true);
+    articleElement?.removeEventListener('toggle', scheduleGeometryRefresh, true);
+    articleElement = null;
 
     headingResizeObserver?.disconnect();
     headingResizeObserver = null;
@@ -67,11 +112,14 @@ if (!window.__tocLoaded) {
     geometryRefreshFrame = null;
     if (tocScrollFrame !== null) cancelAnimationFrame(tocScrollFrame);
     tocScrollFrame = null;
+    if (activeFrame !== null) cancelAnimationFrame(activeFrame);
+    activeFrame = null;
 
     headingElements.length = 0;
     tocItemElements.length = 0;
     ticking = false;
     previousActiveIndex = -1;
+    headingTops = [];
   }
 
   function buildToc(): boolean {
@@ -96,25 +144,37 @@ if (!window.__tocLoaded) {
       const item = document.createElement('li');
       item.classList.add(heading.tagName === 'H2' ? 'toc-level-h2' : 'toc-level-h3');
 
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = heading.textContent?.trim() || '';
-      button.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.href = `#${encodeURIComponent(heading.id)}`;
+      link.textContent = heading.textContent?.trim() || '';
+      link.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        history.pushState(history.state, '', link.hash);
+        // 先让遮罩式抽屉释放正文，再转交章节焦点。
+        document.dispatchEvent(new CustomEvent('blog:heading-navigation', { detail: { id: heading.id } }));
+        heading.setAttribute('tabindex', '-1');
+        heading.focus({ preventScroll: true });
         const headingTop = documentTop(heading);
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         window.scrollTo({
           top: headingScrollTarget(headingTop, getHeadingScrollOffset()),
-          behavior: reduceMotion ? 'auto' : 'smooth',
+          behavior: reduceMotion || event.detail === 0 ? 'auto' : 'smooth',
         });
       });
 
-      item.appendChild(button);
+      item.appendChild(link);
       tocList.appendChild(item);
       headingElements.push({ element: heading, tocItem: item });
       tocItemElements.push(item);
     });
 
     return true;
+  }
+
+  function refreshGeometry() {
+    headingTops = headingElements.map(({ element }) => documentTop(element));
+    headingOffset = getHeadingScrollOffset();
   }
 
   function documentTop(element: HTMLElement): number {
@@ -135,7 +195,9 @@ if (!window.__tocLoaded) {
 
     geometryRefreshFrame = requestAnimationFrame(() => {
       geometryRefreshFrame = null;
+      refreshGeometry();
       updateActive();
+      updateRightIndicator(previousActiveIndex);
       scheduleTocScrollFeedback();
     });
   }
@@ -144,7 +206,7 @@ if (!window.__tocLoaded) {
     scrollSpyHandler = () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(updateActive);
+      activeFrame = requestAnimationFrame(() => { activeFrame = null; updateActive(); });
     };
 
     window.addEventListener('scroll', scrollSpyHandler, { passive: true });
@@ -154,6 +216,8 @@ if (!window.__tocLoaded) {
   function setupTocScrollFeedback() {
     tocScrollElement = document.querySelector<HTMLElement>('.article-toc-scroll');
     tocSidebarElement = document.querySelector<HTMLElement>('[data-article-toc-sidebar]');
+    tocArea = tocScrollElement;
+    indicator = tocArea?.querySelector<HTMLElement>('.position-indicator') ?? null;
     if (!tocScrollElement || !tocSidebarElement) return;
 
     tocScrollHandler = scheduleTocScrollFeedback;
@@ -167,6 +231,7 @@ if (!window.__tocLoaded) {
     tocScrollFrame = requestAnimationFrame(() => {
       tocScrollFrame = null;
       updateTocScrollFeedback();
+      updateRightIndicator(previousActiveIndex);
     });
   }
 
@@ -187,29 +252,29 @@ if (!window.__tocLoaded) {
   }
 
   function updateActive() {
-    const headingTops = headingElements.map(({ element }) => documentTop(element));
     const activeIndex = findActiveHeadingIndex(
       headingTops,
       window.scrollY,
-      getHeadingScrollOffset(),
+      headingOffset,
     );
 
     if (activeIndex !== previousActiveIndex) {
+      const previous = tocItemElements[previousActiveIndex];
       previousActiveIndex = activeIndex;
-      tocItemElements.forEach((item, index) => {
-        item.classList.toggle('active', index === activeIndex);
-      });
+      previous?.classList.remove('active');
+      previous?.querySelector('a')?.removeAttribute('aria-current');
+      const current = tocItemElements[activeIndex];
+      current?.classList.add('active');
+      current?.querySelector('a')?.setAttribute('aria-current', 'location');
 
       if (activeIndex >= 0) scrollTocToView(tocItemElements[activeIndex]);
+      updateRightIndicator(activeIndex);
     }
 
-    updateRightIndicator(activeIndex);
     ticking = false;
   }
 
   function updateRightIndicator(activeIndex: number) {
-    const tocArea = document.querySelector<HTMLElement>('.toc-area');
-    const indicator = tocArea?.querySelector<HTMLElement>('.position-indicator');
     const activeItem = tocItemElements[activeIndex];
 
     if (!tocArea || !indicator || !activeItem) {
@@ -231,7 +296,6 @@ if (!window.__tocLoaded) {
   }
 
   function scrollTocToView(tocItem: HTMLLIElement) {
-    const tocArea = document.querySelector<HTMLElement>('.toc-area');
     if (!tocArea) return;
 
     const areaRect = tocArea.getBoundingClientRect();

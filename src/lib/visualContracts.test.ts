@@ -7,6 +7,22 @@ import { fileURLToPath } from 'node:url';
 const srcRoot = fileURLToPath(new URL('..', import.meta.url));
 const sourceExtensions = new Set(['.astro', '.css', '.scss', '.ts']);
 
+test('搜索静态索引按需加载、保护输入法且选择不重建列表', () => {
+  const modal = readSource('components/blog/SearchModal.astro');
+  const search = readSource('scripts/search.ts');
+  const toc = readSource('scripts/toc.ts');
+  assert.doesNotMatch(modal, /__SEARCH_DATA__/);
+  assert.match(modal, /data-search-index/);
+  assert.match(search, /isComposing/);
+  assert.match(search, /compositionstart/);
+  assert.match(search, /compositionend/);
+  const selection = search.slice(search.indexOf('function updateSelection'), search.indexOf('function scrollSelectedIntoView'));
+  assert.doesNotMatch(selection, /innerHTML|renderResults/);
+  assert.match(toc, /history.pushState\(history.state/);
+  assert.match(toc, /aria-current/);
+  assert.match(toc, /headingTops,/);
+});
+
 test('软件作品位于技术星图下，整卡原生跳转且不增加运行时脚本', () => {
   const home = readSource('pages/index.astro');
   const showcase = readSource('components/home/SoftwareShowcase.astro');
@@ -92,7 +108,7 @@ test('TOC、搜索与 Spoiler 使用新的交互契约', () => {
   const tocStyles = readSource('styles/article-toc-sidebar.scss');
   assert.doesNotMatch(toc, /\.style\.height/);
   assert.match(toc, /scaleY\(\$\{length\}\)/);
-  assert.match(toc, /createElement\('button'\)/);
+  assert.match(toc, /createElement\('a'\)/);
   assert.match(toc, /astro:before-swap', teardownToc/);
   assert.match(toc, /headingResizeObserver/);
   assert.match(toc, /findActiveHeadingIndex/);
@@ -159,7 +175,7 @@ test('统一侧栏在桌面常驻并在移动端复用为边缘抽屉', () => {
   assert.match(mobileStyles, /transform:\s*translate3d\(-100%,\s*0,\s*0\)/);
   assert.match(mobileStyles, /transform:\s*translate3d\(100%,\s*0,\s*0\)/);
   assert.match(mobileStyles, /transition:\s*transform 240ms var\(--ease-drawer\)/);
-  assert.match(mobileStyles, /bottom:\s*24px/);
+  assert.match(mobileStyles, /bottom:\s*max\(24px/);
   assert.doesNotMatch(mobileStyles, /transition:\s*all/);
   assert.match(mobileScript, /ResizeObserver\(updateHeaderHeight\)/);
   assert.match(mobileScript, /max-width:\s*1099\.98px/);
@@ -178,7 +194,7 @@ test('文章页使用紧凑导语层级与独立正文版心', () => {
   assert.match(layout, /class="article-meta"/);
   assert.match(layout, /class="post-author-link" href=\{withBase\('\/'\)\}/);
   assert.match(layout, /class:list=\{\['prose', 'article-content'/);
-  assert.match(layout, /查看源文件/);
+  assert.match(layout, /sourceLabel/);
   assert.doesNotMatch(layout, /class="post-meta" aria-label="文章信息"/);
   assert.match(styles, /\.article-header h1\s*\{[\s\S]*width:\s*100%[\s\S]*max-width:\s*none/);
   assert.match(styles, /\.article-header h1\s*\{[\s\S]*text-align:\s*center[\s\S]*text-wrap:\s*pretty/);
@@ -248,7 +264,7 @@ test('主页复用统一侧栏并移除高饱和巨大字占位', () => {
   assert.doesNotMatch(home, /HomeSidebar/);
   assert.match(layout, /<PersistentSidebar/);
   assert.match(layout, /grid-template-columns:\s*248px minmax\(0,\s*1fr\)/);
-  assert.match(home, /<RecentPosts posts=\{recentPosts\}/);
+  assert.match(home, /<RecentPosts entries=\{recentPosts\}/);
   assert.match(home, /<TopicAtlas posts=\{allPosts\}/);
   assert.match(recentPosts, /class="home-post-sequence"/);
   assert.match(topicAtlas, /class="topic-grid"/);
@@ -328,7 +344,7 @@ test('主页运行状态提供可见的手动刷新入口', () => {
 
 test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开', () => {
   const home = readSource('pages/index.astro');
-  const motion = readSource('scripts/home-hero-motion.ts');
+  const motion = readSource('scripts/home-hero-motion.ts') + readSource('lib/homeCoverTimeline.ts') + readSource('lib/homeCoverImages.ts');
   const gesture = readSource('lib/homeCoverGesture.ts');
   const geometry = readSource('lib/homeCoverMotionGeometry.ts');
 
@@ -397,7 +413,7 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.doesNotMatch(motion, /createProgressAnimation\(source/);
   assert.doesNotMatch(motion, /opacity:\s*1\s*-\s*value/);
   assert.doesNotMatch(motion, /96\s*\*\s*value/);
-  assert.match(motion, /requestHighResolution\(\)/);
+  assert.match(motion, /images\.enterExpanded\(\)/);
   assert.match(motion, /IntersectionObserver/);
   assert.doesNotMatch(motion, /startViewTransition/);
   assert.match(motion, /addEventListener\('scroll', syncWheelListener, \{ passive: true \}\)/);
@@ -410,7 +426,7 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.doesNotMatch(motion, /setElementUnavailable\(sidebar/);
   assert.match(motion, /stageLeft\s*=\s*sidebarIsVisible[\s\S]*sidebar\.getBoundingClientRect\(\)\.right\s*:\s*0/);
   assert.ok(motion.indexOf('const blueprint = cachedMotionBlueprint') < motion.indexOf('setElementUnavailable(drawer, false)'));
-  assert.match(motion, /releaseHighResolution\(\)/);
+  assert.match(motion, /images\.releaseToPreview\(\)/);
   assert.match(home, /content-visibility:\s*auto/);
   assert.match(home, /\.home-drawer\s*\{[^}]*display:\s*flow-root/);
 });

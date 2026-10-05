@@ -8,7 +8,8 @@ export function headingScrollTarget(
   headingTop: number,
   offset = DEFAULT_ARTICLE_HEADING_OFFSET,
 ): number {
-  return Math.max(0, headingTop - safeOffset(offset));
+  // scrollTo 在部分浏览器取整；向上取整避免标题差半像素而仍高亮上一节。
+  return Math.max(0, Math.ceil(headingTop - safeOffset(offset)));
 }
 
 export function findActiveHeadingIndex(
@@ -17,12 +18,12 @@ export function findActiveHeadingIndex(
   offset = DEFAULT_ARTICLE_HEADING_OFFSET,
 ): number {
   const readingLine = scrollY + safeOffset(offset);
-  let activeIndex = -1;
-
-  for (let index = 0; index < headingTops.length; index += 1) {
-    if (headingTops[index] > readingLine) break;
-    activeIndex = index;
+  let low = 0;
+  let high = headingTops.length;
+  while (low < high) {
+    const middle = (low + high) >>> 1;
+    if (headingTops[middle] <= readingLine) low = middle + 1;
+    else high = middle;
   }
-
-  return activeIndex;
+  return low - 1;
 }

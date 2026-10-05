@@ -1,29 +1,31 @@
 import type Fuse from 'fuse.js';
 import type { FuseResult } from 'fuse.js';
+import { searchExcerpt, type SearchItem } from '../lib/searchContent';
 import { blogPostPath } from '../lib/urls';
 
 // 防止 dev 模式下视图过渡导致脚本重复执行
 if (!(window as any).__searchLoaded) {
   (window as any).__searchLoaded = true;
 
-interface SearchItem {
-  title: string;
-  description: string;
-  dir1: string;
-  dir2: string;
-  tags: string;
-  slug: string;
-}
-
 let fuse: Fuse<SearchItem> | null = null;
 let fusePromise: Promise<Fuse<SearchItem> | null> | null = null;
 let results: FuseResult<SearchItem>[] = [];
 let selectedIndex = -1;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let composing = false;
+let searchGeneration = 0;
+let loadedIndexUrl = '';
 
 // ---- Read search data ----
-function getSearchData(): SearchItem[] {
-  return (window as any).__SEARCH_DATA__ || [];
+async function getSearchData(url: string): Promise<SearchItem[]> {
+  if (!url) return [];
+  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!response.ok) throw new Error(`搜索索引加载失败：${response.status}`);
+  const data: unknown = await response.json();
+  if (!Array.isArray(data) || !data.every(item => item && typeof item.title === 'string' && typeof item.slug === 'string' && typeof item.content === 'string')) {
+    throw new Error('搜索索引格式不正确');
+  }
+  return data as SearchItem[];
 }
 
 // ---- Initialize Fuse ----
@@ -31,34 +33,40 @@ async function initFuse(data: SearchItem[]): Promise<Fuse<SearchItem>> {
   const { default: FuseConstructor } = await import('fuse.js');
   return new FuseConstructor(data, {
     keys: [
-      { name: 'title', weight: 0.4 },
-      { name: 'description', weight: 0.3 },
-      { name: 'dir1', weight: 0.1 },
-      { name: 'dir2', weight: 0.1 },
+      { name: 'title', weight: 0.35 },
+      { name: 'description', weight: 0.2 },
+      { name: 'content', weight: 0.25 },
+      { name: 'dir1', weight: 0.05 },
+      { name: 'dir2', weight: 0.05 },
       { name: 'tags', weight: 0.1 },
     ],
     threshold: 0.4,
     minMatchCharLength: 1,
     includeMatches: true,
     includeScore: true,
+    ignoreLocation: true,
   });
 }
 
 function ensureFuse(): Promise<Fuse<SearchItem> | null> {
+  const indexUrl = getModal()?.dataset.searchIndex ?? '';
+  if (indexUrl !== loadedIndexUrl) {
+    loadedIndexUrl = indexUrl;
+    fuse = null;
+    fusePromise = null;
+  }
   if (fuse) return Promise.resolve(fuse);
 
-  const data = getSearchData();
-  if (data.length === 0) return Promise.resolve(null);
-
   if (!fusePromise) {
-    fusePromise = initFuse(data)
+    fusePromise = getSearchData(indexUrl).then(initFuse)
       .then((instance) => {
+        if (indexUrl !== loadedIndexUrl) return null;
         fuse = instance;
         return instance;
       })
       .catch((error) => {
         console.error('搜索模块加载失败', error);
-        fusePromise = null;
+        if (indexUrl === loadedIndexUrl) fusePromise = null;
         return null;
       });
   }
@@ -100,6 +108,10 @@ function openModal(source: SearchOpenSource): void {
 }
 
 function closeModal(): void {
+  searchGeneration++;
+  composing = false;
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = null;
   const modal = getModal();
   const input = getInput();
   input?.setAttribute('aria-expanded', 'false');
@@ -129,12 +141,6 @@ function highlightMatches(value: string, indices?: readonly [number, number][]):
   return result;
 }
 
-// ---- Truncate text ----
-function truncate(str: string, maxLen: number): string {
-  if (str.length <= maxLen) return str;
-  return str.slice(0, maxLen) + '...';
-}
-
 // ---- Build post URL from slug ----
 function buildPostUrl(slug: string): string {
   return blogPostPath(slug);
@@ -142,6 +148,7 @@ function buildPostUrl(slug: string): string {
 
 // ---- Perform search ----
 async function performSearch(query: string): Promise<void> {
+  const generation = ++searchGeneration;
   const normalizedQuery = query.trim();
   if (!normalizedQuery) {
     results = [];
@@ -152,7 +159,7 @@ async function performSearch(query: string): Promise<void> {
 
   const searchEngine = await ensureFuse();
   const input = getInput();
-  if (!input || input.value.trim() !== normalizedQuery) return;
+  if (!input || input.value.trim() !== normalizedQuery || generation !== searchGeneration || !getModal()?.open) return;
 
   if (!searchEngine) {
     const list = getResultsList();
@@ -160,7 +167,7 @@ async function performSearch(query: string): Promise<void> {
     return;
   }
 
-  results = searchEngine.search(normalizedQuery);
+  results = searchEngine.search(normalizedQuery, { limit: 40 });
   selectedIndex = -1;
   renderResults();
 }
@@ -191,9 +198,12 @@ function renderResults(): void {
         const descMatch = matches.find(m => m.key === 'description');
         const dir1Match = matches.find(m => m.key === 'dir1');
         const dir2Match = matches.find(m => m.key === 'dir2');
+        const contentMatch = matches.find(m => m.key === 'content');
 
         const titleHtml = highlightMatches(item.title, titleMatch?.indices);
-        const descHtml = highlightMatches(truncate(item.description, 200), descMatch?.indices);
+        const query = input?.value.trim() ?? '';
+        const excerpt = contentMatch ? searchExcerpt(item.content, contentMatch.indices, 180, query) : searchExcerpt(item.description, descMatch?.indices, 180, query);
+        const descHtml = highlightMatches(excerpt.text, excerpt.indices);
 
         const categoryParts: string[] = [];
         if (item.dir1) categoryParts.push(highlightMatches(item.dir1, dir1Match?.indices));
@@ -222,17 +232,16 @@ function renderResults(): void {
 
 // ---- Keyboard navigation ----
 function handleKeydown(e: KeyboardEvent): void {
+  if (composing || e.isComposing || e.keyCode === 229) return;
   switch (e.key) {
     case 'ArrowDown':
       e.preventDefault();
-      selectedIndex = Math.min(selectedIndex + 1, results.length - 1);
-      renderResults();
+      updateSelection(Math.min(selectedIndex + 1, results.length - 1));
       scrollSelectedIntoView();
       break;
     case 'ArrowUp':
       e.preventDefault();
-      selectedIndex = Math.max(selectedIndex - 1, 0);
-      renderResults();
+      updateSelection(results.length ? Math.max(selectedIndex - 1, 0) : -1);
       scrollSelectedIntoView();
       break;
     case 'Enter':
@@ -250,6 +259,19 @@ function handleKeydown(e: KeyboardEvent): void {
   }
 }
 
+function updateSelection(nextIndex: number): void {
+  const list = getResultsList();
+  const previous = list?.querySelector<HTMLElement>(`#search-result-${selectedIndex}`);
+  previous?.classList.remove('selected');
+  previous?.setAttribute('aria-selected', 'false');
+  selectedIndex = nextIndex;
+  const next = list?.querySelector<HTMLElement>(`#search-result-${selectedIndex}`);
+  next?.classList.add('selected');
+  next?.setAttribute('aria-selected', 'true');
+  if (next) getInput()?.setAttribute('aria-activedescendant', next.id);
+  else getInput()?.removeAttribute('aria-activedescendant');
+}
+
 function scrollSelectedIntoView(): void {
   const selected = document.querySelector('.search-result-item.selected');
   if (selected) {
@@ -259,6 +281,7 @@ function scrollSelectedIntoView(): void {
 
 // ---- Global keyboard shortcut ----
 function handleGlobalKeydown(e: KeyboardEvent): void {
+  if (e.isComposing || composing) return;
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     openModal('keyboard');
@@ -272,16 +295,31 @@ function handleTriggerClick(): void {
 // ---- Debounced input ----
 function handleInput(e: Event): void {
   if (debounceTimer) clearTimeout(debounceTimer);
+  updateSelection(-1);
+  if (composing || (e as InputEvent).isComposing) return;
   debounceTimer = setTimeout(() => {
     void performSearch((e.target as HTMLInputElement).value);
   }, 150);
 }
 
+function handleCompositionStart(): void {
+  composing = true;
+  searchGeneration++;
+  if (debounceTimer) clearTimeout(debounceTimer);
+}
+
+function handleCompositionEnd(e: Event): void {
+  composing = false;
+  handleInput(e);
+}
+
+function handleCancel(e: Event): void {
+  if (composing) e.preventDefault();
+  else closeModal();
+}
+
 // ---- Initialization ----
 function init(): void {
-  const data = getSearchData();
-  if (data.length === 0) return;
-
   // Bind modal listeners
   const modal = getModal();
   const input = getInput();
@@ -300,6 +338,10 @@ function init(): void {
     input.addEventListener('input', handleInput);
     input.removeEventListener('keydown', handleKeydown);
     input.addEventListener('keydown', handleKeydown);
+    input.removeEventListener('compositionstart', handleCompositionStart);
+    input.addEventListener('compositionstart', handleCompositionStart);
+    input.removeEventListener('compositionend', handleCompositionEnd);
+    input.addEventListener('compositionend', handleCompositionEnd);
   }
 
   // Close button
@@ -312,6 +354,8 @@ function init(): void {
   if (modal) {
     modal.removeEventListener('click', handleModalBackdropClick);
     modal.addEventListener('click', handleModalBackdropClick);
+    modal.removeEventListener('cancel', handleCancel);
+    modal.addEventListener('cancel', handleCancel);
   }
 
   // Global shortcut

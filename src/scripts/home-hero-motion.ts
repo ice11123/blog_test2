@@ -1,3 +1,5 @@
+import { createHomeCoverImages } from '../lib/homeCoverImages';
+import { createHomeCoverTimeline, type HomeCoverMotionBlueprint } from '../lib/homeCoverTimeline';
 import {
   normalizeHomeCoverWheelIntent,
   resolveHomeCoverDirection,
@@ -9,7 +11,6 @@ import {
 } from '../lib/homeCoverGesture';
 import {
   computeHomeCoverMotionGeometry,
-  type HomeCoverMotionGeometry,
   type MotionRect,
 } from '../lib/homeCoverMotionGeometry';
 
@@ -25,39 +26,10 @@ const LOWER_SELECTOR = '[data-home-lower-motion]';
 const SIDEBAR_SELECTOR = '[data-persistent-sidebar]';
 const STATUS_SELECTOR = '[data-home-cover-status]';
 const HEADER_SELECTOR = '#site-header';
-const TIMELINE_DURATION = 1000;
 const WHEEL_GESTURE_IDLE_MS = 120;
 const TOGGLE_EXPAND_MS = 280;
 const TOGGLE_COLLAPSE_MS = 240;
 const KEYBOARD_REVEAL_KEYS = new Set(['Tab', 'End', 'PageDown', 'ArrowDown', ' ']);
-const DRAWER_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
-
-function cubicBezierCoordinate(t: number, first: number, second: number): number {
-  const inverse = 1 - t;
-  return 3 * inverse * inverse * t * first + 3 * inverse * t * t * second + t * t * t;
-}
-
-function cubicBezierDerivative(t: number, first: number, second: number): number {
-  const inverse = 1 - t;
-  return 3 * inverse * inverse * first + 6 * inverse * t * (second - first) + 3 * t * t * (1 - second);
-}
-
-function easeHomeCoverSettle(linearProgress: number): number {
-  const x = Math.min(Math.max(linearProgress, 0), 1);
-  let parameter = x;
-  for (let iteration = 0; iteration < 6; iteration += 1) {
-    const derivative = cubicBezierDerivative(parameter, 0.32, 0);
-    if (Math.abs(derivative) < 0.000001) break;
-    parameter -= (cubicBezierCoordinate(parameter, 0.32, 0) - x) / derivative;
-    parameter = Math.min(Math.max(parameter, 0), 1);
-  }
-  return cubicBezierCoordinate(parameter, 0.72, 1);
-}
-
-function interpolate(start: number, end: number, progress: number): number {
-  return start + (end - start) * progress;
-}
-
 function parseObjectPosition(value: string): [number, number] {
   const positions = value.trim().split(/\s+/);
   const parse = (position: string | undefined, fallback: number) => {
@@ -72,16 +44,6 @@ function parseObjectPosition(value: string): [number, number] {
 }
 
 type HomeCoverState = 'collapsed' | 'dragging' | 'settling' | 'expanded';
-type MotionTrack = {
-  element: HTMLElement | SVGElement;
-  frameAt: (progress: number) => Keyframe;
-};
-type MotionBlueprint = {
-  geometry: HomeCoverMotionGeometry;
-  imageWidth: number;
-  imageHeight: number;
-};
-
 let cleanupCurrentHero: (() => void) | undefined;
 
 function initHomeHeroMotion() {
@@ -105,24 +67,15 @@ function initHomeHeroMotion() {
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const desktopWheel = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const dragAnimations: Animation[] = [];
-  const settleAnimations: Animation[] = [];
-  const motionTracks: MotionTrack[] = [];
+  const timeline = createHomeCoverTimeline({ stage, viewport, fullImage, drawer, toggle });
   const trackedPenPointers = new Set<number>();
   let state: HomeCoverState = 'collapsed';
   let progress = 0;
   let requestedTarget: 0 | 1 = 0;
   let settleSequence = 0;
-  let settleStartProgress = 0;
-  let settleTarget: 0 | 1 = 0;
-  let settleDuration = 0;
   let stableCleanupTimer: number | undefined;
-  let highResolutionRequested = false;
-  let highResolutionLoader: HTMLImageElement | undefined;
-  let pendingHighResolutionSource = '';
   let coverIsVisible = false;
   let measuredHeaderHeight = 1;
-  let activeHeroTheme: 'light' | 'dark' | undefined;
   let suppressClickUntil = 0;
   let gestureTravelDistance = 180;
 
@@ -144,7 +97,7 @@ function initHomeHeroMotion() {
   let wheelBoundaryTimer: number | undefined;
   let wheelRequiresFreshInput = false;
   let wheelTravelDistance = 280;
-  let cachedMotionBlueprint: MotionBlueprint | undefined;
+  let cachedMotionBlueprint: HomeCoverMotionBlueprint | undefined;
   let measuredStageRect: MotionRect | undefined;
   let layoutUpdateFrame: number | undefined;
   let geometryMeasureFrame: number | undefined;
@@ -191,7 +144,7 @@ function initHomeHeroMotion() {
     cachedMotionBlueprint = undefined;
   };
 
-  const measureMotionBlueprint = (): MotionBlueprint => {
+  const measureMotionBlueprint = (): HomeCoverMotionBlueprint => {
     const sourceRect = source.getBoundingClientRect();
     // 舞台在稳定收起态本身带有 FLIP transform；读取它的视觉矩形会把
     // 已缩放后的边界误当成下一轮布局边界。这里始终使用 resize 阶段缓存的
@@ -261,164 +214,30 @@ function initHomeHeroMotion() {
     if (revealsOffscreenContent) restoreDrawerContent();
   };
 
-  const commitHighResolution = () => {
-    if (!pendingHighResolutionSource || state !== 'expanded') return;
-    fullImage.removeAttribute('srcset');
-    fullImage.src = pendingHighResolutionSource;
-    pendingHighResolutionSource = '';
-  };
-
-  const cancelHighResolutionRequest = () => {
-    if (highResolutionLoader) {
-      highResolutionLoader.removeAttribute('srcset');
-      highResolutionLoader.removeAttribute('src');
-    }
-    highResolutionLoader = undefined;
-    pendingHighResolutionSource = '';
-  };
-
-  const requestHighResolution = () => {
-    if (highResolutionRequested) return;
-    const src = fullImage.dataset.fullSrc;
-    if (!src) return;
-    highResolutionRequested = true;
-    const loader = new Image();
-    highResolutionLoader = loader;
-    loader.decoding = 'async';
-    if (fullImage.dataset.fullSrcset) loader.srcset = fullImage.dataset.fullSrcset;
-    loader.sizes = fullImage.dataset.fullSizes || '100vw';
-    loader.src = src;
-    void loader.decode().then(() => {
-      if (highResolutionLoader !== loader || !document.contains(fullImage)) return;
-      pendingHighResolutionSource = loader.currentSrc || src;
-      commitHighResolution();
-    }).catch(() => {});
-  };
-
-  const reuseDecodedHero = () => {
-    const src = heroImage.currentSrc || heroImage.src;
-    if (!src) return;
-    fullImage.removeAttribute('srcset');
-    fullImage.src = src;
-  };
-
-  const releaseHighResolution = () => {
-    cancelHighResolutionRequest();
-    highResolutionRequested = false;
-    reuseDecodedHero();
-  };
-
-  const syncHeroTheme = () => {
-    const theme = documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-    if (theme === activeHeroTheme) return;
-    activeHeroTheme = theme;
-    cancelHighResolutionRequest();
-    highResolutionRequested = false;
-
-    const sourceSrcset = heroSource.getAttribute(`data-${theme}-srcset`);
-    const sourceType = heroSource.getAttribute(`data-${theme}-type`);
-    const heroSrcset = heroImage.getAttribute(`data-${theme}-srcset`);
-    const heroSrc = heroImage.getAttribute(`data-${theme}-src`);
-    const lqip = fullImage.getAttribute(`data-${theme}-lqip`);
-    const fullSrc = fullImage.getAttribute(`data-${theme}-full-src`);
-    const fullSrcset = fullImage.getAttribute(`data-${theme}-full-srcset`);
-    if (!sourceType || !sourceSrcset || !heroSrcset || !heroSrc || !lqip || !fullSrc || !fullSrcset) return;
-
-    heroSource.type = sourceType;
-    heroSource.srcset = sourceSrcset;
-    heroImage.srcset = heroSrcset;
-    heroImage.src = heroSrc;
-    fullImage.removeAttribute('srcset');
-    fullImage.src = lqip;
-    fullImage.dataset.fullSrc = fullSrc;
-    fullImage.dataset.fullSrcset = fullSrcset;
-    cachedMotionBlueprint = undefined;
-    if (requestedTarget === 1) requestHighResolution();
-  };
-
-  const handleHeroLoad = () => {
-    cachedMotionBlueprint = undefined;
-    scheduleGeometryMeasurement();
-    if (!highResolutionRequested) reuseDecodedHero();
-  };
-
-  const cancelSettleAnimations = () => {
-    for (const animation of settleAnimations.splice(0)) animation.cancel();
-  };
-
-  const setMotionLayerHints = (active: boolean) => {
-    for (const track of motionTracks) {
-      if (active) track.element.style.willChange = 'transform';
-      else track.element.style.removeProperty('will-change');
-    }
-  };
-
+  const images = createHomeCoverImages({
+    root: documentElement, heroImage, heroSource, fullImage,
+    getMotionState: () => ({ expanded: state === 'expanded', wantsExpanded: requestedTarget === 1 }),
+    onGeometryInvalidated: () => {
+      cachedMotionBlueprint = undefined;
+      scheduleGeometryMeasurement();
+    },
+  });
+  const cancelSettleAnimations = () => timeline.cancelSettle();
+  const setMotionLayerHints = (active: boolean) => timeline.setActive(active);
   const disposeTimelines = () => {
     cancelProgressFrame();
     if (stableCleanupTimer !== undefined) window.clearTimeout(stableCleanupTimer);
     stableCleanupTimer = undefined;
-    for (const animation of dragAnimations.splice(0)) animation.cancel();
-    cancelSettleAnimations();
-    setMotionLayerHints(false);
-    motionTracks.splice(0);
+    timeline.dispose();
   };
-
-  const createProgressAnimation = (
-    element: HTMLElement | SVGElement,
-    frameAt: (value: number) => Keyframe,
-  ) => {
-    const track = { element, frameAt };
-    motionTracks.push(track);
-    const animation = element.animate([frameAt(0), frameAt(1)], {
-      duration: TIMELINE_DURATION,
-      easing: 'linear',
-      fill: 'both',
-    });
-    animation.pause();
-    dragAnimations.push(animation);
-  };
-
-  const createTimelines = (blueprint: MotionBlueprint) => {
+  const createTimelines = (blueprint: HomeCoverMotionBlueprint) => {
     disposeTimelines();
-    const { geometry, imageWidth, imageHeight } = blueprint;
-
-    fullImage.style.width = `${imageWidth}px`;
-    fullImage.style.height = `${imageHeight}px`;
-
-    createProgressAnimation(stage, (value) => {
-      const scaleX = interpolate(geometry.viewportScaleX, 1, value);
-      const scaleY = interpolate(geometry.viewportScaleY, 1, value);
-      return {
-        transform: `translate3d(${geometry.viewportX * (1 - value)}px, ${geometry.viewportY * (1 - value)}px, 0) scale3d(${scaleX}, ${scaleY}, 1)`,
-      };
-    });
-    createProgressAnimation(viewport, (value) => {
-      const translateX = geometry.viewportX * (1 - value);
-      const translateY = geometry.viewportY * (1 - value);
-      const scaleX = interpolate(geometry.viewportScaleX, 1, value);
-      const scaleY = interpolate(geometry.viewportScaleY, 1, value);
-      return {
-        transform: `scale3d(${1 / scaleX}, ${1 / scaleY}, 1) translate3d(${-translateX}px, ${-translateY}px, 0)`,
-      };
-    });
-    createProgressAnimation(fullImage, (value) => ({
-      transform: `translate3d(${interpolate(geometry.coverX, geometry.containX, value)}px, ${interpolate(geometry.coverY, geometry.containY, value)}px, 0) scale(${interpolate(geometry.coverScale, geometry.containScale, value)})`,
-    }));
-
-    createProgressAnimation(drawer, (value) => ({
-      transform: `translate3d(0, ${geometry.drawerDistance * value}px, 0)`,
-    }));
-
-    createProgressAnimation(toggle, (value) => ({
-      transform: `translate3d(${geometry.handleX * (1 - value)}px, ${geometry.handleY * (1 - value)}px, 0) translateX(-50%)`,
-    }));
-    const icon = toggle.querySelector<SVGElement>('svg');
-    if (icon) createProgressAnimation(icon, (value) => ({ transform: `rotate(${180 * value}deg)` }));
+    timeline.rebuild(blueprint);
   };
 
   const applyProgress = (nextProgress: number) => {
     progress = Math.min(Math.max(nextProgress, 0), 1);
-    for (const animation of dragAnimations) animation.currentTime = progress * TIMELINE_DURATION;
+    timeline.seek(progress);
   };
 
   const cancelProgressFrame = () => {
@@ -438,14 +257,7 @@ function initHomeHeroMotion() {
 
   const sampleProgress = () => {
     if (progressFrame !== undefined) return progress;
-    const settlingTime = settleAnimations[0]?.currentTime;
-    if (typeof settlingTime === 'number' && settleDuration > 0) {
-      const linearProgress = Math.min(Math.max(settlingTime / settleDuration, 0), 1);
-      progress = settleStartProgress + (settleTarget - settleStartProgress) * easeHomeCoverSettle(linearProgress);
-      return progress;
-    }
-    const dragTime = dragAnimations[0]?.currentTime;
-    if (typeof dragTime === 'number') progress = Math.min(Math.max(dragTime / TIMELINE_DURATION, 0), 1);
+    progress = timeline.sample(progress);
     return progress;
   };
 
@@ -461,7 +273,7 @@ function initHomeHeroMotion() {
       applyProgress(currentProgress);
       if (state === 'dragging') setMotionLayerHints(true);
       else if (wasSettling) settleTo(requestedTarget);
-      else setMotionLayerHints(false);
+      else settleStable(requestedTarget);
     });
   };
 
@@ -478,7 +290,7 @@ function initHomeHeroMotion() {
     // 先读取并缓存几何，再写入 inert、dataset 与 will-change，避免输入首帧强制同步布局。
     const blueprint = cachedMotionBlueprint ?? measureMotionBlueprint();
     cachedMotionBlueprint = blueprint;
-    if (motionTracks.length === 0) createTimelines(blueprint);
+    if (!timeline.hasTracks()) createTimelines(blueprint);
     cullOffscreenDrawerContent();
     if (stableCleanupTimer !== undefined) window.clearTimeout(stableCleanupTimer);
     stableCleanupTimer = undefined;
@@ -496,7 +308,7 @@ function initHomeHeroMotion() {
     const stableSequence = ++settleSequence;
     progress = target;
     requestedTarget = target;
-    if (motionTracks.length > 0) applyProgress(target);
+    if (timeline.hasTracks()) applyProgress(target);
     cancelSettleAnimations();
     state = target === 1 ? 'expanded' : 'collapsed';
     shell.dataset.state = state;
@@ -510,8 +322,7 @@ function initHomeHeroMotion() {
       documentElement.dataset.homeCoverExpanded = 'true';
       // 展开动画只复用已解码的首图；待舞台稳定后再请求高清资源，
       // 避免首次交互与图片网络调度、解码争抢同一批帧。
-      requestHighResolution();
-      commitHighResolution();
+      images.enterExpanded();
       if (status) status.textContent = '全图壁纸已展开';
     } else {
       delete documentElement.dataset.homeCoverExpanded;
@@ -536,11 +347,11 @@ function initHomeHeroMotion() {
         // 收起态不保留带 transform 的暂停 WAAPI。否则长抽屉会持续成为一个
         // 数千像素高的合成层，恢复视口外内容时仍会整层重绘。
         disposeTimelines();
-        releaseHighResolution();
+        images.releaseToPreview();
         cullOffscreenDrawerContent();
       }
     };
-    if (dragAnimations.length === 0 && settleAnimations.length === 0) finalizeStableState();
+    if (!timeline.hasAnimations()) finalizeStableState();
     else stableCleanupTimer = window.setTimeout(finalizeStableState, 48);
   };
 
@@ -558,22 +369,12 @@ function initHomeHeroMotion() {
     shell.dataset.state = state;
     updateWaves();
     const sequence = ++settleSequence;
-    settleStartProgress = currentProgress;
-    settleTarget = target;
-    settleDuration = duration;
-    cancelSettleAnimations();
-    for (const track of motionTracks) {
-      settleAnimations.push(track.element.animate(
-        [track.frameAt(currentProgress), track.frameAt(target)],
-        { duration, easing: DRAWER_EASING, fill: 'both' },
-      ));
-    }
-    const lead = settleAnimations[0];
-    if (!lead) {
+    const completion = timeline.settle(currentProgress, target, duration);
+    if (!completion) {
       settleStable(target);
       return;
     }
-    void lead.finished.then(() => {
+    void completion.then(() => {
       if (sequence === settleSequence) settleStable(target);
     }).catch(() => {});
   };
@@ -583,7 +384,6 @@ function initHomeHeroMotion() {
     settleSequence += 1;
     cancelSettleAnimations();
     beginMotion();
-    for (const animation of dragAnimations) animation.pause();
   };
 
   const beginGesture = (clientX: number, clientY: number) => {
@@ -861,15 +661,11 @@ function initHomeHeroMotion() {
     }
   }, { rootMargin: '96px 0px' });
   for (const element of motionCullCandidates) motionCullObserver.observe(element);
-  const themeObserver = new MutationObserver(syncHeroTheme);
-  themeObserver.observe(documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   updateLayoutGeometry();
   scheduleGeometryMeasurement();
   settleStable(0);
-  heroImage.addEventListener('load', handleHeroLoad);
-  syncHeroTheme();
-  if (heroImage.complete) handleHeroLoad();
+  images.mount();
   cullOffscreenDrawerContent();
   toggle.addEventListener('click', handleToggle);
   document.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -890,11 +686,10 @@ function initHomeHeroMotion() {
 
   cleanupCurrentHero = () => {
     settleSequence += 1;
-    cancelHighResolutionRequest();
+    images.dispose();
     layoutObserver.disconnect();
     coverObserver.disconnect();
     motionCullObserver.disconnect();
-    themeObserver.disconnect();
     restoreDrawerContent();
     disposeTimelines();
     if (layoutUpdateFrame !== undefined) window.cancelAnimationFrame(layoutUpdateFrame);
@@ -926,7 +721,6 @@ function initHomeHeroMotion() {
     setElementUnavailable(drawer, false);
     setElementUnavailable(footer, false);
     toggle.removeEventListener('click', handleToggle);
-    heroImage.removeEventListener('load', handleHeroLoad);
     document.removeEventListener('touchstart', handleTouchStart);
     document.removeEventListener('touchmove', handleTouchMove);
     document.removeEventListener('touchend', handleTouchEnd);

@@ -14,6 +14,8 @@ import PublicStatus from '../components/home/PublicStatus.astro';
 import RecentPosts from '../components/home/RecentPosts.astro';
 import TopicAtlas from '../components/home/TopicAtlas.astro';
 import SoftwareShowcase from '../components/home/SoftwareShowcase.astro';
+import HomeSectionHeading from '../components/home/HomeSectionHeading.astro';
+import { selectRecentSeries } from '../lib/recentSeries';
 import { withBase } from '../lib/urls';
 import maintenanceSource from '../content/maintenance.md?raw';
 import homeHeroImage from '../assets/home-hero.jpg';
@@ -65,9 +67,7 @@ const websiteLd = {
 };
 
 const allPosts = await getCollection('blog');
-const recentPosts = allPosts
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 4);
+const recentPosts = selectRecentSeries(allPosts);
 
 const stats = computeSiteStats(allPosts);
 const { repoLanguages, totalRepoLines } = getRepoLanguages();
@@ -204,18 +204,11 @@ const recentMaintenanceEntries = maintenanceEntries.slice(0, 3);
         <div class="home-main-column">
     <TopicAtlas posts={allPosts} />
     <SoftwareShowcase />
-    <RecentPosts posts={recentPosts} />
+    <RecentPosts entries={recentPosts} />
 
     <section class="home-info-strip" aria-labelledby="site-info-title" data-home-motion-cull>
-      <header class="info-strip-heading">
-        <div>
-          <p class="section-kicker">SITE NOTES</p>
-          <h2 id="site-info-title">站点信息</h2>
-        </div>
-        <p>
-          已运行 {stats.daysSinceLaunch} 天 · 累计 {fmtNum(stats.totalWords)} 字 · 仓库 {fmtNum(totalRepoLines)} 行代码
-        </p>
-      </header>
+      <HomeSectionHeading id="site-info-title" title="站点信息" eyebrow="SITE NOTES"
+        description={`已运行 ${stats.daysSinceLaunch} 天 · 累计 ${fmtNum(stats.totalWords)} 字 · 仓库 ${fmtNum(totalRepoLines)} 行代码`} />
 
       <div class="info-strip-grid">
         <section class="info-block language-block" aria-labelledby="language-title">

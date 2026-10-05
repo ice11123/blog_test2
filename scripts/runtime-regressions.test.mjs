@@ -51,7 +51,72 @@ class ElementStub {
   setAttribute() {}
   getAttribute(_name) { return null; }
   removeAttribute() {}
+  removeEventListener(type, callback) {
+    this.handlers.set(type, (this.handlers.get(type) || []).filter(entry => entry.callback !== callback));
+  }
 }
+
+function mountCoverImages() {
+  const loaders = [];
+  let observerCallback;
+  const root = { dataset: { theme: 'light' } };
+  const heroImage = new ElementStub(), heroSource = new ElementStub(), fullImage = new ElementStub();
+  for (const element of [heroImage, heroSource, fullImage]) {
+    element.getAttribute = name => `${name}-asset`;
+  }
+  heroImage.currentSrc = 'decoded-preview';
+  const motion = { expanded: false, wantsExpanded: false };
+  class Loader {
+    constructor() { loaders.push(this); }
+    decode() { return new Promise((resolve, reject) => { this.resolve = resolve; this.reject = reject; }); }
+    removeAttribute() {}
+  }
+  const module = loadRuntime('../src/lib/homeCoverImages.ts', {
+    Image: Loader, document: { contains: () => true },
+    MutationObserver: class { constructor(callback) { observerCallback = callback; } observe() {} disconnect() {} },
+  });
+  const images = module.createHomeCoverImages({ root, heroImage, heroSource, fullImage,
+    getMotionState: () => motion, onGeometryInvalidated() {} });
+  images.mount();
+  return { images, motion, root, fullImage, loaders, syncTheme: () => observerCallback() };
+}
+
+test('壁纸旧主题解码不能覆盖新主题，高清图只在展开稳定后提交', async () => {
+  const cover = mountCoverImages();
+  cover.motion.wantsExpanded = true;
+  cover.images.enterExpanded();
+  cover.root.dataset.theme = 'dark';
+  cover.syncTheme();
+  cover.loaders[0].currentSrc = 'old-theme';
+  cover.loaders[0].resolve();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.notEqual(cover.fullImage.src, 'old-theme');
+  cover.loaders[1].currentSrc = 'decoded-dark';
+  cover.loaders[1].resolve();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.notEqual(cover.fullImage.src, 'decoded-dark');
+  cover.motion.expanded = true;
+  cover.images.enterExpanded();
+  assert.equal(cover.fullImage.src, 'decoded-dark');
+  cover.images.releaseToPreview();
+  assert.equal(cover.fullImage.src, 'decoded-preview');
+});
+
+test('壁纸加载失败允许重试，卸载后迟到解码不再写入页面', async () => {
+  const cover = mountCoverImages();
+  cover.motion.expanded = true;
+  cover.images.enterExpanded();
+  cover.loaders[0].reject(new Error('离线'));
+  await new Promise(resolve => setImmediate(resolve));
+  cover.images.enterExpanded();
+  assert.equal(cover.loaders.length, 2);
+  const before = cover.fullImage.src;
+  cover.images.dispose();
+  cover.loaders[1].currentSrc = 'late-result';
+  cover.loaders[1].resolve();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(cover.fullImage.src, before);
+});
 
 function mountHeroRuntime() {
   const frames = new Map();
@@ -98,11 +163,14 @@ function mountHeroRuntime() {
     clearTimeout(id) { timers.delete(id); },
   });
   class Observer { observe() {} disconnect() {} }
-  loadRuntime('../src/scripts/home-hero-motion.ts', {
+  const globals = {
     document, window, performance: { now: () => 100 },
     getComputedStyle: () => ({ display: 'block', objectPosition: '50% 50%' }),
     ResizeObserver: Observer, IntersectionObserver: Observer, MutationObserver: Observer,
-  }, {
+  };
+  loadRuntime('../src/scripts/home-hero-motion.ts', globals, {
+    '../lib/homeCoverImages': loadRuntime('../src/lib/homeCoverImages.ts', globals),
+    '../lib/homeCoverTimeline': loadRuntime('../src/lib/homeCoverTimeline.ts', globals),
     '../lib/homeCoverGesture': { ...gestureModule, shouldIgnoreHomeCoverGesture() { guardCalls++; return false; } },
     '../lib/homeCoverMotionGeometry': geometryModule,
   });
@@ -119,6 +187,14 @@ test('普通向下浏览不执行壁纸祖先元素布局检查', () => {
   for (let i = 0; i < 40; i++) hero.wheel(2);
   assert.equal(hero.guards(), 0);
   assert.equal(hero.writes(), 0);
+});
+
+test('初始化几何后也释放暂停时间线，不让长抽屉常驻合成层', () => {
+  const hero = mountHeroRuntime();
+  const previous = hero.animationsCreated();
+  hero.flushTimers();
+  hero.wheel(-40);
+  assert.ok(hero.animationsCreated() > previous);
 });
 
 test('同帧滚轮突发只提交一次最新动画进度，下一帧可反向', () => {

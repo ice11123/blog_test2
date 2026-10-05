@@ -1,15 +1,12 @@
 ---
-import { getSearchData } from '../../lib/blogData';
+import { getSearchIndex } from '../../lib/blogData';
+import { withBase } from '../../lib/urls';
 import Icon from '../ui/Icon.astro';
 
-const searchData = await getSearchData();
+const { version } = await getSearchIndex();
 ---
 
-<script is:inline define:vars={{ searchData }}>
-  window.__SEARCH_DATA__ = searchData;
-</script>
-
-<dialog id="search-modal" class="search-modal" aria-label="搜索文章">
+<dialog id="search-modal" class="search-modal" aria-label="搜索文章" data-search-index={withBase(`/search/${version}.json`)}>
   <div class="search-modal-content">
     <div class="search-input-wrapper">
       <span class="search-input-icon"><Icon name="search" /></span>

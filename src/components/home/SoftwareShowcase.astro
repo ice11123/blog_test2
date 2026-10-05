@@ -3,18 +3,13 @@ import { Image } from 'astro:assets';
 import clickCleanMain from '../../assets/software/click-clean-main.png';
 import clickCleanIsland from '../../assets/software/click-clean-island.png';
 import clickCleanIcon from '../../assets/software/click-clean-icon.png';
+import HomeSectionHeading from './HomeSectionHeading.astro';
 
 const projectUrl = 'https://github.com/ice11123/Click-Clean';
 ---
 
 <section class="software-showcase" aria-labelledby="software-showcase-title" data-home-motion-cull>
-  <header class="software-heading">
-    <div>
-      <p class="software-kicker">INDEPENDENT SOFTWARE</p>
-      <h2 id="software-showcase-title">我的软件</h2>
-    </div>
-    <p>把想法做成可用的工具。</p>
-  </header>
+  <HomeSectionHeading id="software-showcase-title" title="我的软件" eyebrow="INDEPENDENT SOFTWARE" description="把想法做成可用的工具。" />
 
   <a
     class="software-card"
@@ -75,10 +70,6 @@ const projectUrl = 'https://github.com/ice11123/Click-Clean';
 
 <style>
   .software-showcase { padding-bottom: 44px; min-inline-size: 0; }
-  .software-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
-  .software-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
-  .software-heading h2 { margin: 0; color: var(--text-primary); font-size: 28px; line-height: 1.25; }
-  .software-heading > p { margin: 0; color: var(--text-secondary); font-size: 13px; }
   .software-card {
     --window-rest-transform: rotate(-3deg) translateX(-16px);
     display: grid;
@@ -150,14 +141,13 @@ const projectUrl = 'https://github.com/ice11123/Click-Clean';
     .software-card { --window-rest-transform: rotate(-3deg); }
     .software-copy { padding: 28px; }
     .software-preview { padding-inline: 18px; }
-    .software-card:hover .software-window { transform: rotate(-1deg) translateY(-3px); }
     .desktop-break { display: none; }
+  }
+  @media (hover: hover) and (pointer: fine) and (max-width: 1100px) and (min-width: 641px) {
+    .software-card:hover .software-window { transform: rotate(-1deg) translateY(-3px); }
   }
   @media (max-width: 640px) {
     .software-showcase { padding-bottom: 32px; }
-    .software-heading { align-items: start; margin-bottom: 20px; }
-    .software-heading h2 { font-size: 24px; }
-    .software-heading > p { align-self: end; max-width: 140px; font-size: 12px; text-align: right; }
     .software-card { grid-template-columns: minmax(0, 1fr); border-radius: 18px; }
     .software-preview { min-height: 316px; padding: 40px 24px 32px; border-right: 0; border-bottom: 1px solid var(--border); }
     .software-window { width: 220px; }

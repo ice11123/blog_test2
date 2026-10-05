@@ -109,7 +109,7 @@
 
   #toc-list li { width: 100%; margin: 3px 0; }
 
-  #toc-list li button {
+  #toc-list li a {
     display: block;
     width: 100%;
     box-sizing: border-box;
@@ -120,20 +120,21 @@
     border-radius: 8px;
     font: inherit;
     text-align: left;
+    text-decoration: none;
     line-height: 1.45;
     overflow-wrap: anywhere;
     cursor: pointer;
     transition: color 150ms ease, background-color 150ms ease;
   }
 
-  #toc-list li.toc-level-h2 button { font-weight: 700; }
-  #toc-list li.toc-level-h3 button { padding-left: 22px; }
-  #toc-list li.active button { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
-  #toc-list li button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  #toc-list li.toc-level-h2 a { font-weight: 700; }
+  #toc-list li.toc-level-h3 a { padding-left: 22px; }
+  #toc-list li.active a { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  #toc-list li a:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
   #toc-list .toc-empty { padding: 12px 10px; color: var(--text-secondary); line-height: 1.6; }
 
   @media (hover: hover) and (pointer: fine) {
-    #toc-list li button:hover {
+    #toc-list li a:hover {
       color: var(--accent);
       background: color-mix(in srgb, var(--accent) 7%, transparent);
     }
@@ -148,6 +149,6 @@
   @media (prefers-reduced-motion: reduce) {
     .article-toc-scroll-fade,
     .toc-area .position-indicator,
-    #toc-list li button { transition: none; }
+    #toc-list li a { transition: none; }
   }
 }
