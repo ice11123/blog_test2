@@ -45,6 +45,6 @@
 
 TOC 观察直接正文块及文章/顶栏尺寸；图表内部的逐帧 style/class 绘制不会刷新全部标题。正文结构变化会重新观察新增块。
 
-质量门禁：Node 根测试 135 项、Worker 测试 30 项；Astro check 无错误/警告，保留一个兼容旧输入法的 keyCode 弃用提示；224 页面构建及 11 篇高数笔记链接、锚点和附件验收通过。提交发布时再次检查 git diff --check。
+质量门禁：Node 根测试 136 项、Worker 测试 30 项；Astro check 无错误/警告，保留一个兼容旧输入法的 keyCode 弃用提示；224 页面构建及 11 篇高数笔记链接、锚点和附件验收通过。提交发布时再次检查 git diff --check。
 
 原始截图留在本地 artifacts/performance/2026-10-05；最终提交及部署记录在 Beads 的 blog_test2-nbx.4。

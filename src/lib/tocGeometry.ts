@@ -22,7 +22,8 @@ export function findActiveHeadingIndex(
   let high = headingTops.length;
   while (low < high) {
     const middle = (low + high) >>> 1;
-    if (headingTops[middle] <= readingLine) low = middle + 1;
+    // 原生 hash 定位可能将 scrollY 取整；容忍不足 1px 的误差，不提前跨过完整像素。
+    if (headingTops[middle] < readingLine + 1) low = middle + 1;
     else high = middle;
   }
   return low - 1;

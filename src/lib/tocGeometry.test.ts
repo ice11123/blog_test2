@@ -35,3 +35,8 @@ test('首个标题之前不误高亮，页面顶部附近的目标不会产生�
   assert.equal(headingScrollTarget(72), 0);
   assert.equal(headingScrollTarget(2220.34375 + 88, 88), 2221);
 });
+
+test('原生深链接的亚像素舍入不误高亮上一节，完整一像素仍保留边界', () => {
+  assert.equal(findActiveHeadingIndex([1800, 2300.46875], 2196), 1);
+  assert.equal(findActiveHeadingIndex([1800, 2301], 2196), 0);
+});
