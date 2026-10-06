@@ -6,7 +6,8 @@ import { blogCategoryPath, withBase } from '../lib/urls';
 import blogPostCss from '../styles/blog-post.scss?url';
 
 type BlogData = CollectionEntry<'blog'>['data'];
-type Props = Pick<BlogData, 'title' | 'description' | 'pubDate'> & {
+type Props = Pick<BlogData, 'title' | 'description'> & {
+  pubDate?: Date;
   updatedDate?: Date;
   dir1?: string;
   dir2?: string;
@@ -36,7 +37,7 @@ const {
   <article class="public-content-page">
     <div class="prose">
       {!hidePageHeader && <div class="title">
-        {showDate && <div class="date">
+        {showDate && pubDate && <div class="date">
           <FormattedDate date={pubDate} />
           {updatedDate && <div class="last-updated-on">Last updated on <FormattedDate date={updatedDate} /></div>}
         </div>}

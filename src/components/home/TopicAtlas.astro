@@ -16,8 +16,6 @@ type TopicVisual = 'codex' | 'control' | 'power' | 'study' | 'archive';
 
 interface TopicPresentation {
   name: string;
-  index: string;
-  eyebrow: string;
   summary: string;
   visual: TopicVisual;
   size: 'wide' | 'compact';
@@ -27,40 +25,30 @@ const { posts } = Astro.props;
 const presentations: TopicPresentation[] = [
   {
     name: 'AI/Agent协作与开发',
-    index: '01',
-    eyebrow: 'AGENT SYSTEMS',
     summary: '记录 Agent 工具链、Codex 实践与可复用的工程工作流。',
     visual: 'codex',
     size: 'wide',
   },
   {
     name: '电控',
-    index: '02',
-    eyebrow: 'EMBEDDED CONTROL',
     summary: '从 MCU、执行机构到整机联调的电控学习与项目记录。',
     visual: 'control',
     size: 'compact',
   },
   {
     name: '电源',
-    index: '03',
-    eyebrow: 'POWER ELECTRONICS',
     summary: '电源拓扑、测量方法与硬件调试过程中的关键笔记。',
     visual: 'power',
     size: 'compact',
   },
   {
     name: '学习笔记',
-    index: '04',
-    eyebrow: 'FOUNDATION NOTES',
     summary: '整理高数、线代、概率论、电路与数电等理论学习笔记。',
     visual: 'study',
     size: 'wide',
   },
   {
     name: '其他',
-    index: '05',
-    eyebrow: 'FIELD NOTES',
     summary: '无法被单一技术方向定义，但仍值得长期保存的内容。',
     visual: 'archive',
     size: 'wide',
@@ -104,17 +92,15 @@ const topics = presentations.map((topic) => {
 
         <div class="topic-copy">
           <div class="topic-intro">
-          <div class="topic-meta">
-            <span class="topic-index">{topic.index}</span>
-            <span>{topic.eyebrow}</span>
+          <div class="topic-heading">
+            <h3>{topic.name}</h3>
             <span class="topic-count"><strong>{topic.count}</strong> 篇</span>
           </div>
-          <h3>{topic.name}</h3>
           <p class="topic-summary">{topic.summary}</p>
           </div>
 
           <div class="topic-recent">
-            <span class="topic-recent-label">RECENT SIGNALS</span>
+            {topic.count > 0 && <span class="topic-recent-label">近期文章 <span aria-hidden="true">↗</span></span>}
             {topic.recentPosts.length > 0 ? (
               <ol>
                 {topic.recentPosts.map((post) => (
@@ -127,17 +113,17 @@ const topics = presentations.map((topic) => {
                 ))}
               </ol>
             ) : (
-              <p class="topic-empty">内容坐标已建立，等待第一篇记录。</p>
+              <p class="topic-empty">内容准备中 · 暂无文章</p>
             )}
           </div>
 
-          <span class="topic-enter" aria-hidden="true">打开主题档案 <span>↗</span></span>
+          <span class="topic-enter" aria-hidden="true">浏览分类 <span>↗</span></span>
         </div>
 
         <div class="topic-art" aria-hidden="true">
           {topic.visual === 'codex' && (
             <div class="codex-emblem">
-              <svg viewBox="0 0 180 180" role="presentation">
+              <svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" role="presentation">
                 <circle class="codex-orbit orbit-a" cx="90" cy="90" r="63"></circle>
                 <circle class="codex-orbit orbit-b" cx="90" cy="90" r="45"></circle>
                 <path class="codex-code" d="m70 68-23 22 23 22M110 68l23 22-23 22M101 55 79 125"></path>
@@ -166,7 +152,7 @@ const topics = presentations.map((topic) => {
 
           {topic.visual === 'power' && (
             <div class="power-emblem">
-              <svg viewBox="0 0 220 160" role="presentation">
+              <svg viewBox="0 0 220 160" preserveAspectRatio="xMidYMid meet" role="presentation">
                 <path class="power-grid" d="M20 30h180M20 70h180M20 110h180M50 15v130M100 15v130M150 15v130"></path>
                 <path class="power-wave" d="M18 92h35l12-42 24 82 23-68 18 28h72"></path>
                 <path class="power-bolt" d="m132 20-29 49h25l-18 61 49-70h-28l21-40Z"></path>
@@ -177,7 +163,7 @@ const topics = presentations.map((topic) => {
 
           {topic.visual === 'study' && (
             <div class="study-emblem">
-              <svg viewBox="0 0 220 160" role="presentation">
+              <svg viewBox="0 0 220 160" preserveAspectRatio="xMidYMid meet" role="presentation">
                 <path class="study-book" d="M28 31c28-7 55-1 82 18v84c-27-19-54-24-82-17V31Zm164 0c-28-7-55-1-82 18v84c27-19 54-24 82-17V31Z"></path>
                 <path class="study-spine" d="M110 49v84"></path>
                 <path class="study-line" d="M45 56c18-2 33 2 48 11M45 76c18-2 33 2 48 11M127 60c15-6 30-8 47-5M127 80c15-6 30-8 47-5"></path>
@@ -287,35 +273,22 @@ const topics = presentations.map((topic) => {
   }
 
   /* 信息与素材分属独立区域；近期入口使用整行，不进入 3D 舞台。 */
-  .topic-intro { width: 64%; min-height: 170px; }
+  .topic-intro { width: 64%; min-height: 130px; }
   .topic-compact .topic-intro { width: 61%; }
 
-  .topic-meta {
+  .topic-heading {
     display: flex;
     align-items: center;
-    gap: 9px;
+    flex-wrap: wrap;
+    gap: 8px 12px;
     min-width: 0;
     color: var(--topic-accent);
-    font-size: 10px;
-    font-weight: 760;
-    letter-spacing: .12em;
+    font-size: 12px;
   }
-  .topic-meta > span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .topic-index {
-    display: grid;
-    flex: none;
-    width: 26px;
-    height: 22px;
-    place-items: center;
-    border-radius: 7px;
-    background: var(--topic-accent);
-    color: var(--surface);
-    letter-spacing: .02em;
-  }
 
   .topic-count {
-    margin-left: auto;
+    flex: none;
     color: var(--text-secondary);
     letter-spacing: 0;
     white-space: nowrap;
@@ -323,14 +296,14 @@ const topics = presentations.map((topic) => {
 
   .topic-count strong {
     color: var(--topic-accent);
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .topic-copy h3 {
     max-width: 470px;
-    margin: 15px 0 0;
+    margin: 0;
     color: var(--text-primary);
-    font-size: clamp(24px, 3vw, 36px);
+    font-size: clamp(24px, 3vw, 32px);
     line-height: 1.18;
     letter-spacing: -.025em;
     text-wrap: balance;
@@ -341,14 +314,10 @@ const topics = presentations.map((topic) => {
   }
 
   .topic-summary {
-    display: -webkit-box;
-    overflow: hidden;
     margin: 11px 0 0;
     color: var(--text-secondary);
     font-size: 13px;
     line-height: 1.7;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
   }
 
   .topic-recent {
@@ -361,9 +330,9 @@ const topics = presentations.map((topic) => {
     display: block;
     margin-bottom: 5px;
     color: var(--text-secondary);
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 740;
-    letter-spacing: .13em;
+    letter-spacing: .02em;
   }
 
   .topic-recent ol {
@@ -382,7 +351,7 @@ const topics = presentations.map((topic) => {
     align-items: center;
     gap: 12px;
     margin-inline: -8px;
-    padding: 6px 8px;
+    padding: 9px 8px;
     border: 1px solid transparent;
     border-radius: 9px;
     color: var(--text-primary);
@@ -435,7 +404,7 @@ const topics = presentations.map((topic) => {
     top: 22px;
     right: 12px;
     width: 31%;
-    height: 170px;
+    height: 130px;
     clip-path: inset(0);
     pointer-events: none;
     transform-style: preserve-3d;
@@ -453,8 +422,21 @@ const topics = presentations.map((topic) => {
     place-items: center;
   }
 
+  /* 限定轨道才能让 SVG 百分比高度依据舞台，而非固有尺寸撑出的 auto 行。 */
+  .codex-emblem,
+  .power-emblem,
+  .study-emblem {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+    min-height: 0;
+  }
+
   .codex-emblem svg {
-    width: min(95%, 250px);
+    width: auto;
+    height: 82%;
+    max-width: 85%;
+    aspect-ratio: 1;
     overflow: visible;
     color: var(--topic-accent);
     filter: drop-shadow(0 22px 26px color-mix(in srgb, var(--topic-accent) 22%, transparent));
@@ -508,7 +490,10 @@ const topics = presentations.map((topic) => {
   }
 
   .power-emblem svg {
-    width: min(110%, 250px);
+    width: auto;
+    height: 82%;
+    max-width: 85%;
+    aspect-ratio: 220 / 160;
     overflow: visible;
     color: var(--topic-accent);
     filter: drop-shadow(0 18px 24px color-mix(in srgb, var(--topic-accent) 18%, transparent));
@@ -530,7 +515,10 @@ const topics = presentations.map((topic) => {
   }
 
   .study-emblem svg {
-    width: min(108%, 270px);
+    width: auto;
+    height: 82%;
+    max-width: 85%;
+    aspect-ratio: 220 / 160;
     overflow: visible;
     color: var(--topic-accent);
     filter: drop-shadow(0 20px 26px color-mix(in srgb, var(--topic-accent) 20%, transparent));
@@ -575,8 +563,8 @@ const topics = presentations.map((topic) => {
 
   .archive-sheet {
     position: absolute;
-    width: 142px;
-    height: 178px;
+    width: 108px;
+    height: 128px;
     border: 1px solid color-mix(in srgb, var(--topic-accent) 40%, var(--border));
     border-radius: 15px;
     background: color-mix(in srgb, var(--surface) 88%, var(--topic-accent) 12%);
@@ -602,6 +590,8 @@ const topics = presentations.map((topic) => {
   }
 
   .topic-recent a:active { transform: scale(.985); }
+  .topic-recent a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; transition: none; }
+  .topic-recent a:focus-visible:active { transform: none; }
   .topic-card:has(.topic-card-link:active) { transform: perspective(1100px) translateY(-1px) scale(.994); }
 
   @media (hover: hover) and (pointer: fine) {
@@ -621,9 +611,9 @@ const topics = presentations.map((topic) => {
     .topic-archive:has(.topic-card-link:hover) .sheet-front { transform: translateY(-4px) rotate(-1deg) translateZ(28px); }
 
     .topic-recent a:hover {
-      border-color: color-mix(in srgb, var(--topic-accent) 33%, transparent);
-      background: color-mix(in srgb, var(--topic-accent) 8%, var(--surface));
-      color: var(--topic-accent);
+      border-color: color-mix(in srgb, var(--accent) 33%, transparent);
+      background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+      color: var(--accent);
       transform: translateX(3px);
     }
   }
@@ -635,12 +625,12 @@ const topics = presentations.map((topic) => {
     .topic-study,
     .topic-archive { grid-column: span 6; }
 
-    .topic-card { min-height: 312px; }
+    .topic-card { min-height: 0; }
     .topic-copy,
     .topic-compact .topic-copy { width: 100%; padding: 22px; }
     .topic-art,
     .topic-compact .topic-art { width: 31%; }
-    .topic-intro, .topic-compact .topic-intro { width: 63%; min-height: 180px; }
+    .topic-intro, .topic-compact .topic-intro { width: 63%; min-height: 130px; }
     .topic-summary { font-size: 12px; }
     .topic-recent time { display: none; }
   }
@@ -653,33 +643,30 @@ const topics = presentations.map((topic) => {
     .topic-power,
     .topic-study,
     .topic-archive { grid-column: 1; }
-    .topic-card { min-height: 286px; border-radius: 18px; }
+    .topic-card { min-height: 0; border-radius: 18px; }
     .topic-copy,
     .topic-compact .topic-copy { width: 100%; padding: 20px; }
     .topic-copy h3,
-    .topic-compact .topic-copy h3 { margin-top: 12px; font-size: 24px; }
-    .topic-summary { margin-top: 8px; -webkit-line-clamp: 2; }
+    .topic-compact .topic-copy h3 { margin: 0; font-size: 24px; }
+    .topic-intro, .topic-compact .topic-intro { min-height: 0; }
+    .topic-summary { margin-top: 8px; }
     .topic-recent { margin-top: 14px; }
     .topic-recent a { grid-template-columns: minmax(0, 1fr); }
     .topic-recent time { display: none; }
     .topic-enter { margin-top: 12px; }
     .topic-art,
-    .topic-compact .topic-art { top: 28px; right: 10px; width: 30%; height: 150px; }
-    .codex-emblem svg { width: 95%; }
+    .topic-compact .topic-art { top: 20px; right: 10px; width: 30%; height: 96px; }
     .codex-emblem > span { right: 6%; bottom: 16%; }
     .control-art img { right: -12%; width: 124%; }
-    .power-emblem svg { width: 96%; }
     .power-emblem > span { right: 0; }
-    .study-emblem svg { width: 96%; }
     .study-emblem > span { right: 0; font-size: 17px; }
-    .archive-sheet { width: 92px; height: 124px; }
+    .archive-sheet { width: 70px; height: 88px; }
     .archive-number { right: -2%; font-size: 70px; }
   }
 
   @media (max-width: 390px) {
     .topic-copy,
     .topic-compact .topic-copy { width: 100%; padding: 18px; }
-    .topic-meta > span:nth-child(2) { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .topic-art,
     .topic-compact .topic-art { width: 30%; }
   }

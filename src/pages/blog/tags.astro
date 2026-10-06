@@ -2,93 +2,82 @@
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/PublicContentLayout.astro';
 import JsonLd from '../../components/blog/JsonLd.astro';
-import { withBase } from '../../lib/urls';
+import TagDiscoveryLink from '../../components/blog/TagDiscoveryLink.astro';
+import { countArticleTags, groupDiscoveryTags } from '../../lib/tagDiscovery';
 
 const posts = await getCollection('blog');
-
-const tagCount: Record<string, number> = {};
-for (const post of posts) {
-  for (const tag of (post.data.tags || [])) {
-    tagCount[tag] = (tagCount[tag] || 0) + 1;
-  }
-}
-
-const sortedTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
-
+const tags = countArticleTags(posts);
+const { common, more } = groupDiscoveryTags(tags);
 const pageLd = {
-  '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: '标签',
-  description: '所有文章标签',
+  '@context': 'https://schema.org', '@type': 'CollectionPage', name: '标签',
+  description: '从常用主题发现文章，或搜索全部文章标签',
   url: new URL(Astro.url.pathname, Astro.site).href,
 };
 ---
 
-<Layout
-  title="标签"
-  description="所有文章标签"
-  pubDate={new Date()}
-  tags={[]}
->
+<Layout title="标签" description={pageLd.description} showDate={false} hidePageHeader={true}>
   <JsonLd slot="head" data={pageLd} />
-
-  {sortedTags.length > 0 ? (
-    <div class="tags-cloud">
-      {sortedTags.map(([tag, count]) => (
-        <a href={withBase(`/blog/tag/${encodeURIComponent(tag)}/`)} class="tag-cloud-item">
-          <span class="tag-name">{tag}</span>
-          <span class="tag-count">{count}</span>
-        </a>
-      ))}
-    </div>
-  ) : (
-    <p style="text-align: center; color: var(--foreground-dark);">暂无标签。</p>
-  )}
+  <section class="tag-workbench" data-tag-discovery aria-labelledby="tag-discovery-title">
+    <header class="discovery-header">
+      <div><span class="discovery-kicker">主题发现</span><h1 id="tag-discovery-title">标签目录</h1><p>从熟悉的关键词出发，也看看下一段学习旅程。</p></div>
+      <div class="discovery-total"><strong>{tags.length}</strong><span><span>个标签</span><span class="discovery-stat-separator" aria-hidden="true"> · </span><span>{posts.length} 篇文章</span></span></div>
+    </header>
+    {tags.length ? <>
+      <div class="discovery-search" data-search-controls hidden>
+        <label for="tag-discovery-search">搜索全部 {tags.length} 个标签</label>
+        <div class="discovery-input-row"><input id="tag-discovery-search" type="search" autocomplete="off" placeholder="例如：Codex、高等数学、PID" data-discovery-search /><button type="button" data-discovery-clear hidden>清空</button></div>
+      </div>
+      <div class="discovery-toolbar"><p data-discovery-status role="status" aria-live="polite">按文章篇数排列，选择标签查看相关文章。</p><a href="#all-tags" data-discovery-all>查看全部 {tags.length} 个标签 ↓</a></div>
+      {common.length > 0 && <section class="discovery-group" data-common-group aria-labelledby="common-tags-title"><div class="discovery-group-heading"><h2 id="common-tags-title">常用标签</h2><span>多篇文章中的共同主题</span></div><div class="discovery-tags">{common.map((tag) => <TagDiscoveryLink tag={tag} />)}</div></section>}
+      {more.length > 0 && <details class="discovery-more" data-more-group>
+        <summary>更多标签 <span>{more.length} 个</span><small><span class="discovery-expand-label">展开探索 ↓</span><span class="discovery-collapse-label">收起标签 ↑</span></small></summary>
+        <div class="discovery-tags" id="all-tags">{more.map((tag) => <TagDiscoveryLink tag={tag} />)}</div>
+        <button class="discovery-load-more" type="button" data-discovery-more hidden>继续展开</button>
+      </details>}
+      {!more.length && <span id="all-tags"></span>}
+      <div class="discovery-empty" data-discovery-empty hidden><strong>没有匹配的标签</strong><p>试试更短的关键词，或清空搜索查看全部主题。</p></div>
+    </> : <p>暂无标签，文章整理后会出现在这里。</p>}
+  </section>
 </Layout>
-
+<script>
+  import '../../scripts/tag-discovery';
+</script>
 <style>
-  .tags-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 2rem 1rem;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .tag-cloud-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 6px 16px;
-    font-size: 0.9rem;
-    color: var(--accent-light);
-    background: rgba(var(--accent-rgb), 0.08);
-    border: 1px solid rgba(var(--accent-rgb), 0.25);
-    border-radius: 999px;
-    text-decoration: none;
-    transition: background-color 150ms var(--ease-out), border-color 150ms var(--ease-out), transform 100ms var(--ease-out);
-  }
-
-  .tag-cloud-item:active { transform: scale(.98); }
-
-  .tag-count {
-    font-size: 0.75rem;
-    color: var(--foreground-dark);
-    background: var(--tag-count-bg);
-    border-radius: 999px;
-    padding: 1px 7px;
-    min-width: 1.4em;
-    text-align: center;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .tag-cloud-item:hover { background: rgba(var(--accent-rgb), 0.18); border-color: var(--accent); transform: translateY(-2px); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .tag-cloud-item { transition: none; }
-    .tag-cloud-item:hover, .tag-cloud-item:active { transform: none; }
-  }
+  .tag-workbench { padding-bottom: 48px; }
+  .discovery-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 30px 0; border-bottom: 1px solid var(--border); }
+  .discovery-kicker { color: var(--accent); font-size: 13px; font-weight: 650; }
+  .discovery-header h1 { margin: 8px 0 12px; color: var(--text-primary); font-size: clamp(30px, 4vw, 42px); line-height: 1.2; }
+  .discovery-header p { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+  .discovery-total { display: grid; flex: none; gap: 5px; text-align: right; color: var(--text-secondary); font-size: 12px; }
+  .discovery-total strong { color: var(--accent); font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .discovery-search { margin-top: 28px; }
+  .discovery-search label { display: block; margin-bottom: 8px; color: var(--text-primary); font-size: 13px; font-weight: 650; }
+  .discovery-input-row { display: flex; gap: 8px; }
+  .discovery-input-row input { width: 100%; min-width: 0; min-height: 46px; box-sizing: border-box; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); background: var(--surface-subtle); font: inherit; font-size: 15px; }
+  .discovery-input-row button, .discovery-load-more { flex: none; min-height: 44px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--accent); font: inherit; font-size: 13px; cursor: pointer; }
+  .discovery-input-row input:focus-visible, button:focus-visible, summary:focus-visible, .discovery-toolbar a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  button:active { transform: scale(.98); } button:focus-visible:active { transform: none; }
+  .discovery-toolbar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin: 16px 0 28px; }
+  .discovery-toolbar p { margin: 0; font-size: 12px; color: var(--text-secondary); }
+  .discovery-toolbar a { color: var(--accent); font-size: 13px; text-decoration: none; }
+  .discovery-group-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 14px; }
+  .discovery-group-heading h2 { margin: 0; border: 0; color: var(--text-primary); font-size: 19px; }
+  .discovery-group-heading span { color: var(--text-secondary); font-size: 12px; }
+  .discovery-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .discovery-more { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border); }
+  .discovery-more summary { color: var(--text-primary); font-size: 18px; font-weight: 650; cursor: pointer; }
+  .discovery-more summary span { margin-left: 8px; color: var(--text-secondary); font-size: 12px; font-weight: 400; }
+  .discovery-more summary small { float: right; color: var(--accent); font-size: 12px; font-weight: 400; }
+  .discovery-more summary small span { margin: 0; color: inherit; font: inherit; }
+  .discovery-collapse-label { display: none; }
+  .discovery-more[open] .discovery-expand-label { display: none; }
+  .discovery-more[open] .discovery-collapse-label { display: inline; }
+  .discovery-more[open] .discovery-tags { margin-top: 18px; }
+  .discovery-load-more { margin-top: 18px; }
+  .discovery-empty { padding: 28px 20px; border: 1px dashed var(--border); border-radius: 12px; color: var(--text-secondary); }
+  .discovery-empty strong { color: var(--text-primary); font-size: 18px; }
+  .discovery-empty p { margin: 8px 0 0; font-size: 14px; }
+  [hidden] { display: none !important; }
+  @media (max-width: 680px) { .discovery-header { align-items: flex-start; gap: 16px; padding-top: 18px; } .discovery-total strong { font-size: 32px; } .discovery-total > span { display: grid; gap: 2px; line-height: 1.6; white-space: nowrap; } .discovery-total .discovery-stat-separator { display: none; } .discovery-tags { gap: 8px; } }
+  @media (prefers-reduced-motion: reduce) { button:active { transform: none; } }
 </style>

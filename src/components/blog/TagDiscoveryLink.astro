@@ -1,0 +1,20 @@
+---
+import type { DiscoveryTag } from '../../lib/tagDiscovery';
+import { withBase } from '../../lib/urls';
+interface Props { tag: DiscoveryTag; }
+const { tag } = Astro.props;
+---
+<a class="discovery-tag" data-discovery-tag data-tag-name={tag.name} href={withBase(`/blog/tag/${encodeURIComponent(tag.name)}/`)}>
+  <span>{tag.name}</span><small aria-label={`${tag.count} 篇文章`}>{tag.count} 篇</small>
+</a>
+<style>
+  .discovery-tag { display: inline-flex; align-items: center; gap: 12px; min-height: 42px; max-width: 100%; box-sizing: border-box; padding: 8px 13px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text-primary); text-decoration: none; font-size: 14px; line-height: 1.5; transition: background-color 150ms ease, border-color 150ms ease, transform 120ms var(--ease-out); }
+  .discovery-tag > span { overflow-wrap: anywhere; }
+  .discovery-tag small { flex: none; color: var(--text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .discovery-tag[hidden] { display: none; }
+  .discovery-tag:active { transform: scale(.98); }
+  .discovery-tag:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; transition: none; }
+  .discovery-tag:focus-visible:active { transform: none; }
+  @media (hover: hover) and (pointer: fine) { .discovery-tag:hover { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-color: var(--accent); transform: translateY(-1px); } }
+  @media (prefers-reduced-motion: reduce) { .discovery-tag { transition: none; } .discovery-tag:hover, .discovery-tag:active { transform: none; } }
+</style>

@@ -477,7 +477,7 @@ test('静态公共页不伪装成文章日期且单友链保持适宜宽度', ()
 
   assert.match(layout, /showDate\?: boolean/);
   assert.match(layout, /showDate = true/);
-  assert.match(layout, /\{showDate && <div class="date">/);
+  assert.match(layout, /\{showDate && pubDate && <div class="date">/);
   assert.match(about, /showDate=\{false\}/);
   assert.match(friends, /showDate=\{false\}/);
   assert.match(friends, /withBase\('\/friends\/guet-428\.svg'\)/);
