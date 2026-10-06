@@ -1,6 +1,8 @@
 import { createHomeCoverImages } from '../lib/homeCoverImages';
 import { createHomeCoverTimeline, type HomeCoverMotionBlueprint } from '../lib/homeCoverTimeline';
 import {
+  createHomeCoverWheelTrigger,
+  HOME_COVER_WHEEL_IDLE_MS,
   normalizeHomeCoverWheelIntent,
   resolveHomeCoverDirection,
   resolveHomeCoverProgress,
@@ -26,7 +28,6 @@ const LOWER_SELECTOR = '[data-home-lower-motion]';
 const SIDEBAR_SELECTOR = '[data-persistent-sidebar]';
 const STATUS_SELECTOR = '[data-home-cover-status]';
 const HEADER_SELECTOR = '#site-header';
-const WHEEL_GESTURE_IDLE_MS = 120;
 const TOGGLE_EXPAND_MS = 280;
 const TOGGLE_COLLAPSE_MS = 240;
 const KEYBOARD_REVEAL_KEYS = new Set(['Tab', 'End', 'PageDown', 'ArrowDown', ' ']);
@@ -89,14 +90,9 @@ function initHomeHeroMotion() {
   let gestureEngaged = false;
   let gestureCancelled = false;
 
-  let wheelIntentDistance = 0;
-  let wheelStartProgress = 0;
-  let wheelStartTime = 0;
-  let lastWheelTime = 0;
-  let wheelResetTimer: number | undefined;
+  const wheelTrigger = createHomeCoverWheelTrigger();
   let wheelBoundaryTimer: number | undefined;
   let wheelRequiresFreshInput = false;
-  let wheelTravelDistance = 280;
   let cachedMotionBlueprint: HomeCoverMotionBlueprint | undefined;
   let measuredStageRect: MotionRect | undefined;
   let layoutUpdateFrame: number | undefined;
@@ -140,7 +136,6 @@ function initHomeHeroMotion() {
       height: stageHeight,
     };
     gestureTravelDistance = Math.min(Math.max(stageHeight * 0.3, 160), 280);
-    wheelTravelDistance = Math.min(Math.max(stageHeight * 0.45, 240), 420);
     cachedMotionBlueprint = undefined;
   };
 
@@ -522,20 +517,16 @@ function initHomeHeroMotion() {
     finishGesture(event.clientX, event.clientY, event.type === 'pointercancel');
   };
 
-  const handleToggle = (event: MouseEvent) => {
-    if (performance.now() < suppressClickUntil) return;
-    const nextTarget: 0 | 1 = requestedTarget === 1 ? 0 : 1;
+  // 按钮与滚轮共享同一条可反向时间线，不再由滚轮逐帧改写进度。
+  const animateToTarget = (target: 0 | 1, immediate = false) => {
     interruptMotion();
-    settleTo(nextTarget, event.detail === 0 ? 0 : nextTarget === 1 ? TOGGLE_EXPAND_MS : TOGGLE_COLLAPSE_MS);
+    settleTo(target, immediate ? 0 : target === 1 ? TOGGLE_EXPAND_MS : TOGGLE_COLLAPSE_MS);
   };
 
-  const resetWheelGesture = () => {
-    if (wheelResetTimer !== undefined) window.clearTimeout(wheelResetTimer);
-    wheelResetTimer = undefined;
-    wheelIntentDistance = 0;
-    wheelStartProgress = progress;
-    wheelStartTime = 0;
-    lastWheelTime = 0;
+  const handleToggle = (event: MouseEvent) => {
+    if (performance.now() < suppressClickUntil) return;
+    wheelTrigger.reset();
+    animateToTarget(requestedTarget === 1 ? 0 : 1, event.detail === 0);
   };
 
   const holdWheelAtPageBoundary = () => {
@@ -544,23 +535,7 @@ function initHomeHeroMotion() {
     wheelBoundaryTimer = window.setTimeout(() => {
       wheelBoundaryTimer = undefined;
       wheelRequiresFreshInput = false;
-    }, WHEEL_GESTURE_IDLE_MS);
-  };
-
-  const finishWheelGesture = () => {
-    if (wheelResetTimer !== undefined) window.clearTimeout(wheelResetTimer);
-    wheelResetTimer = undefined;
-    if (wheelStartTime === 0) return;
-    const elapsedMs = Math.max(performance.now() - wheelStartTime, 1);
-    const release = resolveHomeCoverRelease({
-      progress: sampleProgress(),
-      intentDistance: wheelIntentDistance,
-      elapsedMs,
-      reduceMotion: reduceMotion.matches,
-    });
-    wheelStartTime = 0;
-    wheelIntentDistance = 0;
-    settleTo(release.target, release.durationMs);
+    }, HOME_COVER_WHEEL_IDLE_MS);
   };
 
   const handleWheel = (event: WheelEvent) => {
@@ -569,45 +544,27 @@ function initHomeHeroMotion() {
 
     const intentDelta = normalizeHomeCoverWheelIntent(event.deltaY, event.deltaMode, window.innerHeight);
     if (intentDelta === 0) return;
+    const now = performance.now();
+    const ownsBurst = wheelTrigger.ownsBurst(now);
     const currentProgress = sampleProgress();
-    if (currentProgress <= 0 && intentDelta > 0 && (window.scrollY > 1 || wheelRequiresFreshInput)) {
+    if (!ownsBurst && state !== 'settling' && currentProgress <= 0 && intentDelta > 0 && (window.scrollY > 1 || wheelRequiresFreshInput)) {
       holdWheelAtPageBoundary();
       return;
     }
-    if (!resolveHomeCoverTakeover({
+    const canTakeOver = state === 'settling' || resolveHomeCoverTakeover({
       isHomeRoute: true,
       pageScrollY: window.scrollY,
       progress: currentProgress,
       intentDelta,
       freshInput: !wheelRequiresFreshInput,
-    })) {
-      if (wheelStartTime !== 0) finishWheelGesture();
-      return;
-    }
+    });
+    if (!ownsBurst && !canTakeOver) return;
 
     if (shouldIgnoreHomeCoverGesture(event.target)) return;
+    const decision = wheelTrigger.push({ intentDelta, now, requestedTarget, canTakeOver });
+    if (!decision.consume) return;
     event.preventDefault();
-    const now = performance.now();
-    if (wheelStartTime === 0 || now - lastWheelTime > WHEEL_GESTURE_IDLE_MS) {
-      interruptMotion();
-      wheelStartProgress = progress;
-      wheelIntentDistance = 0;
-      wheelStartTime = now;
-    }
-    lastWheelTime = now;
-    wheelIntentDistance += intentDelta;
-    if (state !== 'dragging') {
-      state = 'dragging';
-      shell.dataset.state = state;
-      updateWaves();
-    }
-    queueProgress(resolveHomeCoverProgress({
-      startProgress: wheelStartProgress,
-      intentDelta: wheelIntentDistance,
-      travelDistance: wheelTravelDistance,
-    }));
-    if (wheelResetTimer !== undefined) window.clearTimeout(wheelResetTimer);
-    wheelResetTimer = window.setTimeout(finishWheelGesture, WHEEL_GESTURE_IDLE_MS);
+    if (decision.target !== null) animateToTarget(decision.target);
   };
 
   // 阅读正文时释放阻塞式滚轮监听，让浏览器直接滚动。
@@ -698,7 +655,7 @@ function initHomeHeroMotion() {
     geometryMeasureFrame = undefined;
     cachedMotionBlueprint = undefined;
     measuredStageRect = undefined;
-    resetWheelGesture();
+    wheelTrigger.reset();
     if (wheelBoundaryTimer !== undefined) window.clearTimeout(wheelBoundaryTimer);
     wheelBoundaryTimer = undefined;
     wheelRequiresFreshInput = false;

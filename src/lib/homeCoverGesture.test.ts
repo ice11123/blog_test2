@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   classifyHomeCoverSwipe,
+  createHomeCoverWheelTrigger,
   normalizeHomeCoverWheelDelta,
   normalizeHomeCoverWheelIntent,
   resolveHomeCoverDirection,
@@ -97,4 +98,43 @@ test('桌面滚轮归一化为与触摸一致的展开意图', () => {
   assert.equal(normalizeHomeCoverWheelDelta(1, 2, 900), 900);
   assert.equal(normalizeHomeCoverWheelIntent(-120, 0, 900), 120);
   assert.equal(normalizeHomeCoverWheelIntent(120, 0, 900), -120);
+});
+
+test('滚轮首次意图立即发出目标，同向惯性不重复播放', () => {
+  const wheel = createHomeCoverWheelTrigger();
+  assert.deepEqual(wheel.push({ intentDelta: 1, now: 0, requestedTarget: 0, canTakeOver: true }), { consume: true, target: 1 });
+  for (let now = 10; now <= 300; now += 10) {
+    assert.deepEqual(wheel.push({ intentDelta: 120, now, requestedTarget: 1, canTakeOver: true }), { consume: true, target: null });
+  }
+});
+
+test('滚轮明确反向才切换目标，小幅回弹和交替噪声不重启动画', () => {
+  const wheel = createHomeCoverWheelTrigger();
+  wheel.push({ intentDelta: 120, now: 0, requestedTarget: 0, canTakeOver: true });
+  assert.equal(wheel.push({ intentDelta: -6, now: 10, requestedTarget: 1, canTakeOver: true }).target, null);
+  assert.equal(wheel.push({ intentDelta: 1, now: 20, requestedTarget: 1, canTakeOver: true }).target, null);
+  assert.equal(wheel.push({ intentDelta: -6, now: 30, requestedTarget: 1, canTakeOver: true }).target, null);
+  assert.equal(wheel.push({ intentDelta: -6, now: 40, requestedTarget: 1, canTakeOver: true }).target, 0);
+  assert.equal(wheel.push({ intentDelta: 12, now: 50, requestedTarget: 0, canTakeOver: true }).target, 1);
+});
+
+test('收回结束后消耗同一轮惯性，停滚后恢复正文原生滚动', () => {
+  const wheel = createHomeCoverWheelTrigger();
+  assert.equal(wheel.push({ intentDelta: -120, now: 0, requestedTarget: 1, canTakeOver: true }).target, 0);
+  assert.deepEqual(wheel.push({ intentDelta: -4, now: 100, requestedTarget: 0, canTakeOver: false }), { consume: true, target: null });
+  assert.equal(wheel.ownsBurst(220), true);
+  assert.equal(wheel.ownsBurst(221), false);
+  assert.deepEqual(wheel.push({ intentDelta: -120, now: 221, requestedTarget: 0, canTakeOver: false }), { consume: false, target: null });
+});
+
+test('新一轮反向立即生效，重置及无效输入不会抢占滚动', () => {
+  const wheel = createHomeCoverWheelTrigger();
+  assert.deepEqual(wheel.push({ intentDelta: 40, now: 0, requestedTarget: 0, canTakeOver: false }), { consume: false, target: null });
+  assert.equal(wheel.push({ intentDelta: 40, now: 10, requestedTarget: 0, canTakeOver: true }).target, 1);
+  assert.equal(wheel.push({ intentDelta: -1, now: 131, requestedTarget: 1, canTakeOver: true }).target, 0);
+  wheel.reset();
+  assert.equal(wheel.ownsBurst(131), false);
+  for (const intentDelta of [0, NaN, Infinity]) {
+    assert.deepEqual(wheel.push({ intentDelta, now: 140, requestedTarget: 0, canTakeOver: true }), { consume: false, target: null });
+  }
 });

@@ -437,7 +437,10 @@ test('主页壁纸支持可访问的点击、触屏手势与桌面滚轮展开',
   assert.match(motion, /addEventListener\('scroll', syncWheelListener, \{ passive: true \}\)/);
   assert.doesNotMatch(motion, /aria-modal|event\.key\s*===\s*'Tab'/);
   assert.match(motion, /prefers-reduced-motion:\s*reduce/);
-  assert.match(motion, /event\.detail\s*===\s*0\s*\?\s*0/);
+  assert.match(motion, /animateToTarget\(requestedTarget\s*===\s*1\s*\?\s*0\s*:\s*1,\s*event\.detail\s*===\s*0\)/);
+  assert.match(motion, /settleTo\(target,\s*immediate\s*\?\s*0\s*:/);
+  assert.match(motion, /if \(decision\.target !== null\) animateToTarget\(decision\.target\)/);
+  assert.doesNotMatch(motion, /wheelTravelDistance|wheelStartProgress|finishWheelGesture/);
   assert.match(motion, /event\.key\s*!==\s*'Escape'/);
   assert.match(motion, /settleTo\(0,\s*0\)/);
   assert.doesNotMatch(motion, /createProgressAnimation\(sidebar/);

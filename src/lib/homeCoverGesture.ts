@@ -7,6 +7,7 @@ export const HOME_COVER_SETTLE_MIN_MS = 140;
 export const HOME_COVER_SETTLE_MAX_MS = 240;
 export const HOME_COVER_WHEEL_LINE_HEIGHT = 16;
 export const HOME_COVER_PAGE_TOP_TOLERANCE = 1;
+export const HOME_COVER_WHEEL_IDLE_MS = 120;
 
 /** 弹窗、编辑控件和独立滚动区优先处理自己的手势，不触发背景壁纸。 */
 export function shouldIgnoreHomeCoverGesture(target: EventTarget | null): boolean {
@@ -166,4 +167,53 @@ export function normalizeHomeCoverWheelDelta(deltaY: number, deltaMode: number, 
 
 export function normalizeHomeCoverWheelIntent(deltaY: number, deltaMode: number, viewportHeight: number): number {
   return -normalizeHomeCoverWheelDelta(deltaY, deltaMode, viewportHeight);
+}
+
+/** 滚轮只发出动画目标；惯性尾段不重启动画，也不在收回后突然滚动正文。 */
+export function createHomeCoverWheelTrigger() {
+  let lastInputTime: number | undefined;
+  let captured = false;
+  let direction: 0 | 1 | undefined;
+  let directionDistance = 0;
+
+  const reset = () => {
+    lastInputTime = undefined;
+    captured = false;
+    direction = undefined;
+    directionDistance = 0;
+  };
+  const ownsBurst = (now: number) => captured && lastInputTime !== undefined
+    && now - lastInputTime <= HOME_COVER_WHEEL_IDLE_MS;
+
+  const push = ({ intentDelta, now, requestedTarget, canTakeOver }: {
+    intentDelta: number;
+    now: number;
+    requestedTarget: 0 | 1;
+    canTakeOver: boolean;
+  }): { consume: boolean; target: 0 | 1 | null } => {
+    if (!Number.isFinite(intentDelta) || intentDelta === 0) return { consume: false, target: null };
+    if (lastInputTime !== undefined && now - lastInputTime > HOME_COVER_WHEEL_IDLE_MS) reset();
+    if (!captured && !canTakeOver) return { consume: false, target: null };
+
+    const firstInput = !captured;
+    captured = true;
+    lastInputTime = now;
+    const nextTarget = intentDelta > 0 ? 1 : 0;
+    if (direction !== nextTarget) directionDistance = 0;
+    direction = nextTarget;
+    directionDistance += Math.abs(intentDelta);
+
+    if (nextTarget === requestedTarget) {
+      directionDistance = 0;
+      return { consume: true, target: null };
+    }
+    // 首次意图立即播放；同一轮反向需明确位移，过滤触控板的细小回弹。
+    if (!firstInput && directionDistance < HOME_COVER_DIRECTION_LOCK_DISTANCE) {
+      return { consume: true, target: null };
+    }
+    directionDistance = 0;
+    return { consume: true, target: nextTarget };
+  };
+
+  return { push, ownsBurst, reset };
 }

@@ -126,6 +126,8 @@ function mountHeroRuntime() {
   let writes = 0;
   let animationsCreated = 0;
   let guardCalls = 0;
+  let now = 100;
+  const animations = [];
   const nodes = new Map();
   const makeNode = () => {
     const element = new ElementStub();
@@ -134,11 +136,18 @@ function mountHeroRuntime() {
     element.naturalWidth = 1920;
     element.naturalHeight = 1080;
     element.offsetHeight = 44;
-    element.animate = () => {
+    element.animate = (keyframes, options) => {
       animationsCreated++;
       let time = 0;
-      return { get currentTime() { return time; }, set currentTime(value) { time = value; writes++; },
-        pause() {}, cancel() {}, finished: new Promise(() => {}) };
+      let finish;
+      const animation = { keyframes, options, paused: false, cancelled: false,
+        get currentTime() { return time; }, set currentTime(value) { time = value; writes++; },
+        pause() { this.paused = true; }, cancel() { this.cancelled = true; },
+        finished: new Promise(resolve => { finish = resolve; }),
+        finish() { time = options.duration; finish(); },
+      };
+      animations.push(animation);
+      return animation;
     };
     element.removeEventListener = (type, callback) => {
       element.handlers.set(type, (element.handlers.get(type) || []).filter(entry => entry.callback !== callback));
@@ -164,7 +173,7 @@ function mountHeroRuntime() {
   });
   class Observer { observe() {} disconnect() {} }
   const globals = {
-    document, window, performance: { now: () => 100 },
+    document, window, performance: { now: () => now },
     getComputedStyle: () => ({ display: 'block', objectPosition: '50% 50%' }),
     ResizeObserver: Observer, IntersectionObserver: Observer, MutationObserver: Observer,
   };
@@ -178,8 +187,14 @@ function mountHeroRuntime() {
   flush();
   writes = 0;
   const flushTimers = () => { const callbacks = [...timers.values()]; timers.clear(); callbacks.forEach(callback => callback()); };
-  return { document, window, nodes, frames, flush, flushTimers, writes: () => writes, animationsCreated: () => animationsCreated, guards: () => guardCalls,
-    wheel(deltaY) { return document.fire('wheel', { deltaY, deltaX: 0, deltaMode: 0 }); } };
+  return { document, window, nodes, media, frames, flush, flushTimers, writes: () => writes, animationsCreated: () => animationsCreated, guards: () => guardCalls,
+    animations, setTime(value) { now = value; },
+    finishAnimations() { for (const animation of animations) if (!animation.paused && !animation.cancelled) animation.finish(); },
+    wheel(deltaY, extra = {}) {
+      let prevented = false;
+      document.fire('wheel', { deltaY, deltaX: 0, deltaMode: 0, preventDefault() { prevented = true; }, ...extra });
+      return prevented;
+    } };
 }
 
 test('普通向下浏览不执行壁纸祖先元素布局检查', () => {
@@ -197,15 +212,87 @@ test('初始化几何后也释放暂停时间线，不让长抽屉常驻合成�
   assert.ok(hero.animationsCreated() > previous);
 });
 
-test('同帧滚轮突发只提交一次最新动画进度，下一帧可反向', () => {
+test('滚轮立即复用按钮动画，同向突发不改进度、不重复创建动画', () => {
   const hero = mountHeroRuntime();
-  for (let i = 0; i < 40; i++) hero.wheel(-2);
-  hero.flush();
-  assert.ok(hero.writes() <= 12, `同帧产生了 ${hero.writes()} 次动画写入`);
+  hero.wheel(-2);
+  assert.equal(hero.nodes.get('[data-home-cover]').dataset.state, 'settling');
+  assert.equal(hero.animations.at(-1).options.duration, 280);
+  const created = hero.animationsCreated();
   const previous = hero.writes();
-  for (let i = 0; i < 10; i++) hero.wheel(2);
+  for (let i = 0; i < 40; i++) hero.wheel(-2);
+  assert.equal(hero.animationsCreated(), created);
+  assert.equal(hero.writes(), previous);
+  assert.equal(hero.frames.size, 0);
+  for (const animation of hero.animations) {
+    if (!animation.paused && !animation.cancelled) animation.currentTime = 100;
+  }
+  for (let i = 0; i < 6; i++) hero.wheel(2);
+  assert.equal(hero.animationsCreated(), created + 6);
+  assert.equal(hero.animations.at(-1).options.duration, 240);
   hero.flush();
-  assert.equal(hero.writes() - previous, 6);
+  assert.equal(hero.animationsCreated(), created + 6);
+});
+
+test('滚轮与指针按钮使用相同缓动和时长，反向从呈现值继续', () => {
+  const wheel = mountHeroRuntime();
+  const button = mountHeroRuntime();
+  wheel.wheel(-120);
+  button.nodes.get('[data-home-cover-toggle]').fire('click', { detail: 1 });
+  assert.deepEqual({ ...wheel.animations.at(-1).options }, { ...button.animations.at(-1).options });
+  for (const animation of wheel.animations) {
+    if (!animation.paused && !animation.cancelled) animation.currentTime = 100;
+  }
+  wheel.wheel(120);
+  const drawerStart = wheel.animations.at(-3).keyframes[0].transform;
+  assert.notEqual(drawerStart, 'translate3d(0, 0px, 0)');
+  assert.equal(wheel.animations.at(-3).keyframes[1].transform, 'translate3d(0, 0px, 0)');
+});
+
+test('收回完成后同一轮惯性不滚动正文，下一轮向下恢复原生浏览', async () => {
+  const hero = mountHeroRuntime();
+  hero.nodes.get('[data-home-cover-toggle]').fire('click', { detail: 0 });
+  assert.equal(hero.wheel(120), true);
+  hero.finishAnimations();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(hero.nodes.get('[data-home-cover]').dataset.state, 'collapsed');
+  const count = hero.animationsCreated();
+  hero.setTime(200);
+  assert.equal(hero.wheel(2), true);
+  assert.equal(hero.animationsCreated(), count);
+  hero.setTime(321);
+  assert.equal(hero.wheel(120), false);
+});
+
+test('修饰键和横向滚轮不触发壁纸动画', () => {
+  const hero = mountHeroRuntime();
+  for (const extra of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { deltaX: 200 }]) {
+    assert.equal(hero.wheel(-120, extra), false);
+  }
+  assert.equal(hero.guards(), 0);
+});
+
+test('降低动态时滚轮立即切换稳定状态，不播放展开收回动画', () => {
+  const hero = mountHeroRuntime();
+  hero.media.matches = true;
+  hero.wheel(-120);
+  assert.equal(hero.nodes.get('[data-home-cover]').dataset.state, 'expanded');
+  hero.wheel(120);
+  assert.equal(hero.nodes.get('[data-home-cover]').dataset.state, 'collapsed');
+  assert.equal(hero.animations.filter(animation => animation.options.easing !== 'linear').length, 0);
+});
+
+test('触摸仍逐帧跟手，不复用桌面滚轮的离散目标触发', () => {
+  const hero = mountHeroRuntime();
+  const touch = { identifier: 1, clientX: 50, clientY: 650 };
+  hero.document.fire('touchstart', { touches: [touch] });
+  const moved = { ...touch, clientY: 750 };
+  hero.document.fire('touchmove', { touches: { length: 1, item: () => moved } });
+  assert.equal(hero.nodes.get('[data-home-cover]').dataset.state, 'dragging');
+  assert.equal(hero.frames.size, 1);
+  hero.flush();
+  assert.equal(hero.animations.filter(animation => animation.options.easing !== 'linear').length, 0);
+  hero.document.fire('touchend', { changedTouches: { length: 1, item: () => moved } });
+  assert.equal(hero.nodes.get('[data-home-cover]').dataset.state, 'settling');
 });
 
 test('稳定收起后释放长抽屉时间线，下一次展开按需重建', () => {
@@ -244,6 +331,21 @@ test('阅读正文时释放阻塞式滚轮监听，回到顶部恢复接管', ()
   hero.wheel(-20);
   hero.flush();
   assert.ok(hero.writes() > 0);
+});
+
+test('正文滚回顶部的同一轮输入不展开，停滚后的新输入才触发', () => {
+  const hero = mountHeroRuntime();
+  hero.window.scrollY = 500;
+  hero.window.fire('scroll');
+  hero.wheel(-120);
+  hero.window.scrollY = 0;
+  hero.window.fire('scroll');
+  const created = hero.animationsCreated();
+  assert.equal(hero.wheel(-120), false);
+  assert.equal(hero.animationsCreated(), created);
+  hero.flushTimers();
+  assert.equal(hero.wheel(-120), true);
+  assert.equal(hero.nodes.get('[data-home-cover]').dataset.state, 'settling');
 });
 
 test('触摸移动监听只在顶部单指会话挂载并在结束后释放', () => {
@@ -500,10 +602,8 @@ test('首页滚轮、触摸和笔手势不接管搜索弹窗、输入框或独�
         ...gestureModule, ...helper, document, Element: ElementStub,
         desktopWheel: { matches: true }, window: { scrollY: 0, innerHeight: 800, setTimeout() {} },
         sampleProgress: () => 0, performance: { now: () => 100 }, progress: 0,
-        wheelRequiresFreshInput: false, wheelStartTime: 0, lastWheelTime: 0,
-        wheelIntentDistance: 0, wheelStartProgress: 0, wheelTravelDistance: 360,
-        wheelResetTimer: undefined, WHEEL_GESTURE_IDLE_MS: 120, state: '', shell: { dataset: {} },
-        requestHighResolution() {}, interruptMotion() {}, updateWaves() {}, queueProgress() {}, finishWheelGesture() {},
+        wheelRequiresFreshInput: false, wheelTrigger: gestureModule.createHomeCoverWheelTrigger(), requestedTarget: 0,
+        state: 'collapsed', animateToTarget() {}, holdWheelAtPageBoundary() {},
         activeTouchId: null, activePenId: null, measuredHeaderHeight: 80, trackedPenPointers: new Set(), handleTouchMove() {},
         documentElement: { setPointerCapture() {} }, beginGesture() { handled = true; },
       });
