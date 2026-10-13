@@ -39,13 +39,18 @@ test('搜索静态索引按需加载、保护输入法且选择不重建列表',
   assert.match(toc, /headingTops,/);
 });
 
-test('软件作品位于技术星图下，整卡原生跳转且不增加运行时脚本', () => {
+test('软件作品位于技术星图下，整卡原生下载与源码入口独立且不增加运行时脚本', () => {
   const home = readSource('pages/index.astro');
   const showcase = readSource('components/home/SoftwareShowcase.astro');
   assert.match(home, /<TopicAtlas[^>]*>\s*<SoftwareShowcase\s*\/>\s*<RecentPosts/);
   assert.match(showcase, /https:\/\/github\.com\/ice11123\/Click-Clean/);
-  assert.match(showcase, /<a\s+class="software-card"\s+href=\{projectUrl\}/);
-  assert.equal((showcase.match(/<a\b/g) ?? []).length, 1, '作品卡片不应嵌套其他链接');
+  assert.match(showcase, /<article\s+class="software-card"/);
+  assert.match(showcase, /const downloadUrl = `\$\{projectUrl\}\/releases\/latest`/);
+  assert.match(showcase, /class="software-download" href=\{downloadUrl\}/);
+  assert.match(showcase, /class="software-source" href=\{projectUrl\}/);
+  assert.equal((showcase.match(/<a\b/g) ?? []).length, 2, '下载与源码使用两个独立原生链接');
+  assert.match(showcase, /<\/a>\s*<a class="software-source"/);
+  assert.match(showcase, /\.software-download::after\s*\{[^}]*position: absolute;[^}]*inset: 0;[^}]*z-index: 1/);
   assert.match(showcase, /rel="noopener noreferrer"/);
   assert.match(showcase, /aria-describedby="click-clean-description click-clean-destination"/);
   assert.match(showcase, /模拟数据/);
@@ -53,6 +58,20 @@ test('软件作品位于技术星图下，整卡原生跳转且不增加运行�
   assert.match(showcase, /@media \(hover: hover\) and \(pointer: fine\)/);
   assert.match(showcase, /@media \(prefers-reduced-motion: reduce\)/);
   assert.doesNotMatch(showcase, /<script|setInterval|requestAnimationFrame/);
+});
+
+test('软件卡片保留真实双主题截图与正式平台边界，下载不绑定具体版本', () => {
+  const showcase = readSource('components/home/SoftwareShowcase.astro');
+  assert.match(showcase, /click-clean-acrylic-light\.png/);
+  assert.match(showcase, /click-clean-acrylic-dark\.png/);
+  assert.match(showcase, /data-theme='dark'/);
+  assert.match(showcase, /Windows 11 · x64/);
+  assert.match(showcase, /暂不支持 Linux 与 macOS/);
+  assert.match(showcase, /GPL-3\.0-only · 原作者：离子怪/);
+  assert.match(showcase, /手动确认更新/);
+  assert.match(showcase, /默认浅色 · 底部岛默认开启 · 自动整理默认关闭/);
+  assert.match(showcase, /过程 → 2 秒结果 → 实时读数/);
+  assert.doesNotMatch(showcase, /releases\/download|v2\.[0-9]|2\.6\.[01]|win-x86|自动替换|自动重启/);
 });
 
 function readSource(relativePath: string): string {
