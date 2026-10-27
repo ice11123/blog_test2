@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="328" viewBox="0 0 1250 328">
+<rect width="100%" height="100%" fill="#fcfbf7"/>
+<g font-family="Microsoft YaHei,Arial,sans-serif" fill="#17385b"><text x="18" y="30" font-size="17">基本RS异步响应示例</text><text x="18" y="60" font-size="14">与非型；初态Q=0；/Rd、/Sd不同时为0；无CP，输出响应控制变化</text></g>
+<path d="M130.0,85 V303" stroke="#e1e4e7"/>
+<text x="134.0" y="319" font-size="12" fill="#657280">0</text>
+<path d="M266.5,85 V303" stroke="#e1e4e7"/>
+<text x="270.5" y="319" font-size="12" fill="#657280">1</text>
+<path d="M403.0,85 V303" stroke="#e1e4e7"/>
+<text x="407.0" y="319" font-size="12" fill="#657280">2</text>
+<path d="M539.5,85 V303" stroke="#e1e4e7"/>
+<text x="543.5" y="319" font-size="12" fill="#657280">3</text>
+<path d="M676.0,85 V303" stroke="#e1e4e7"/>
+<text x="680.0" y="319" font-size="12" fill="#657280">4</text>
+<path d="M812.5,85 V303" stroke="#e1e4e7"/>
+<text x="816.5" y="319" font-size="12" fill="#657280">5</text>
+<path d="M949.0,85 V303" stroke="#e1e4e7"/>
+<text x="953.0" y="319" font-size="12" fill="#657280">6</text>
+<path d="M1085.5,85 V303" stroke="#e1e4e7"/>
+<text x="1089.5" y="319" font-size="12" fill="#657280">7</text>
+<path d="M1222.0,85 V303" stroke="#e1e4e7"/>
+<text x="15" y="124" font-size="16" fill="#17385b">/Rd</text>
+<polyline fill="none" stroke="#1b6da8" stroke-width="2" points="130.0,104 266.5,104 266.5,104 266.5,104 403.0,104 403.0,104 403.0,104 539.5,104 539.5,104 539.5,104 676.0,104 676.0,104 676.0,133 812.5,133 812.5,133 812.5,104 949.0,104 949.0,104 949.0,104 1085.5,104 1085.5,104 1085.5,104 1222.0,104"/>
+<text x="15" y="186" font-size="16" fill="#17385b">/Sd</text>
+<polyline fill="none" stroke="#1b6da8" stroke-width="2" points="130.0,166 266.5,166 266.5,166 266.5,195 403.0,195 403.0,195 403.0,166 539.5,166 539.5,166 539.5,166 676.0,166 676.0,166 676.0,166 812.5,166 812.5,166 812.5,166 949.0,166 949.0,166 949.0,195 1085.5,195 1085.5,195 1085.5,166 1222.0,166"/>
+<text x="15" y="248" font-size="16" fill="#17385b">Q</text>
+<polyline fill="none" stroke="#1b6da8" stroke-width="2" points="130.0,257 266.5,257 266.5,257 266.5,228 403.0,228 403.0,228 403.0,228 539.5,228 539.5,228 539.5,228 676.0,228 676.0,228 676.0,257 812.5,257 812.5,257 812.5,257 949.0,257 949.0,257 949.0,228 1085.5,228 1085.5,228 1085.5,228 1222.0,228"/>
+</svg>

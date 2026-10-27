@@ -19,6 +19,7 @@ import compress from 'astro-compress';
 import { remarkMermaid } from './src/plugins/remark-mermaid';
 import { remarkGithubAlerts } from './src/plugins/remark-github-alerts';
 import { remarkSubSuper } from './src/plugins/remark-sub-super';
+import { remarkDigitalLogicCallouts } from './src/plugins/remark-digital-logic-callouts';
 
 const publicBaseUrl = 'https://ice11123.github.io/blog_test2';
 const tiCarArticleSlugs = [
@@ -76,6 +77,7 @@ export default defineConfig({
         remarkMath,
         remarkMark,
         remarkSubSuper,
+        remarkDigitalLogicCallouts,
         remarkGithubAlerts,
         remarkMermaid,
       ],

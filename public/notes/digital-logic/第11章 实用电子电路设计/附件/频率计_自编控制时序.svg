@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420">
+<rect width="100%" height="100%" fill="#fff"/>
+<g font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="16" fill="#243348">
+<text x="20" y="25">Ideal control example / arbitrary time units</text>
+<path d="M130 45 V375" stroke="#e4e8ee"/>
+<text x="126" y="400">0</text>
+<path d="M250 45 V375" stroke="#e4e8ee"/>
+<text x="246" y="400">1</text>
+<path d="M370 45 V375" stroke="#e4e8ee"/>
+<text x="366" y="400">2</text>
+<path d="M490 45 V375" stroke="#e4e8ee"/>
+<text x="486" y="400">3</text>
+<path d="M610 45 V375" stroke="#e4e8ee"/>
+<text x="606" y="400">4</text>
+<path d="M730 45 V375" stroke="#e4e8ee"/>
+<text x="726" y="400">5</text>
+<path d="M850 45 V375" stroke="#e4e8ee"/>
+<text x="846" y="400">6</text>
+<text x="15" y="87">X</text>
+<path d="M130,92 H190.00 V62 H226.00 V92 H310.00 V62 H346.00 V92 H430.00 V62 H466.00 V92 H550.00 V62 H586.00 V92 H670.00 V62 H706.00 V92 H790.00 V62 H826.00 V92 H886.0" fill="none" stroke="#246bbb" stroke-width="2.5"/>
+<text x="15" y="142">G</text>
+<path d="M130,117 H610.00 V147 H850.00 V117 H886.0" fill="none" stroke="#246bbb" stroke-width="2.5"/>
+<text x="15" y="197">E = G X</text>
+<path d="M130,202 H190.00 V172 H226.00 V202 H310.00 V172 H346.00 V202 H430.00 V172 H466.00 V202 H550.00 V172 H586.00 V202 H886.0" fill="none" stroke="#246bbb" stroke-width="2.5"/>
+<text x="15" y="252">C (latch)</text>
+<path d="M130,257 H646.00 V227 H676.00 V257 H886.0" fill="none" stroke="#246bbb" stroke-width="2.5"/>
+<text x="15" y="307">CLR</text>
+<path d="M130,312 H706.00 V282 H736.00 V312 H886.0" fill="none" stroke="#246bbb" stroke-width="2.5"/>
+<text x="15" y="365">N / display</text>
+<text x="130.0" y="365">N=0</text>
+<text x="208.0" y="365">1</text>
+<text x="328.0" y="365">2</text>
+<text x="448.0" y="365">3</text>
+<text x="568.0" y="365">4</text>
+<text x="712.0" y="365">N=0, display=4</text>
+</g></svg>
