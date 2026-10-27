@@ -1,5 +1,6 @@
 import type { SidebarPost } from './blogData';
 import { compareDirectoryPostMetadata } from './postOrdering.ts';
+import { thirdLevelDirectory } from './thirdLevelDirectory.ts';
 
 export interface SidebarStats {
   totalArticles: number;
@@ -13,6 +14,8 @@ export interface ArticleDirectorySection {
   subdirectories: Array<{
     name: string;
     posts: SidebarPost[];
+    directPosts: SidebarPost[];
+    chapters: Array<{ name: string; posts: SidebarPost[] }>;
   }>;
   total: number;
 }
@@ -67,6 +70,8 @@ export function buildArticleDirectory(posts: SidebarPost[]): ArticleDirectorySec
           .map(([subdirectoryName, subgroupPosts]) => ({
             name: subdirectoryName,
             posts: subgroupPosts.sort(byDirectoryOrder),
+            directPosts: subgroupPosts.filter(post => !post.dir3).sort(byDirectoryOrder),
+            chapters: thirdLevelDirectory(subgroupPosts.filter(post => Boolean(post.dir3)), post => post),
           })),
         total: groupPosts.length,
       };

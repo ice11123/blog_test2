@@ -6,9 +6,12 @@ import { blogPostPath } from '../../lib/urls';
 interface Props {
   post: CollectionEntry<'blog'>;
   index: number;
+  level?: 3 | 4;
 }
 
-const { post, index } = Astro.props;
+const { post, index, level = 3 } = Astro.props;
+const displayTitle = level === 4 && post.data.dir3 && post.data.title.startsWith(`${post.data.dir3}—`)
+  ? post.data.title.slice(post.data.dir3.length + 1) : post.data.title;
 const order = String(index + 1).padStart(2, '0');
 const tags = post.data.tags ?? [];
 const visibleTags = tags.slice(0, 3);
@@ -20,8 +23,8 @@ const plainDescription = post.data.description.replace(/<[^>]+>/g, '').trim();
   <a class="directory-post-link" href={blogPostPath(post.id)}>
     <span class="directory-post-order" aria-hidden="true">{order}</span>
     <div class="directory-post-copy">
-      <span class="directory-post-level">三级文章 · {order}</span>
-      <h4>{post.data.title}</h4>
+      <span class="directory-post-level">{level === 4 ? '四级文章' : '三级文章'} · {order}</span>
+      <h4>{displayTitle}</h4>
       <p>{plainDescription}</p>
       <div class="directory-post-meta">
         <time>

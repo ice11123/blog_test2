@@ -21,3 +21,17 @@ test('系列端点、未知文章、无二级分类和单篇均正确降级', ()
   assert.equal(seriesNeighbors(posts, '01-first')?.previous, null);
   assert.equal(seriesNeighbors(posts, '02-last')?.next, null);
 });
+
+test('四级文章的上下篇只在当前章节内排列，不串到下一章', () => {
+  const posts = [
+    { ...post('07-chip', '学习笔记', '数电芯片笔记'), dir3: '第04章 门电路' },
+    { ...post('06-index', '学习笔记', '数电芯片笔记'), dir3: '第04章 门电路' },
+    { ...post('12-index', '学习笔记', '数电芯片笔记'), dir3: '第05章 组合逻辑电路' },
+  ];
+  const result = seriesNeighbors(posts, '07-chip')!;
+  assert.equal(result.name, '第04章 门电路');
+  assert.equal(result.dir2, '数电芯片笔记');
+  assert.equal(result.total, 2);
+  assert.equal(result.previous?.slug, '06-index');
+  assert.equal(result.next, null);
+});

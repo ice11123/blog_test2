@@ -9,6 +9,7 @@ import remarkMath from 'remark-math';
 export const BASE = '/blog_test2';
 export const CONTENT_DIRECTORY = '学习笔记/数电';
 export const ASSET_DIRECTORY = 'notes/digital-logic';
+export const SUBCATEGORY = '数电芯片笔记';
 export const NOTE_MARKER = '<!-- blog2-digital-logic-note -->';
 const encodePath = value => value.split('/').map(encodeURIComponent).join('/');
 const html = value => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -203,7 +204,8 @@ export async function importDigitalLogicNotes({ sourceRoot, repositoryRoot, pubD
       ...note.frontmatter,
       title: note.title, description: note.description, pubDate, author: '离子怪',
       sourceUrl: `https://github.com/ice11123/blog_test2/blob/main/src/content/blog/${encodePath(`${CONTENT_DIRECTORY}/${note.slug}.md`)}`,
-      dir1: '学习笔记', dir2: '数电',
+      dir1: '学习笔记', dir2: SUBCATEGORY,
+      dir3: note.chapter ? path.posix.dirname(note.source) : '总览与速查',
       tags: [...new Set(['数电', '芯片笔记', ...(note.frontmatter.tags || [])])],
     };
     const frontmatter = Object.entries(metadata).map(([key, value]) => `${JSON.stringify(key)}: ${JSON.stringify(value)}`).join('\n');
@@ -216,7 +218,7 @@ export async function importDigitalLogicNotes({ sourceRoot, repositoryRoot, pubD
   }
   const manifest = {
     pubDate,
-    articles: converted.map(({ note, imageCount, unpublished }) => ({ source: note.source, sourceSha256: note.sourceSha256, slug: note.slug, title: note.title, chapter: note.chapter, imageCount, unpublishedLocalReferences: unpublished })),
+    articles: converted.map(({ note, imageCount, unpublished }) => ({ source: note.source, sourceSha256: note.sourceSha256, slug: note.slug, title: note.title, chapter: note.chapter, dir3: note.chapter ? path.posix.dirname(note.source) : '总览与速查', imageCount, unpublishedLocalReferences: unpublished })),
     assets: plan.assets,
   };
   await mkdir(path.join(repositoryRoot, 'scripts/data'), { recursive: true });

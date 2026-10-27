@@ -7,6 +7,7 @@
       "slug": "00-00_芯片总索引",
       "title": "数电各章节芯片",
       "chapter": 0,
+      "dir3": "总览与速查",
       "imageCount": 0,
       "unpublishedLocalReferences": []
     },
@@ -16,6 +17,7 @@
       "slug": "01-01_易混器件速查",
       "title": "易混器件速查",
       "chapter": 0,
+      "dir3": "总览与速查",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第07章_时序逻辑电路.md#%E5%8E%9FPDF%E7%AC%AC218%E9%A1%B5",
@@ -28,6 +30,7 @@
       "slug": "02-02_方程与图表读法",
       "title": "芯片方程与图表读法",
       "chapter": 0,
+      "dir3": "总览与速查",
       "imageCount": 0,
       "unpublishedLocalReferences": []
     },
@@ -37,6 +40,7 @@
       "slug": "03-ch01-00_本章芯片索引",
       "title": "第01章 绪论—本章芯片索引",
       "chapter": 1,
+      "dir3": "第01章 绪论",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第01章_绪论.md",
@@ -49,6 +53,7 @@
       "slug": "04-ch02-00_本章芯片索引",
       "title": "第02章 数制和码制—本章芯片索引",
       "chapter": 2,
+      "dir3": "第02章 数制和码制",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第02章_数制和码制.md",
@@ -61,6 +66,7 @@
       "slug": "05-ch03-00_本章芯片索引",
       "title": "第03章 逻辑代数基础—本章芯片索引",
       "chapter": 3,
+      "dir3": "第03章 逻辑代数基础",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第03章_逻辑代数基础.md",
@@ -73,6 +79,7 @@
       "slug": "06-ch04-00_本章芯片索引",
       "title": "第04章 门电路—本章芯片索引",
       "chapter": 4,
+      "dir3": "第04章 门电路",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第04章_门电路.md",
@@ -85,6 +92,7 @@
       "slug": "07-ch04-74hc00芯片",
       "title": "第04章 门电路—74HC00 · CMOS 四个二输入与非门",
       "chapter": 4,
+      "dir3": "第04章 门电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2016年.md#原PDF第172页",
@@ -101,6 +109,7 @@
       "slug": "08-ch04-74ls00芯片",
       "title": "第04章 门电路—74LS00 · 四个二输入与非门",
       "chapter": 4,
+      "dir3": "第04章 门电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第05章_组合数字电路.md#原PDF第10页",
@@ -116,6 +125,7 @@
       "slug": "09-ch04-cmos传输门器件卡",
       "title": "第04章 门电路—CMOS传输门 · 受控双向开关",
       "chapter": 4,
+      "dir3": "第04章 门电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第04章_集成门电路.md#原PDF第7页",
@@ -131,6 +141,7 @@
       "slug": "10-ch04-oc门器件卡",
       "title": "第04章 门电路—OC门 · 开集电极输出与线与",
       "chapter": 4,
+      "dir3": "第04章 门电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第05章_组合数字电路.md#原PDF第10页",
@@ -148,6 +159,7 @@
       "slug": "11-ch04-三态门器件卡",
       "title": "第04章 门电路—三态门 · 0、1、Z 与总线控制",
       "chapter": 4,
+      "dir3": "第04章 门电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第04章_集成门电路.md#原PDF第6页",
@@ -164,6 +176,7 @@
       "slug": "12-ch05-00_本章芯片索引",
       "title": "第05章 组合逻辑电路—本章芯片索引",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第05章_组合逻辑电路.md",
@@ -176,6 +189,7 @@
       "slug": "13-ch05-74ls138芯片",
       "title": "第05章 组合逻辑电路—74LS138 · 三线八线低有效译码器",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第05章_组合数字电路.md#原PDF第10页",
@@ -195,6 +209,7 @@
       "slug": "14-ch05-74ls148芯片",
       "title": "第05章 组合逻辑电路—74LS148 · 八线三线优先编码器",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2015年.md#原PDF第163页",
@@ -210,6 +225,7 @@
       "slug": "15-ch05-74ls151芯片",
       "title": "第05章 组合逻辑电路—74LS151 · 八选一数据选择器",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2025年.md#原PDF第273页",
@@ -226,6 +242,7 @@
       "slug": "16-ch05-74ls153芯片",
       "title": "第05章 组合逻辑电路—74LS153 · 双四选一数据选择器",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2017年.md#原PDF第182页",
@@ -245,6 +262,7 @@
       "slug": "17-ch05-74ls283芯片",
       "title": "第05章 组合逻辑电路—74LS283 · 四位二进制全加器",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2025年.md#原PDF第270页",
@@ -261,6 +279,7 @@
       "slug": "18-ch05-74ls47芯片",
       "title": "第05章 组合逻辑电路—74LS47 · BCD 七段译码 · 共阳极显示",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册答案_第05章_组合数字电路.md#原PDF第19页",
@@ -277,6 +296,7 @@
       "slug": "19-ch05-74ls48芯片",
       "title": "第05章 组合逻辑电路—74LS48 · BCD 七段译码 · 共阴极显示",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 5,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第11章_实用电子电路设计.md#原PDF第392页",
@@ -293,6 +313,7 @@
       "slug": "20-ch05-74ls85芯片",
       "title": "第05章 组合逻辑电路—74LS85 · 四位数码比较器",
       "chapter": 5,
+      "dir3": "第05章 组合逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第05章_组合数字电路.md#原PDF第11页",
@@ -309,6 +330,7 @@
       "slug": "21-ch06-00_本章芯片索引",
       "title": "第06章 触发器—本章芯片索引",
       "chapter": 6,
+      "dir3": "第06章 触发器",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第06章_触发器.md",
@@ -321,6 +343,7 @@
       "slug": "22-ch06-74ls273芯片",
       "title": "第06章 触发器—74LS273 · 8位 D 触发器",
       "chapter": 6,
+      "dir3": "第06章 触发器",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2015年.md#原PDF第165页",
@@ -333,6 +356,7 @@
       "slug": "23-ch06-d触发器器件卡",
       "title": "第06章 触发器—D 触发器",
       "chapter": 6,
+      "dir3": "第06章 触发器",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2024年.md#原PDF第259页",
@@ -347,6 +371,7 @@
       "slug": "24-ch06-jk触发器器件卡",
       "title": "第06章 触发器—JK 触发器",
       "chapter": 6,
+      "dir3": "第06章 触发器",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2007年.md#原PDF第87页",
@@ -360,6 +385,7 @@
       "slug": "25-ch06-基本rs触发器器件卡",
       "title": "第06章 触发器—基本 RS 触发器",
       "chapter": 6,
+      "dir3": "第06章 触发器",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2007年.md#原PDF第85页",
@@ -373,6 +399,7 @@
       "slug": "26-ch07-00_本章芯片索引",
       "title": "第07章 时序逻辑电路—本章芯片索引",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第07章_时序逻辑电路.md",
@@ -385,6 +412,7 @@
       "slug": "27-ch07-74ls160芯片",
       "title": "第07章 时序逻辑电路—74LS160 · 10进制异步清零计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2024年.md#原PDF第257页",
@@ -398,6 +426,7 @@
       "slug": "28-ch07-74ls161芯片",
       "title": "第07章 时序逻辑电路—74LS161 · 16进制异步清零计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2019年.md#原PDF第207页",
@@ -411,6 +440,7 @@
       "slug": "29-ch07-74ls162芯片",
       "title": "第07章 时序逻辑电路—74LS162 · 10进制同步清零计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2015年秋季.md#原PDF第40页",
@@ -423,6 +453,7 @@
       "slug": "30-ch07-74ls163芯片",
       "title": "第07章 时序逻辑电路—74LS163 · 16进制同步清零计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2013年秋季.md#原PDF第25页",
@@ -436,6 +467,7 @@
       "slug": "31-ch07-74ls190芯片",
       "title": "第07章 时序逻辑电路—74LS190 · 10进制可逆计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2016年.md#原PDF第174页",
@@ -448,6 +480,7 @@
       "slug": "32-ch07-74ls191芯片",
       "title": "第07章 时序逻辑电路—74LS191 · 16进制可逆计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2015年秋季.md#原PDF第42页",
@@ -461,6 +494,7 @@
       "slug": "33-ch07-74ls193芯片",
       "title": "第07章 时序逻辑电路—74LS193 · 双时钟4位加/减计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2019年春季.md#原PDF第81页",
@@ -473,6 +507,7 @@
       "slug": "34-ch07-74ls194芯片",
       "title": "第07章 时序逻辑电路—74LS194 · 4位双向移位寄存器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2014年.md#原PDF第155页",
@@ -487,6 +522,7 @@
       "slug": "35-ch07-74ls90芯片",
       "title": "第07章 时序逻辑电路—74LS90 · 2/5异步计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2017年.md#原PDF第181页",
@@ -500,6 +536,7 @@
       "slug": "36-ch07-74ls93芯片",
       "title": "第07章 时序逻辑电路—74LS93 · 2/8异步计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2012年.md#原PDF第136页",
@@ -513,6 +550,7 @@
       "slug": "37-ch07-74ls192",
       "title": "第07章 时序逻辑电路—74LS192 · 双时钟十进制加／减计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第07章_时序逻辑电路.md#原PDF第229页",
@@ -525,6 +563,7 @@
       "slug": "38-ch07-单向移位寄存器",
       "title": "第07章 时序逻辑电路—单向移位寄存器 · 串入、延时与串并转换",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第07章_时序逻辑电路.md#原PDF第18页",
@@ -537,6 +576,7 @@
       "slug": "39-ch07-环形计数器",
       "title": "第07章 时序逻辑电路—环形计数器 · 单个1循环移动",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第07章_时序逻辑电路.md#原PDF第17页",
@@ -551,6 +591,7 @@
       "slug": "40-ch07-移位寄存器型计数器",
       "title": "第07章 时序逻辑电路—移位寄存器型计数器 · 移位链＋反馈逻辑",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第07章_时序逻辑电路.md#原PDF第17页",
@@ -564,6 +605,7 @@
       "slug": "41-ch07-扭环形计数器",
       "title": "第07章 时序逻辑电路—扭环形计数器 · 反相反馈／Johnson计数器",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2022年.md#原PDF第233页",
@@ -579,6 +621,7 @@
       "slug": "42-ch07-最大长度移位寄存器型计数器",
       "title": "第07章 时序逻辑电路—最大长度移位寄存器型计数器 · LFSR与m序列",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2022年.md#原PDF第233页",
@@ -593,6 +636,7 @@
       "slug": "43-ch07-顺序脉冲发生器",
       "title": "第07章 时序逻辑电路—顺序脉冲发生器 · 多路按次序轮流有效",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2024年.md#原PDF第259页",
@@ -607,6 +651,7 @@
       "slug": "44-ch07-序列脉冲发生器",
       "title": "第07章 时序逻辑电路—序列脉冲发生器 · 指定0／1字串循环输出",
       "chapter": 7,
+      "dir3": "第07章 时序逻辑电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2019年.md#原PDF第209页",
@@ -623,6 +668,7 @@
       "slug": "45-ch08-00_本章芯片索引",
       "title": "第08章 半导体存储器及可编程逻辑器件—本章芯片索引",
       "chapter": 8,
+      "dir3": "第08章 半导体存储器及可编程逻辑器件",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第08章_半导体存储器及可编程逻辑器件.md",
@@ -635,6 +681,7 @@
       "slug": "46-ch08-2716芯片",
       "title": "第08章 半导体存储器及可编程逻辑器件—2716 · EPROM",
       "chapter": 8,
+      "dir3": "第08章 半导体存储器及可编程逻辑器件",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2017年秋季.md#原PDF第59页",
@@ -649,6 +696,7 @@
       "slug": "47-ch08-2816芯片",
       "title": "第08章 半导体存储器及可编程逻辑器件—2816 · EEPROM",
       "chapter": 8,
+      "dir3": "第08章 半导体存储器及可编程逻辑器件",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2016年秋季.md#原PDF第46页",
@@ -662,6 +710,7 @@
       "slug": "48-ch08-6116芯片",
       "title": "第08章 半导体存储器及可编程逻辑器件—6116 · SRAM",
       "chapter": 8,
+      "dir3": "第08章 半导体存储器及可编程逻辑器件",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2020年春季.md#原PDF第94页",
@@ -675,6 +724,7 @@
       "slug": "49-ch08-pld通用结构器件卡",
       "title": "第08章 半导体存储器及可编程逻辑器件—PLD · GAL／CPLD／FPGA",
       "chapter": 8,
+      "dir3": "第08章 半导体存储器及可编程逻辑器件",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册答案_第09章_可编程逻辑器件及Verilog语言.md#原PDF第39页",
@@ -689,6 +739,7 @@
       "slug": "50-ch09-00_本章芯片索引",
       "title": "第09章 脉冲产生及变换电路—本章芯片索引",
       "chapter": 9,
+      "dir3": "第09章 脉冲产生及变换电路",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第09章_脉冲产生及变换电路.md",
@@ -701,6 +752,7 @@
       "slug": "51-ch09-555芯片",
       "title": "第09章 脉冲产生及变换电路—555 · 定时器",
       "chapter": 9,
+      "dir3": "第09章 脉冲产生及变换电路",
       "imageCount": 7,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第10章_脉冲产生及变换电路.md#原PDF第21页",
@@ -716,6 +768,7 @@
       "slug": "52-ch09-74ls122芯片",
       "title": "第09章 脉冲产生及变换电路—74LS122 · 可重触发单稳态",
       "chapter": 9,
+      "dir3": "第09章 脉冲产生及变换电路",
       "imageCount": 4,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册答案_第11章_脉冲产生及变换电路.md#原PDF第47页",
@@ -729,6 +782,7 @@
       "slug": "53-ch09-74ls123芯片",
       "title": "第09章 脉冲产生及变换电路—74LS123 · 双可重触发单稳态",
       "chapter": 9,
+      "dir3": "第09章 脉冲产生及变换电路",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册答案_第11章_脉冲产生及变换电路.md#原PDF第47页",
@@ -742,6 +796,7 @@
       "slug": "54-ch09-74ls132芯片",
       "title": "第09章 脉冲产生及变换电路—74LS132 · 施密特与非门",
       "chapter": 9,
+      "dir3": "第09章 脉冲产生及变换电路",
       "imageCount": 2,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第10章_脉冲产生及变换电路.md#原PDF第23页",
@@ -755,6 +810,7 @@
       "slug": "55-ch10-00_本章芯片索引",
       "title": "第10章 数模与模数转换器—本章芯片索引",
       "chapter": 10,
+      "dir3": "第10章 数模与模数转换器",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第10章_数模与模数转换器.md",
@@ -767,6 +823,7 @@
       "slug": "56-ch10-ad7524芯片",
       "title": "第10章 数模与模数转换器—AD7524 · 8位DAC",
       "chapter": 10,
+      "dir3": "第10章 数模与模数转换器",
       "imageCount": 5,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2020年秋季.md#原PDF第101页",
@@ -782,6 +839,7 @@
       "slug": "57-ch10-adc0809芯片",
       "title": "第10章 数模与模数转换器—ADC0809 · 8位8通道SAR ADC",
       "chapter": 10,
+      "dir3": "第10章 数模与模数转换器",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电习题册章节md/数电习题册_第11章_数模与模数转换器.md#原PDF第26页",
@@ -797,6 +855,7 @@
       "slug": "58-ch10-adc通用电路器件卡",
       "title": "第10章 数模与模数转换器—ADC · 并行／逐次逼近／双积分／跟踪",
       "chapter": 10,
+      "dir3": "第10章 数模与模数转换器",
       "imageCount": 8,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电期末题章节md/数电期末题_2020年春季.md#原PDF第95页",
@@ -813,6 +872,7 @@
       "slug": "59-ch11-00_本章芯片索引",
       "title": "第11章 实用电子电路设计—本章芯片索引",
       "chapter": 11,
+      "dir3": "第11章 实用电子电路设计",
       "imageCount": 0,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电教材章节md/数电教材_第3版_第11章_实用电子电路设计.md",
@@ -825,6 +885,7 @@
       "slug": "60-ch11-数字频率计芯片搭配",
       "title": "第11章 实用电子电路设计—数字频率计的芯片搭配",
       "chapter": 11,
+      "dir3": "第11章 实用电子电路设计",
       "imageCount": 3,
       "unpublishedLocalReferences": [
         "../../数电资料/数电资料md/数电真题章节md/827初试真题_2015年.md#原PDF第165页",

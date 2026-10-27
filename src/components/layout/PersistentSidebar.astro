@@ -41,9 +41,10 @@ function decodePathPart(value = ''): string {
   }
 }
 
-const categoryMatch = currentPath.match(/^\/blog\/category\/([^/]+)(?:\/([^/]+))?/);
+const categoryMatch = currentPath.match(/^\/blog\/category\/([^/]+)(?:\/([^/]+))?(?:\/([^/]+))?/);
 const activeDir1 = currentDir1 || parseBlogCategorySegment(decodePathPart(categoryMatch?.[1]));
 const activeDir2 = currentDir2 || parseBlogCategorySegment(decodePathPart(categoryMatch?.[2]));
+const activeDir3 = posts.find(post => post.slug === currentSlug)?.dir3 || parseBlogCategorySegment(decodePathPart(categoryMatch?.[3]));
 const tagMatch = currentPath.match(/^\/blog\/tag\/([^/]+)/);
 const activeTag = decodePathPart(tagMatch?.[1]);
 ---
@@ -124,10 +125,20 @@ const activeTag = decodePathPart(tagMatch?.[1]);
                 <details class="directory-subgroup" open={section.name === activeDir1 && subdirectory.name === activeDir2}>
                   <summary><svg class="directory-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m8 6 4 4-4 4" /></svg><span>{subdirectory.name}</span><small>{subdirectory.posts.length}</small></summary>
                   <div>
-                    {subdirectory.posts.map((post) => (
+                    {subdirectory.directPosts.map((post) => (
                       <a class="directory-article" class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} title={post.title} aria-current={post.slug === currentSlug ? 'page' : undefined}>
                         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h6l4 4v11H5z M11 2.5v4h4 M8 10h4 M8 13h4" /></svg><span class="directory-article-title">{post.title}</span>
                       </a>
+                    ))}
+                    {subdirectory.chapters.map(chapter => (
+                      <details class="directory-subgroup directory-chapter" open={section.name === activeDir1 && subdirectory.name === activeDir2 && chapter.name === activeDir3}>
+                        <summary><svg class="directory-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m8 6 4 4-4 4" /></svg><span>{chapter.name}</span><small>{chapter.posts.length}</small></summary>
+                        <div>{chapter.posts.map(post => (
+                          <a class="directory-article" class:list={{ current: post.slug === currentSlug }} href={blogPostPath(post.slug)} title={post.title} aria-current={post.slug === currentSlug ? 'page' : undefined}>
+                            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h6l4 4v11H5z M11 2.5v4h4 M8 10h4 M8 13h4" /></svg><span class="directory-article-title">{post.title.startsWith(`${chapter.name}—`) ? post.title.slice(chapter.name.length + 1) : post.title}</span>
+                          </a>
+                        ))}</div>
+                      </details>
                     ))}
                   </div>
                 </details>

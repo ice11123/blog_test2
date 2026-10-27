@@ -11,6 +11,7 @@ type Props = Pick<BlogData, 'title' | 'description'> & {
   updatedDate?: Date;
   dir1?: string;
   dir2?: string;
+  dir3?: string;
   tags?: string[];
   hidePageHeader?: boolean;
   showDate?: boolean;
@@ -24,6 +25,7 @@ const {
   updatedDate,
   dir1,
   dir2,
+  dir3,
   tags = [],
   hidePageHeader = false,
   showDate = true,
@@ -48,6 +50,7 @@ const {
               <span class="post-category">
                 分类：<a href={blogCategoryPath(dir1)}>{dir1}</a>
                 {dir2 && <span> / <a href={blogCategoryPath(dir1, dir2)}>{dir2}</a></span>}
+                {dir2 && dir3 && <span> / <a href={blogCategoryPath(dir1, dir2, dir3)}>{dir3}</a></span>}
               </span>
             )}
             {tags.length > 0 && (

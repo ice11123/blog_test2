@@ -7,7 +7,8 @@
 "author": "离子怪"
 "sourceUrl": "https://github.com/ice11123/blog_test2/blob/main/src/content/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%95%B0%E7%94%B5/09-ch04-cmos%E4%BC%A0%E8%BE%93%E9%97%A8%E5%99%A8%E4%BB%B6%E5%8D%A1.md"
 "dir1": "学习笔记"
-"dir2": "数电"
+"dir2": "数电芯片笔记"
+"dir3": "第04章 门电路"
 "tags": ["数电","芯片笔记"]
 ---
 

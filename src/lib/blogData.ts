@@ -9,6 +9,7 @@ export interface SidebarPost {
   pubDate: Date;
   dir1: string;
   dir2: string;
+  dir3?: string;
   tags: string[];
 }
 
@@ -24,6 +25,7 @@ export async function getSidebarData(): Promise<SidebarPost[]> {
       pubDate: post.data.pubDate,
       dir1: dirs.dir1,
       dir2: dirs.dir2,
+      dir3: dirs.dir3,
       tags: post.data.tags || [],
     };
   });

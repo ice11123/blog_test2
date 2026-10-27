@@ -22,6 +22,7 @@ const blog = defineCollection({
 
 			dir1: z.string().optional(), // 一级目录
 			dir2: z.string().optional(), // 二级目录
+				dir3: z.string().optional(), // 三级目录；未设置时保持原有文章层级
 			tags: z.array(z.string()).default([]), // 标签
 		}),
 });

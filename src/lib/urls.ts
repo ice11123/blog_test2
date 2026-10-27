@@ -31,9 +31,9 @@ export function parseBlogCategorySegment(segment = ''): string {
   return segment.replaceAll('~2F', '/').replaceAll('~7E', '~');
 }
 
-/** 生成分类地址；一级与二级分类各占一个明确路径段。 */
-export function blogCategoryPath(dir1: string, dir2?: string): string {
-  const segments = [dir1, dir2]
+/** 每级分类各占一个明确路径段，文章地址独立于分类命名。 */
+export function blogCategoryPath(dir1: string, dir2?: string, dir3?: string): string {
+  const segments = [dir1, dir2, dir3]
     .filter((segment): segment is string => Boolean(segment))
     .map(blogCategorySegment)
     .join('/');

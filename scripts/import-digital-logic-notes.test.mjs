@@ -62,7 +62,8 @@ test('按章节和原索引顺序导入，图片保留原字节；不改正文�
     assert.deepEqual(await readFile(path.join(repositoryRoot, 'public/notes/digital-logic', chapter, '附件/图.png')), image);
     const note = await readFile(path.join(repositoryRoot, 'src/content/blog/学习笔记/数电', `${plan.ordered[3].slug}.md`), 'utf8');
     assert.match(note, /"dir1": "学习笔记"/);
-    assert.match(note, /"dir2": "数电"/);
+    assert.match(note, /"dir2": "数电芯片笔记"/);
+    assert.match(note, /"dir3": "第04章 门电路"/);
     assert.match(note, /第04章 门电路—HC00/);
     await assert.rejects(importDigitalLogicNotes({ sourceRoot, repositoryRoot, pubDate: '2026-10-27' }), /EEXIST/);
   } finally { await rm(temp, { recursive: true, force: true }); }
@@ -93,5 +94,12 @@ test('构建校验接受主页链接，并能发现图片和锚点缺失', async
     assert.equal((await validateDigitalLogicBuild(temp, manifest)).articles, 1);
     await writeFile(path.join(directory, 'index.html'), '<a href="/blog_test2/#missing">坏锚点</a><img src="/blog_test2/notes/digital-logic/missing.png">');
     await assert.rejects(validateDigitalLogicBuild(temp, manifest), /锚点缺失[\s\S]*目标缺失/);
+    await writeFile(path.join(directory, 'index.html'), '<a href="/blog_test2/#home">主页</a>');
+    const category = path.join(temp, 'blog/category/学习笔记/数电芯片笔记');
+    await mkdir(path.join(category, '第04章 门电路'), { recursive: true });
+    await writeFile(path.join(category, 'index.html'), '<details class="chapter-group" data-directory-level="3"></details>');
+    await writeFile(path.join(category, '第04章 门电路/index.html'), '<p style="width:100%">四级文章</p><a href="/blog_test2/blog/学习笔记/数电/00-index/">文章</a>');
+    const nested = { ...manifest, articles: [{ ...manifest.articles[0], dir3: '第04章 门电路' }] };
+    assert.equal((await validateDigitalLogicBuild(temp, nested)).articles, 1);
   } finally { await rm(temp, { recursive: true, force: true }); }
 });

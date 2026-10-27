@@ -548,7 +548,7 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(constants, /'AI\/Agent协作与开发': \['网站开发与维护', 'Agent 工具链', 'Codex 故障排查'\]/);
   assert.match(constants, /'电控': \['TI小车实战', 'PID算法', 'RTOS-任务调度器', '灰度及循迹环PID', '滤波算法与陀螺仪驱动'\]/);
   assert.match(constants, /'电源': \[\]/);
-  assert.match(constants, /'学习笔记': \['高等数学笔记'\]/);
+  assert.match(constants, /'学习笔记': \['高等数学笔记', '数电芯片笔记'\]/);
   assert.match(constants, /'其他': \['站点指南'\]/);
   assert.match(list, /if \(\/学习\|笔记\/.test\(name\)\) return 'study'/);
   assert.match(list, /data-visual=\{resolveCategoryVisual\(dir1, displayIndex\)\}/);
@@ -568,12 +568,28 @@ test('文章目录以图案、一级分类和二级分类建立稳定层级', ()
   assert.match(categoryHeader, /COLLECTION/);
   assert.match(list, /directory-subsection-preview/);
   assert.match(row, /class="directory-post-order"/);
-  assert.match(row, /class="directory-post-level">三级文章/);
+  assert.match(row, /level = 3/);
+  assert.match(row, /class="directory-post-level">\{level === 4 \? '四级文章' : '三级文章'\}/);
   assert.match(row, /--directory-accent/);
   assert.match(accordion, /event\.detail === 0 \|\| reduceMotion\.matches/);
   assert.match(accordion, /duration = Math\.round\(Math\.max\(90, fullDuration \* distanceRatio\)\)/);
   assert.match(accordion, /cubic-bezier\(0\.23, 1, 0\.32, 1\)/);
   assert.doesNotMatch(list, /max-height/);
+});
+
+test('三级章节默认折叠、第四级文章使用原链接且保持键盘与降低动态响应', () => {
+  const chapters = readSource('components/blog/ChapterDirectory.astro');
+  const list = readSource('components/blog/BlogList.astro');
+  const sidebar = readSource('components/layout/PersistentSidebar.astro');
+  assert.match(chapters, /data-directory-level="3"/);
+  assert.match(chapters, /<details class="chapter-group" data-directory-accordion data-state="closed"/);
+  assert.match(chapters, /level=\{4\}/);
+  assert.match(chapters, /initializeDirectoryAccordions/);
+  assert.match(chapters, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(chapters, /summary:focus-visible/);
+  assert.match(list, /hasChapters \? <ChapterDirectory/);
+  assert.match(sidebar, /subdirectory\.chapters\.map/);
+  assert.match(sidebar, /chapter\.posts\.map/);
 });
 
 test('公共三栏建立独立高程且公式不产生纵向滚动条', () => {

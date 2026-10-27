@@ -1,0 +1,67 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import DirectoryPostRow from './DirectoryPostRow.astro';
+import { thirdLevelDirectory } from '../../lib/thirdLevelDirectory';
+import { blogCategoryPath } from '../../lib/urls';
+
+interface Props { posts: CollectionEntry<'blog'>[]; dir1: string; dir2: string; chapter?: string }
+const { posts, dir1, dir2, chapter } = Astro.props;
+const groups = thirdLevelDirectory(posts, post => ({ title: post.data.title, slug: post.id, pubDate: post.data.pubDate, dir3: post.data.dir3 }));
+---
+
+<div class="chapter-directory">
+  {chapter ? (
+    <>
+      <p class="chapter-help">第四级 · 本章文章，按原笔记的学习顺序排列</p>
+      <ol class="chapter-articles">{posts.map((post, index) => <DirectoryPostRow post={post} index={index} level={4} />)}</ol>
+    </>
+  ) : groups.map((group, index) => {
+    const panelId = `chapter-${encodeURIComponent(dir1)}-${encodeURIComponent(dir2)}-${index}`;
+    return (
+      <details class="chapter-group" data-directory-accordion data-state="closed" data-directory-level="3">
+        <summary aria-controls={panelId} aria-expanded="false">
+          <span class="chapter-number" aria-hidden="true">{String(index).padStart(2, '0')}</span>
+          <span class="chapter-heading"><small>三级目录</small><span role="heading" aria-level="3">{group.name || '其他文章'}</span></span>
+          <span class="chapter-count">{group.posts.length} 篇</span>
+          <svg class="chapter-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+        </summary>
+        <div id={panelId} data-directory-panel class="chapter-panel" role="region" aria-label={`${group.name}的文章`}>
+          <div class="chapter-panel-inner">
+            <div class="chapter-toolbar"><span>第四级 · 本章文章</span><a href={blogCategoryPath(dir1, dir2, group.name)}>本章独立目录 →</a></div>
+            <ol class="chapter-articles">{group.posts.map((post, postIndex) => <DirectoryPostRow post={post} index={postIndex} level={4} />)}</ol>
+          </div>
+        </div>
+      </details>
+    );
+  })}
+</div>
+
+<script>
+  import { initializeDirectoryAccordions } from '../../scripts/directory-accordion';
+  initializeDirectoryAccordions();
+  document.addEventListener('astro:page-load', () => initializeDirectoryAccordions());
+</script>
+
+<style>
+  .chapter-directory { --directory-accent: #4f70a4; display: grid; gap: 12px; min-width: 0; }
+  .chapter-group { margin: 0; padding: 0; min-width: 0; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); overflow: clip; }
+  .chapter-group > summary { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr) auto 1rem; align-items: center; gap: 14px; padding: 20px; cursor: pointer; list-style: none; background: color-mix(in srgb, var(--directory-accent) 4%, var(--surface)); }
+  .chapter-group > summary::-webkit-details-marker { display: none; }
+  .chapter-group > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
+  .chapter-number { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 10px; background: color-mix(in srgb, var(--directory-accent) 10%, var(--surface)); color: var(--directory-accent); font: 700 .78rem ui-monospace, monospace; }
+  .chapter-heading { display: grid; gap: 5px; min-width: 0; color: var(--text-primary); font-size: 1.05rem; font-weight: 700; line-height: 1.45; overflow-wrap: anywhere; }
+  .chapter-heading small { color: var(--directory-accent); font-size: .65rem; font-weight: 600; }
+  .chapter-count { color: var(--text-secondary); white-space: nowrap; font-size: .75rem; }
+  .chapter-chevron { width: 16px; height: 16px; fill: none; stroke: var(--directory-accent); stroke-width: 2; transition: transform 160ms var(--ease-out); }
+  .chapter-group[open] > summary .chapter-chevron { transform: rotate(180deg); }
+  .chapter-group[data-state="closing"] > summary .chapter-chevron { transform: none; }
+  .chapter-panel { min-width: 0; }
+  .chapter-panel-inner { padding: 0 18px 18px; }
+  .chapter-toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 16px 0; color: var(--text-secondary); font-size: .72rem; }
+  .chapter-toolbar a { color: var(--directory-accent); text-decoration: none; font-weight: 650; }
+  .chapter-articles { display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }
+  .chapter-help { margin: 0 0 6px; color: var(--text-secondary); font-size: .8rem; }
+  @media (hover: hover) and (pointer: fine) { .chapter-group > summary:hover { background: color-mix(in srgb, var(--directory-accent) 8%, var(--surface)); } .chapter-toolbar a:hover { text-decoration: underline; } }
+  @media (max-width: 680px) { .chapter-group > summary { padding: 16px 12px; gap: 10px; grid-template-columns: 2rem minmax(0, 1fr) auto 1rem; } .chapter-number { width: 2rem; height: 2rem; } .chapter-heading { font-size: .92rem; } .chapter-panel-inner { padding: 0 10px 12px; } }
+  @media (prefers-reduced-motion: reduce) { .chapter-chevron { transition: none; } }
+</style>

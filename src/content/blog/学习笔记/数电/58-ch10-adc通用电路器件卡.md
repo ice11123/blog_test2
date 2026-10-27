@@ -7,7 +7,8 @@
 "author": "离子怪"
 "sourceUrl": "https://github.com/ice11123/blog_test2/blob/main/src/content/blog/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E6%95%B0%E7%94%B5/58-ch10-adc%E9%80%9A%E7%94%A8%E7%94%B5%E8%B7%AF%E5%99%A8%E4%BB%B6%E5%8D%A1.md"
 "dir1": "学习笔记"
-"dir2": "数电"
+"dir2": "数电芯片笔记"
+"dir3": "第10章 数模与模数转换器"
 ---
 
 <!-- blog2-digital-logic-note -->

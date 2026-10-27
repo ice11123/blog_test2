@@ -5,7 +5,7 @@ import BlogCard from '../../components/blog/BlogCard.astro';
 import JsonLd from '../../components/blog/JsonLd.astro';
 import { resolveDirs } from '../../lib/utils';
 import { SITE_AUTHOR } from '../../consts';
-import { blogPostPath, withBase } from '../../lib/urls';
+import { blogCategoryPath, blogPostPath, withBase } from '../../lib/urls';
 import { seriesNeighbors } from '../../lib/seriesNavigation';
 
 export async function getStaticPaths() {
@@ -35,7 +35,7 @@ const breadcrumbItems = [
 	{ '@type': 'ListItem', position: 2, name: '博客', item: blogUrl },
 ];
 
-const { dir1, dir2 } = resolveDirs(post);
+const { dir1, dir2, dir3 } = resolveDirs(post);
 
 let pos = 3;
 if (dir1) {
@@ -45,6 +45,9 @@ if (dir1) {
 if (dir2) {
 	const dir2Url = new URL(withBase(`/blog/?dir1=${encodeURIComponent(dir1)}&dir2=${encodeURIComponent(dir2)}`), Astro.site).href;
 	breadcrumbItems.push({ '@type': 'ListItem', position: pos++, name: dir2, item: dir2Url });
+}
+if (dir1 && dir2 && dir3) {
+  breadcrumbItems.push({ '@type': 'ListItem', position: pos++, name: dir3, item: new URL(blogCategoryPath(dir1, dir2, dir3), Astro.site).href });
 }
 breadcrumbItems.push({ '@type': 'ListItem', position: pos, name: post.data.title, item: postUrl });
 
@@ -75,7 +78,7 @@ const breadcrumbLd = {
 };
 ---
 
-<BlogPost {...post.data} dir1={dir1} dir2={dir2} seriesNavigation={post.seriesNavigation}>
+<BlogPost {...post.data} dir1={dir1} dir2={dir2} dir3={dir3} seriesNavigation={post.seriesNavigation}>
 	<JsonLd slot="head" data={blogPostingLd} />
 	<JsonLd slot="head" data={breadcrumbLd} />
 

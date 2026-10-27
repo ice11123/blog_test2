@@ -46,6 +46,7 @@ export default defineConfig({
   outDir: './dist',
   redirects: {
     ...tiCarRedirects,
+    '/blog/category/学习笔记/数电': `${publicBaseUrl}/blog/category/学习笔记/数电芯片笔记/`,
     '/blog/category/小车组': `${publicBaseUrl}/blog/category/电控/`,
     '/blog/category/小车组/TI小车实战': `${publicBaseUrl}/blog/category/电控/TI小车实战/`,
     '/blog/电控/pid算法/01-pid-algorithms': `${publicBaseUrl}/blog/电控/pid算法/01-positional-incremental-pid/`,

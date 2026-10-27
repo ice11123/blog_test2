@@ -50,6 +50,26 @@ export async function validateDigitalLogicBuild(distRoot, manifest) {
     try { await stat(path.join(distRoot, 'notes/digital-logic', asset)); }
     catch { errors.add(`附件缺失：${asset}`); }
   }
+  const chapters = [...new Set(manifest.articles.map(article => article.dir3).filter(Boolean))];
+  if (chapters.length) {
+    const categoryRoot = path.join(distRoot, 'blog/category/学习笔记/数电芯片笔记');
+    const categoryHtml = await read(path.join(categoryRoot, 'index.html'));
+    const groups = categoryHtml.match(/data-directory-level=(?:"3"|'3'|3)(?=[\s>])/g) ?? [];
+    if (groups.length !== chapters.length) errors.add(`三级章节分组应有 ${chapters.length} 个，实际 ${groups.length}`);
+    if (/<details[^>]*class=["'][^"']*chapter-group[^>]*\bopen(?:[\s=>])/i.test(categoryHtml)) errors.add('三级章节不应默认展开');
+    for (const chapter of chapters) {
+      const chapterHtml = await read(path.join(categoryRoot, chapter, 'index.html'));
+      const expected = manifest.articles.filter(article => article.dir3 === chapter);
+      const chapterLinks = attributes(chapterHtml, 'href').map(ref => {
+        try { return decodeURIComponent(new URL(ref, 'https://example.invalid').pathname); }
+        catch { return ref; }
+      });
+      for (const article of expected) {
+        if (!chapterLinks.some(link => link.endsWith(`/${article.slug}/`))) errors.add(`${chapter} 缺少文章 ${article.slug}`);
+      }
+      if (!chapterHtml.includes('四级文章')) errors.add(`${chapter} 缺少第四级文章标识`);
+    }
+  }
   if (errors.size) throw new Error(`数电笔记构建验收失败：\n${[...errors].join('\n')}`);
   return { articles: manifest.articles.length, assets: manifest.assets.length, images: imageCount, checkedLinks: linkCount };
 }

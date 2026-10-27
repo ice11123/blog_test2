@@ -2,20 +2,23 @@
 import { getCollection } from 'astro:content';
 import Layout from '../../../layouts/PublicContentLayout.astro';
 import BlogList from '../../../components/blog/BlogList.astro';
+import ChapterDirectory from '../../../components/blog/ChapterDirectory.astro';
 import JsonLd from '../../../components/blog/JsonLd.astro';
 import { resolveDirs } from '../../../lib/utils';
 import { DIR1_ORDER, DIR2_ORDER, SITE_START_DATE } from '../../../consts';
-import { blogCategorySegment, parseBlogCategorySegment, withBase } from '../../../lib/urls';
+import { blogCategoryPath, blogCategorySegment, parseBlogCategorySegment, withBase } from '../../../lib/urls';
+import { compareDirectoryPostMetadata } from '../../../lib/postOrdering';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   const pathSet = new Set<string>(DIR1_ORDER.map(blogCategorySegment));
   for (const post of posts) {
-    const { dir1, dir2 } = resolveDirs(post);
+    const { dir1, dir2, dir3 } = resolveDirs(post);
     if (dir1) {
       const dir1Segment = blogCategorySegment(dir1);
       pathSet.add(dir1Segment);
       if (dir2) pathSet.add(`${dir1Segment}/${blogCategorySegment(dir2)}`);
+      if (dir2 && dir3) pathSet.add(`${dir1Segment}/${blogCategorySegment(dir2)}/${blogCategorySegment(dir3)}`);
     }
   }
   return Array.from(pathSet).map(p => ({ params: { slug: p } }));
@@ -26,15 +29,19 @@ const categoryPath = slug!;
 const segments = categoryPath.split('/');
 const filterDir1 = parseBlogCategorySegment(segments[0]);
 const filterDir2 = segments.length >= 2 ? parseBlogCategorySegment(segments[1]) : '';
+const filterDir3 = segments.length >= 3 ? parseBlogCategorySegment(segments[2]) : '';
 
 const allPosts = await getCollection('blog');
 const filtered = allPosts.filter(post => {
-  const { dir1: d1, dir2: d2 } = resolveDirs(post);
+  const { dir1: d1, dir2: d2, dir3: d3 } = resolveDirs(post);
+  if (filterDir3) return d1 === filterDir1 && d2 === filterDir2 && d3 === filterDir3;
   if (filterDir2) return d1 === filterDir1 && d2 === filterDir2;
   return d1 === filterDir1;
 });
 
-const pageTitle = filterDir2 ? `分类: ${filterDir1} / ${filterDir2}` : `分类: ${filterDir1}`;
+const pageTitle = `分类: ${[filterDir1, filterDir2, filterDir3].filter(Boolean).join(' / ')}`;
+const hasChapters = Boolean(filterDir2 && filtered.some(post => post.data.dir3));
+const chapterPosts = [...filtered].sort((a, b) => compareDirectoryPostMetadata(a.data.title, a.data.pubDate, b.data.title, b.data.pubDate, a.id, b.id));
 const pageDesc = `浏览 ${pageTitle} 下的所有文章`;
 const latestPostDate = filtered.reduce(
   (latest, post) => post.data.pubDate > latest ? post.data.pubDate : latest,
@@ -60,11 +67,13 @@ const collectionPageLd = {
   pubDate={latestPostDate}
   dir1={filterDir1}
   dir2={filterDir2}
+  dir3={filterDir3}
   tags={[]}
   showDate={false}
   hidePageHeader={!filterDir2}
 >
   <JsonLd slot="head" data={collectionPageLd} />
+  {filterDir2 && <nav class="category-context" aria-label="上级目录"><a href={blogCategoryPath(filterDir1, filterDir3 ? filterDir2 : undefined)}>← 返回{filterDir3 ? filterDir2 : filterDir1}</a><span>{filtered.length} 篇文章</span></nav>}
 
   {!filterDir2 && (
     <nav class="category-context" aria-label="分类位置">
@@ -74,7 +83,9 @@ const collectionPageLd = {
   )}
   {
     filtered.length > 0 ? (
-      filterDir2 ? (
+      hasChapters ? (
+        <ChapterDirectory posts={chapterPosts} dir1={filterDir1} dir2={filterDir2} chapter={filterDir3 || undefined} />
+      ) : filterDir2 ? (
         <BlogList posts={filtered} sort="oldest" />
       ) : (
         <BlogList posts={filtered} sort="dir" dirOrder={dirOrder} />

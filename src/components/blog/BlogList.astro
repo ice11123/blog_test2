@@ -4,6 +4,7 @@ import BlogCard from './BlogCard.astro';
 import DirectoryCategoryHeader from './DirectoryCategoryHeader.astro';
 import DirectoryPostRow from './DirectoryPostRow.astro';
 import DirectoryRecentLink from './DirectoryRecentLink.astro';
+import ChapterDirectory from './ChapterDirectory.astro';
 import { resolveDirs } from '../../lib/utils';
 import { blogCategoryPath } from '../../lib/urls';
 import { compareDirectoryPostMetadata } from '../../lib/postOrdering';
@@ -613,6 +614,7 @@ if (sort === 'dir' || sort === 'overview') {
                 const subsectionOrder = String(subsectionIndex + 1).padStart(2, '0');
                 const panelId = `directory-panel-${displayIndex}-${subsectionIndex}`;
                 const title = dir2 || '未归入二级分类';
+                const hasChapters = list.some(post => Boolean(post.data.dir3));
                 return (
                   <details class="directory-subsection" data-directory-accordion data-state="closed">
                     <summary aria-controls={panelId} aria-expanded="false">
@@ -624,8 +626,8 @@ if (sort === 'dir' || sort === 'overview') {
                       </span>
                       <span class="directory-subsection-count">{list.length} 篇</span>
                       <span class="directory-subsection-action">
-                        <span class="directory-action-open">展开文章</span>
-                        <span class="directory-action-close">收起文章</span>
+                        <span class="directory-action-open">{hasChapters ? '展开章节' : '展开文章'}</span>
+                        <span class="directory-action-close">{hasChapters ? '收起章节' : '收起文章'}</span>
                       </span>
                       <span class="directory-subsection-chevron" aria-hidden="true">
                         <svg viewBox="0 0 16 16"><path d="m4 6 4 4 4-4" /></svg>
@@ -633,6 +635,7 @@ if (sort === 'dir' || sort === 'overview') {
                     </summary>
                     <div class="directory-subsection-panel" id={panelId} data-directory-panel role="region" aria-label={`${title}文章`}>
                       <div class="directory-subsection-panel-inner">
+                        {hasChapters ? <ChapterDirectory posts={list} dir1={dir1} dir2={dir2} /> : <>
                         <div class="directory-third-level-heading">
                           <strong>三级文章</strong>
                           <span>按学习顺序排列 · 点击标题进入正文</span>
@@ -640,6 +643,7 @@ if (sort === 'dir' || sort === 'overview') {
                         <ol class="directory-post-list">
                           {list.map((post, postIndex) => <DirectoryPostRow post={post} index={postIndex} />)}
                         </ol>
+                        </>}
                       </div>
                     </div>
                   </details>

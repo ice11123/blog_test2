@@ -88,3 +88,15 @@ test('标签目录按文章数倒序并对同数量标签稳定排序', () => {
     { name: '前端', count: 1 },
   ]);
 });
+
+test('数电章节作为三级目录分组，第四级文章不重复平铺且保持章节顺序', () => {
+  const directory = buildArticleDirectory([
+    { ...posts[0], dir1: '学习笔记', dir2: '数电芯片笔记', dir3: '第10章 转换器', title: 'ADC', slug: '56-adc' },
+    { ...posts[1], dir1: '学习笔记', dir2: '数电芯片笔记', dir3: '第04章 门电路', title: 'HC00', slug: '07-hc00' },
+    { ...posts[2], dir1: '学习笔记', dir2: '数电芯片笔记', dir3: '总览与速查', title: '总索引', slug: '00-index' },
+  ]);
+  const subgroup = directory[0].subdirectories[0];
+  assert.equal(subgroup.posts.length, 3);
+  assert.equal(subgroup.directPosts.length, 0);
+  assert.deepEqual(subgroup.chapters.map(group => group.name), ['总览与速查', '第04章 门电路', '第10章 转换器']);
+});
